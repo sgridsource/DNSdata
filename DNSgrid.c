@@ -333,10 +333,10 @@ int set_DNS_box_attribs(tGrid *grid)
 
     /* left or right? */
     if(box->x_of_X[1]!=NULL)
-      x = box->x_of_X[1]((void *)box, -1, 0.5,0.0,0,0);
-    if(x>0.0)    box->SIDE = STAR1;
-    else (x<0.0) box->SIDE = STAR2;
-    else         box->SIDE = ZERO;
+      x = box->x_of_X[1]((void *)box, -1, 0.5,0.0,0.0);
+    if(x>0.0  )    box->SIDE = STAR1;
+    else if(x<0.0) box->SIDE = STAR2;
+    else           box->SIDE = ZERO;
 
     /* default is that there is no star surface */
     box->BOUND = ZERO;
@@ -357,11 +357,11 @@ int set_DNS_box_attribs(tGrid *grid)
     {
       double y, z, r, rs;
       box->COORD = CUBSPH;
-      y = box->x_of_X[2]((void *)box, -1, 0.5,0.0,0,0);
-      z = box->x_of_X[3]((void *)box, -1, 0.5,0.0,0,0);
+      y = box->x_of_X[2]((void *)box, -1, 0.5,0.0,0.0);
+      z = box->x_of_X[3]((void *)box, -1, 0.5,0.0,0.0);
       if(box->SIDE == STAR1) { r = x-xmax1;  rs = rf_surf1; }
       else                   { r = x-xmax2;  rs = rf_surf2; }
-      r = sqrt(r*r + y*y + z*z)
+      r = sqrt(r*r + y*y + z*z);
       if(r<rs)
       {
         box->BOUND = SSURF;   /* star surface */
@@ -374,12 +374,12 @@ int set_DNS_box_attribs(tGrid *grid)
     { 
       double y, z, r, rs;
       box->COORD = CUBSPH;
-      x = box->x_of_X[1]((void *)box, -1, 0.0,0.0,0,0);
-      y = box->x_of_X[2]((void *)box, -1, 0.0,0.0,0,0);
-      z = box->x_of_X[3]((void *)box, -1, 0.0,0.0,0,0);
+      x = box->x_of_X[1]((void *)box, -1, 0.0,0.0,0.0);
+      y = box->x_of_X[2]((void *)box, -1, 0.0,0.0,0.0);
+      z = box->x_of_X[3]((void *)box, -1, 0.0,0.0,0.0);
       if(box->SIDE == STAR1) { r = x-xmax1;  rs = rf_surf1; }
       else                   { r = x-xmax2;  rs = rf_surf2; }
-      r = sqrt(r*r + y*y + z*z)
+      r = sqrt(r*r + y*y + z*z);
       if(dlesseq(r,rs))
       {
         box->BOUND = SSURF;   /* star surface */
@@ -464,7 +464,7 @@ void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi,
 void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val)
 {
   int b;
-errorexit("determine boxes to loop over")
+errorexit("determine boxes to loop over");
   for(b=0; b<=3; b++)
   {
     tBox *box = grid->box[b];
@@ -841,11 +841,29 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
 /* useful functions                                               */
 /******************************************************************/
 
-/* compute volume integral of var with index vind in a star (STAR1 or STAR2).
+/* compute volume integral of var with index vind inside STAR1 or STAR2.
    Here any Psi^6 needs to be already included in the var we integrate. */
 double InnerVolumeIntegral(tGrid *grid, int star, int vind)
 {
-  ...
+  double VolInt = 0.0;
+  int b;
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    if( (box->SIDE == star) && (box->MATTR == INSIDE) )
+      VolInt += VolumeIntegral_inDNSgridBox(grid, b, vind);
+  }
+  return VolInt;
+}
+
+/* compute volume integral of var with index vind over entire grid
+   Here any Psi^6 needs to be already included in the var we integrate. */
+double GridVolumeIntegral(tGrid *grid, int vind)
+{
+  double VolInt = 0.0;
+  int b;
+  forallboxes(grid, b)
+    VolInt += VolumeIntegral_inDNSgridBox(grid, b, vind);
   return VolInt;
 }
 

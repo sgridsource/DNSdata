@@ -3024,12 +3024,12 @@ int DNSdata_analyze(tGrid *grid)
 
   /* compute ADM mom. */
   DNS_set_P_ADM_VolInt_integrand(grid, itemp1,itemp2,itemp3);
-  Px_ADM1 = InnerVolumeIntegral(grid, 0, itemp1);
-  Py_ADM1 = InnerVolumeIntegral(grid, 0, itemp2);
-  Pz_ADM1 = InnerVolumeIntegral(grid, 0, itemp3);
-  Px_ADM2 = InnerVolumeIntegral(grid, 3, itemp1);
-  Py_ADM2 = InnerVolumeIntegral(grid, 3, itemp2);
-  Pz_ADM2 = InnerVolumeIntegral(grid, 3, itemp3);
+  Px_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp1);
+  Py_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp2);
+  Pz_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp3);
+  Px_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp1);
+  Py_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp2);
+  Pz_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp3);
   Px_ADM = Px_ADM1 + Px_ADM2;
   Py_ADM = Py_ADM1 + Py_ADM2;
   Pz_ADM = Pz_ADM1 + Pz_ADM2;
@@ -3039,12 +3039,12 @@ int DNSdata_analyze(tGrid *grid)
 
   /* compute ADM ang. mom. */
   DNS_set_J_ADM_VolInt_integrand(grid, itemp1,itemp2,itemp3);
-  Jx_ADM1 = InnerVolumeIntegral(grid, 0, itemp1);
-  Jy_ADM1 = InnerVolumeIntegral(grid, 0, itemp2);
-  Jz_ADM1 = InnerVolumeIntegral(grid, 0, itemp3);
-  Jx_ADM2 = InnerVolumeIntegral(grid, 3, itemp1);
-  Jy_ADM2 = InnerVolumeIntegral(grid, 3, itemp2);
-  Jz_ADM2 = InnerVolumeIntegral(grid, 3, itemp3);
+  Jx_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp1);
+  Jy_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp2);
+  Jz_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp3);
+  Jx_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp1);
+  Jy_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp2);
+  Jz_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp3);
   Jx_ADM = Jx_ADM1 + Jx_ADM2;
   Jy_ADM = Jy_ADM1 + Jy_ADM2;
   Jz_ADM = Jz_ADM1 + Jz_ADM2;
@@ -3055,14 +3055,8 @@ int DNSdata_analyze(tGrid *grid)
 
   /* compute ADM mass from Volume int */
   DNS_set_M_ADM_VolInt_integrand(grid, itemp1);
-  M_ADM_in0 = InnerVolumeIntegral(grid, 0, itemp1);
-  M_ADM_in3 = InnerVolumeIntegral(grid, 3, itemp1);
-  M_ADM_in1 = VolumeIntegral_inDNSgridBox(grid, 1, itemp1);
-  M_ADM_in2 = VolumeIntegral_inDNSgridBox(grid, 2, itemp1);
-  M_ADM = M_ADM_in0+M_ADM_in3+M_ADM_in1+M_ADM_in2;
+  M_ADM = GridVolumeIntegral(grid, itemp1);
 
-  printf("M_ADM_in0=%.9g M_ADM_in3=%.9g M_ADM_in1=%.9g M_ADM_in2=%.9g\n",
-         M_ADM_in0,M_ADM_in3, M_ADM_in1,M_ADM_in2);
   printf("ADM quantities: M_ADM = %.16g  J_ADM = %.16g\n", M_ADM, J_ADM);
 
   /* find max q locations xmax1/2 in NS1/2 */
@@ -3240,14 +3234,9 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
      fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
   fprintf(fp, "\n");
   fprintf(fp, "DNSdata_b\t%.19g\n", DNSdata_b);
-  fprintf(fp, "sigp_00\t\t%+.19g\n", sigp_00);
-  fprintf(fp, "sigp_10\t\t%+.19g\n", sigp_10);
-  fprintf(fp, "sigm_00\t\t%+.19g\n", sigm_00);
-  fprintf(fp, "sigm_10\t\t%+.19g\n", sigm_10);
   fprintf(fp, "\n");
   fclose(fp);
   free(filename);
-  free(M_ADM_ofA);
   prTimeIn_s("WallTime: ");
   return 0;
 }

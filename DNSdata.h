@@ -14,7 +14,7 @@ enum
 /* for convenience: DNSdata box attribute names */
 #define SIDE   Attrib[iSIDE]  /* can be STAR1, STAR2 */
 #define MATTR  Attrib[iMATTR] /* can be INSIDE, TOUCH, AWAY */
-#define BOUND  Attrib[iSSURF] /* can be SSURF, ZERO */
+#define BOUND  Attrib[iBOUND] /* can be SSURF, ZERO */
 #define COORD  Attrib[iCOORD] /* can be CART, CUBSPH, SCUBSH */
 
 /* possible DNSdata box attribute values */
@@ -96,7 +96,8 @@ int set_DNS_box_attribs(tGrid *grid);
 int set_sigma_pm_vars(tGrid *grid);
 void reset_Coordinates_AnsorgNS_sigma_pm(tGrid *grid, tGrid *gridnew,
                                          int innerdom,  int outerdom);
-double InnerVolumeIntegral(tGrid *grid, int b, int vind);
+double InnerVolumeIntegral(tGrid *grid, int star, int vind);
+double GridVolumeIntegral(tGrid *grid, int vind);
 double VolumeIntegral_inDNSgridBox(tGrid *grid, int b, int vind);
 tGrid *make_grid_with_sigma_pm(tGrid *grid, int nAB, int nphi, int nxyz);
 int DNSgrid_Get_BoxAndCoords_of_xyz(tGrid *grid1,
