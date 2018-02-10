@@ -1,0 +1,24 @@
+completed:
+---
+nothing
+
+
+started to change:
+---
+sgrid_DNSdata.c
+DNSgrid.c
+DNSdata.c
+DNS_CTS.m
+set_DNSdata_Sigma_BCs.m
+
+
+still need changing:
+---
+all else
+
+check:
+in DNS_CTS.m
+  OmegaCrossR1 == - Omega y,
+  OmegaCrossR2 == + Omega (x-xC),
+  OmegaCrossR3 == 0,
+  should center be off the x-axis???
