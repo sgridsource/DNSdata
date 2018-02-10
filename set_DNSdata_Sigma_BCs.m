@@ -239,7 +239,7 @@ tocompute = {
                                        Ind(\"DNSdata_Sigmax\"));",
 
       (* we only impose InnerVolIntZero, ... in every sixth box *)
-      Cif == ( (AddInnerVolIntToBC || InnerVolIntZero),
+      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvSigma = 0.0;",
         Cinstruction == "if((bi%6)==1) VolAvSigma =
                          VolumeIntegral_inDNSgridBox(grid, bi, index_Sigma);",
