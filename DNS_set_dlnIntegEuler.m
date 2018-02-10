@@ -18,21 +18,21 @@ tocompute = {
                                    Ind(\"DNSdata_Sigmax\"));",
   Cif == (bi==1),
     Cinstruction == "\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_Sigmax\"), 0,1);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_Sigmay\"), 0,1);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_Sigmaz\"), 0,1);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_wBx\"), 0,1);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_wBy\"), 0,1);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_wBz\"), 0,1);",
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), 0,1);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), 0,1);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmaz\"), 0,1);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBx\"), 0,1);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBy\"), 0,1);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBz\"), 0,1);",
   Cif == end,
   Cif == (bi==2),
     Cinstruction == "\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_Sigmax\"), 3,2);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_Sigmay\"), 3,2);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_Sigmaz\"), 3,2);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_wBx\"), 3,2);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_wBy\"), 3,2);\n
-    copy_Var_at_i0_from_Box1_Box2(grid, Ind(\"DNSdata_wBz\"), 3,2);",
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), 3,2);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), 3,2);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmaz\"), 3,2);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBx\"), 3,2);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBy\"), 3,2);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBz\"), 3,2);",
   Cif == end,
 
   (* which star are we considering? *)

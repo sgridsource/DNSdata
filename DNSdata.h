@@ -109,7 +109,7 @@ void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
                                        int innerdom);
 void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
                                                  int vind, int dummy);
-void copy_Var_at_i0_from_Box1_Box2(tGrid *grid, int vind, int b1, int b2);
+void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2);
 void DNS_enforce_uniqueness_on_axis(tVarList *vlu);
 void DNS_averageVar_on_axis(tGrid *grid, int vind, int innerdom);
 double DNS_update_q_atXYZ(tGrid *grid2, 

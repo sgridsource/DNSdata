@@ -22,7 +22,7 @@ typedef struct T_grid_box_A_B_icoeffs_innerdom_outerdom_struct {
   int    icoeffs;   /* icoeffs for q_of_sig_forgiven_ABP */
   int    innerdom;  /* inner domain for q_of_sig_forgiven_ABP */
   int    outerdom;  /* outer domain for q_of_sig_forgiven_ABP */
-} t_grid_box_XRphi_sigp_1phi_B_icoeffs_innerdom_outerdom_struct;
+} t_grid_box_A_B_icoeffs_innerdom_outerdom_struct;
 
 /* global vars in this file */
 double rf_surf1; /* radius of star1 */
@@ -323,6 +323,9 @@ int set_boxsizes(tGrid *grid)
 /* set attributes in boxes */
 int set_DNS_box_attribs(tGrid *grid)
 {
+  double DNSdata_b = Getd("DNSdata_b");
+  double xmax1 = +DNSdata_b;
+  double xmax2 = -DNSdata_b;
   int b;
   //printf("set_DNS_box_attribs:\n");
   forallboxes(grid, b)
@@ -504,170 +507,143 @@ void DNSdata_q_VectorFunc(int n, double *vec, double *fvec)
 /* q as a func of sig for a given lam=0or1, A, B */
 void q_of_sig_forgiven_ABP(int n, double *sigvec, double *qvec, void *p)
 {
-  double sigp_Bphi = sigvec[1];
+  double sig01_AB = sigvec[1];
   /* get pars */
-  t_grid_box_XRphi_sigp_1phi_B_icoeffs_innerdom_outerdom_struct *pars = 
-         (t_grid_box_XRphi_sigp_1phi_B_icoeffs_innerdom_outerdom_struct *) p;
-  double sigp_1phi = pars->sigp_1phi;
+  t_grid_box_A_B_icoeffs_innerdom_outerdom_struct *pars = 
+         (t_grid_box_A_B_icoeffs_innerdom_outerdom_struct *) p;
+  double A         = pars->A;
   double B         = pars->B;
-  double phi       = pars->phi;
   tGrid *grid      = pars->grid;
   int innerdom     = pars->innerdom;
   int outerdom     = pars->outerdom;
-  double AbsCp_Bphi, ArgCp_Bphi, ReCp_Bphi, ImCp_Bphi;
-  double AbsCp_1phi, ArgCp_1phi, ReCp_1phi, ImCp_1phi;
-  double X,R;
-  double Ac,Bc, Acin,Bcin, Acout,Bcout, Acmax, q;
+  double lamc, lamcin, lamcout, lamcmax, q;
   double vec[3];
   int i, check, stat,statin,statout, dom;
   int guessmode;
 
-  /* check if sigp_Bphi is within range */
-  if( (innerdom==0 && sigp_Bphi>=0.0) || (innerdom==3 && sigp_Bphi<=0.0) )
+// ??? should we do this:
+//  /* obtain q at Ac,Bc,phi by direct computation */
+//  /* grid->box[dom]->v[icoeffs]  contains coeffs of q in box */
+//  q = DNS_compute_new_centered_q_atXYZ(grid,innerdom, 1.0,A,B);
+//  qvec[1] = q;
+  
+  /* try 4 ways of finding an initial guess for Ac,Bc */
+  for(guessmode=0; guessmode<=3; guessmode++)
   {
-    /* set Cp at B,phi and 1,phi */
-    AbsCp_Bphi = sqrt( Abstanh(0.25*sigp_Bphi, 0.25*PI*B) );
-    ArgCp_Bphi = 0.5 * Argtanh(0.25*sigp_Bphi, 0.25*PI*B);
-    ReCp_Bphi = AbsCp_Bphi * cos(ArgCp_Bphi);
-    ImCp_Bphi = AbsCp_Bphi * sin(ArgCp_Bphi);
-    AbsCp_1phi = sqrt( Abstanh(0.25*sigp_1phi, 0.25*PI) );
-    ArgCp_1phi = 0.5 * Argtanh(0.25*sigp_1phi, 0.25*PI);
-    ReCp_1phi = AbsCp_1phi * cos(ArgCp_1phi);
-    ImCp_1phi = AbsCp_1phi * sin(ArgCp_1phi);
-
-    /* use Eq. (22), (23) or (24) at A=0 to compute X,R */
-    X = ReCp_Bphi - B*ReCp_1phi + B*cos(ArgCp_1phi);
-    R = ImCp_Bphi - B*ImCp_1phi + B*sin(ArgCp_1phi);
-
-    /* try 4 ways of finding an initial guess for Ac,Bc */
-    for(guessmode=0; guessmode<=3; guessmode++)
+    /* set Acin,Bcin, Acout,Bcout, statin,statout to invalid values */
+    statin=statout=-1;
+    Acin=Acout=Bcin=Bcout=-1.0;
+  
+    /* find domain and Ac,Bc on current grid, corresponding to X,R */
+    dom = innerdom;
+    for(i=1; i<=2; i++)
     {
-      /* set Acin,Bcin, Acout,Bcout, statin,statout to invalid values */
-      statin=statout=-1;
-      Acin=Acout=Bcin=Bcout=-1.0;
-    
-      /* find domain and Ac,Bc on current grid, corresponding to X,R */
-      dom = innerdom;
-      for(i=1; i<=2; i++)
+      t_grid_box_A_B_icoeffs_innerdom_outerdom_struct pars[1];
+      pars->phi = phi;
+      pars->box = grid->box[dom];
+      pars->X   = X;
+      pars->R   = R;
+      Acmax  = grid->box[dom]->bbox[1];
+  
+      /* get initial guess for Ac,Bc in vec[1],vec[2] */
+      if(guessmode==0)
       {
-        t_grid_box_XRphi_sigp_1phi_B_icoeffs_innerdom_outerdom_struct pars[1];
-        pars->phi = phi;
-        pars->box = grid->box[dom];
-        pars->X   = X;
-        pars->R   = R;
-        Acmax  = grid->box[dom]->bbox[1];
-    
-        /* get initial guess for Ac,Bc in vec[1],vec[2] */
-        if(guessmode==0)
-        {
-          vec[1] = 1e-7; /* initial guess is that Ac,Bc = 0,B */
-          vec[2] = B;
-        }
-        else if(guessmode==1)
-        {
-          find_nearest_A_B_given_X_R_phi(grid->box[dom], X,R,phi, &Ac,&Bc);
-          if(dlesseq(Ac,0.0)) Ac=1e-7;
-          if(dequal(Bc,0.0) || dequal(Bc,1.0)) Bc=B;
-          if(dequal(B,0.0))   Bc=0.0;
-          vec[1] = Ac;
-          vec[2] = Bc;
-        }
-        else if(guessmode==2)
-        {
-          vec[1] = 0.01;  /* initial guess is that Ac,Bc = 0.01,B */
-          vec[2] = B;
-        }
-        else
-        {
-          vec[1] = 0.1;   /* initial guess is that Ac,Bc = 0.1,B */
-          vec[2] = B;
-        }
+        vec[1] = 1e-7; /* initial guess is that Ac,Bc = 0,B */
+        vec[2] = B;
+      }
+      else if(guessmode==1)
+      {
+        find_nearest_A_B_given_X_R_phi(grid->box[dom], X,R,phi, &Ac,&Bc);
+        if(dlesseq(Ac,0.0)) Ac=1e-7;
+        if(dequal(Bc,0.0) || dequal(Bc,1.0)) Bc=B;
+        if(dequal(B,0.0))   Bc=0.0;
+        vec[1] = Ac;
+        vec[2] = Bc;
+      }
+      else if(guessmode==2)
+      {
+        vec[1] = 0.01;  /* initial guess is that Ac,Bc = 0.01,B */
+        vec[2] = B;
+      }
+      else
+      {
+        vec[1] = 0.1;   /* initial guess is that Ac,Bc = 0.1,B */
+        vec[2] = B;
+      }
 //printf("q_of_sig_forgiven_ABP: guessmode=%d (A,B)=(%g,%g)\n",
 //guessmode, vec[1],vec[2]);
-        /* do newton line searches */
-        if(dequal(B,0.0))
-          stat = newton_linesrch_itsP(vec, 1, &check, DelXR_of_A_forB0_VectorFuncP,
-                                      (void *) pars, 1000, 1e-10);
-        else
-          stat = newton_linesrch_itsP(vec, 2, &check, DelXR_of_AB_VectorFuncP,
-                                      (void *) pars, 1000, 1e-10);
-        if(check) printf("q_of_sig_forgiven_ABP: check=%d\n", check);  
-        Ac = vec[1];
-        Bc = vec[2];
-    
-        /* save vals for later */
-        if(dom == innerdom) {  Acin=Ac;  Bcin=Bc;  statin=stat; }
-        else                { Acout=Ac; Bcout=Bc; statout=stat; }
-//printf("  sigp_Bphi=%g sigp_1phi=%g:\n"
+      /* do newton line searches */
+      if(dequal(B,0.0))
+        stat = newton_linesrch_itsP(vec, 1, &check, DelXR_of_A_forB0_VectorFuncP,
+                                    (void *) pars, 1000, 1e-10);
+      else
+        stat = newton_linesrch_itsP(vec, 2, &check, DelXR_of_AB_VectorFuncP,
+                                    (void *) pars, 1000, 1e-10);
+      if(check) printf("q_of_sig_forgiven_ABP: check=%d\n", check);  
+      Ac = vec[1];
+      Bc = vec[2];
+  
+      /* save vals for later */
+      if(dom == innerdom) {  Acin=Ac;  Bcin=Bc;  statin=stat; }
+      else                { Acout=Ac; Bcout=Bc; statout=stat; }
+//printf("  sig01_AB=%g sigp_1phi=%g:\n"
 //"       X=%g R=%g: stat=%d dom=%d Ac=%g Bc=%g\n",
-//sigp_Bphi,sigp_1phi, X,R, stat,dom, Ac,Bc);
-        /* if(stat>=0 && Ac>=0.0 && Ac<=Acmax && Bc>=0.0 && Bc<=1.0) break; */
-        if(stat>=0 && dlesseq(0.0,Ac) && dlesseq(Ac,1.0) &&
-                      dlesseq(0.0,Bc) && dlesseq(Bc,1.0)   ) break;
-        dom = outerdom;
-      }
-      /* decide which results to use */
-      if(dom == outerdom && statin>=0)
-      {
-        double dA=fabs(Acout)-fabs(Acin);
-        double dB=fabs(Bcout)-fabs(Bcin);
-        /* switch back to innerdom in some cases */
-        if(Ac<0.0)
-          if( dA>0.0 && dlesseq(0.0,Bcin) && dlesseq(Bcin,1.0) )
-          {dom=innerdom; Ac=0.0; Bc=Bcin; stat=statin;}
-        if(Bc<0.0)
-          if( dB>0.0 && dlesseq(0.0,Acin) && dlesseq(Acin,1.0) )
-          {dom=innerdom; Ac=Acin; Bc=0.0; stat=statin;}
-        if(Bc>1.0)
-          if(fabs(Bcin)<fabs(Bcout) && dlesseq(0.0,Acin) && dlesseq(Acin,1.0))
-          {dom=innerdom; Ac=Acin; Bc=1.0; stat=statin;}
-      }
-      /* leave guessmode loop if we found a resonable result */
-      if(stat>=0 && dgreatereq(Ac,0.0) && dgreatereq(1.0,Ac) &&
-                    dgreatereq(Bc,0.0) && dgreatereq(1.0,Bc)   )  break;
+//sig01_AB,sigp_1phi, X,R, stat,dom, Ac,Bc);
+      /* if(stat>=0 && Ac>=0.0 && Ac<=Acmax && Bc>=0.0 && Bc<=1.0) break; */
+      if(stat>=0 && dlesseq(0.0,Ac) && dlesseq(Ac,1.0) &&
+                    dlesseq(0.0,Bc) && dlesseq(Bc,1.0)   ) break;
+      dom = outerdom;
     }
-    /* check for failure */
-    if(stat<0 || dless(Ac,0.0) || dless(1.0,Ac) ||
-                 dless(Bc,0.0) || dless(1.0,Bc)   )
+    /* decide which results to use */
+    if(dom == outerdom && statin>=0)
     {
-      printf("q_of_sig_forgiven_ABP: guessmode=%d\n", guessmode);
-      printf("q_of_sig_forgiven_ABP: stat=%d dom=%d Ac=%g Bc=%g\n",
-             stat,dom, Ac,Bc);
-      printf("statin=%d Acin=%g Bcin=%g  statout=%d Acout=%g Bcout=%g\n",
-             statin, Acin,Bcin, statout, Acout,Bcout);
-      printf("q_of_sig_forgiven_ABP: X=%g R=%g for: A=0 B=%g phi=%g\n"
-             " sigp_Bphi=%g sigp_1phi=%g\n"
-             " ReCp_Bphi=%g ImCp_Bphi=%g ReCp_1phi=%g ImCp_1phi=%g\n",
-             X,R, B,phi, sigp_Bphi,sigp_1phi,
-             ReCp_Bphi,ImCp_Bphi, ReCp_1phi,ImCp_1phi);
-      errorexit("q_of_sig_forgiven_ABP: could not find Ac,Bc");
+      double dA=fabs(Acout)-fabs(Acin);
+      double dB=fabs(Bcout)-fabs(Bcin);
+      /* switch back to innerdom in some cases */
+      if(Ac<0.0)
+        if( dA>0.0 && dlesseq(0.0,Bcin) && dlesseq(Bcin,1.0) )
+        {dom=innerdom; Ac=0.0; Bc=Bcin; stat=statin;}
+      if(Bc<0.0)
+        if( dB>0.0 && dlesseq(0.0,Acin) && dlesseq(Acin,1.0) )
+        {dom=innerdom; Ac=Acin; Bc=0.0; stat=statin;}
+      if(Bc>1.0)
+        if(fabs(Bcin)<fabs(Bcout) && dlesseq(0.0,Acin) && dlesseq(Acin,1.0))
+        {dom=innerdom; Ac=Acin; Bc=1.0; stat=statin;}
     }
-    if(Ac<0.0) Ac=0.0; /* make sure we stay in our box */
-    if(Ac>1.0) Ac=1.0;
-    if(Bc<0.0) Bc=0.0;
-    if(Bc>1.0) Bc=1.0;
-
-    /* if we get point in innerdom with Acmax<Ac<1 we retrun a huge value
-       for q, so that newton_linesrch_its thinks it has to backtrack... */
-    if(Ac>Acmax && dom==0)      q = 1e6;
-    else if(Ac>Acmax && dom==3) q = 1e6;
-    else
-      /* obtain q at Ac,Bc,phi by direct computation */
-      /* grid->box[dom]->v[icoeffs]  contains coeffs of q in box */
-      q = DNS_compute_new_centered_q_atXYZ(grid,dom, Ac,Bc,phi);
-    qvec[1] = q;
+    /* leave guessmode loop if we found a resonable result */
+    if(stat>=0 && dgreatereq(Ac,0.0) && dgreatereq(1.0,Ac) &&
+                  dgreatereq(Bc,0.0) && dgreatereq(1.0,Bc)   )  break;
   }
-  else /* sigp_Bphi not in range */
+  /* check for failure */
+  if(stat<0 || dless(Ac,0.0) || dless(1.0,Ac) ||
+               dless(Bc,0.0) || dless(1.0,Bc)   )
   {
-    /* make q negative so that we can backtrack */
-    if(innerdom==0) q = +(sigp_Bphi-sigp_1phi)*1e6;
-    else            q = -(sigp_Bphi-sigp_1phi)*1e6;
-    qvec[1] = q;
-    printf("q_of_sig_forgiven_ABP: innerdom=%d (B,phi)=(%g,%g)",
-          innerdom, B,phi);
-    printf(" sigp_1phi=%g sigp_Bphi=%g out of range!\n", sigp_1phi, sigp_Bphi);
-    printf(" setting q=%g\n", q);
+    printf("q_of_sig_forgiven_ABP: guessmode=%d\n", guessmode);
+    printf("q_of_sig_forgiven_ABP: stat=%d dom=%d Ac=%g Bc=%g\n",
+           stat,dom, Ac,Bc);
+    printf("statin=%d Acin=%g Bcin=%g  statout=%d Acout=%g Bcout=%g\n",
+           statin, Acin,Bcin, statout, Acout,Bcout);
+    printf("q_of_sig_forgiven_ABP: X=%g R=%g for: A=0 B=%g phi=%g\n"
+           " sig01_AB=%g sigp_1phi=%g\n"
+           " ReCp_Bphi=%g ImCp_Bphi=%g ReCp_1phi=%g ImCp_1phi=%g\n",
+           X,R, B,phi, sig01_AB,sigp_1phi,
+           ReCp_Bphi,ImCp_Bphi, ReCp_1phi,ImCp_1phi);
+    errorexit("q_of_sig_forgiven_ABP: could not find Ac,Bc");
   }
+  if(Ac<0.0) Ac=0.0; /* make sure we stay in our box */
+  if(Ac>1.0) Ac=1.0;
+  if(Bc<0.0) Bc=0.0;
+  if(Bc>1.0) Bc=1.0;
+
+  /* if we get point in innerdom with Acmax<Ac<1 we retrun a huge value
+     for q, so that newton_linesrch_its thinks it has to backtrack... */
+  if(Ac>Acmax && dom==0)      q = 1e6;
+  else if(Ac>Acmax && dom==3) q = 1e6;
+  else
+    /* obtain q at Ac,Bc,phi by direct computation */
+    /* grid->box[dom]->v[icoeffs]  contains coeffs of q in box */
+    q = DNS_compute_new_centered_q_atXYZ(grid,dom, Ac,Bc,phi);
+  qvec[1] = q;
 }
 /* q_of_sig_forgiven_ABP wrapper for use with zbrent_itsP */
 double q_of_sigp_forgiven_AB_ZP(double sigp, void *p)
@@ -710,7 +686,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
   double vec[2];
   int check, stat;
   int use_last_result_as_new_guess;
-  int use_newton_tofind_sigp_Bphi = Getv("DNSdata_sigp_Bphi_FINDER_reset_Coordinates_AnsorgNS_sigma_pm", "newton_linesrch_itsP");
+  int use_newton_tofind_sig01_AB = Getv("DNSdata_sig01_AB_FINDER_reset_Coordinates_AnsorgNS_sigma_pm", "newton_linesrch_itsP");
   int b;
   int star;
   if(innerdom==0)      star=STAR1;
@@ -725,7 +701,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
     /* loop over the remaining j,k i.e. B,phi. 
        NOTE: we assume that n1,n2,n3 are the same in both domains */
     /* (j,k)-loop should be:
-    for(j=n2-2; j>0; j--) // we could include j=0 (B=0) here again, so that most sigp_Bphi are found with the same method
+    for(j=n2-2; j>0; j--) // we could include j=0 (B=0) here again, so that most sig01_AB are found with the same method
     for(k=0; k<n3; k++)  */
     for(JK=n3*(n2-2)-1; JK>=0; JK--) /* JK = n3*(J-1) + K , J=1,...,n2-2, K=n3-1-k, K=0,...,n3-1 */
     {
@@ -733,18 +709,18 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       int j = JK/n3 + 1;
       int k = (n3-1) - (JK%n3);
       double vec[2];
-      double B,phi, sigp_Bphi, sigp_old;
+      double B,phi, sig01_AB, sigp_old;
       double w0, w1, wold;
       int check, stat;
-      t_grid_box_XRphi_sigp_1phi_B_icoeffs_innerdom_outerdom_struct pars[1];
+      t_grid_box_A_B_icoeffs_innerdom_outerdom_struct pars[1];
 
-      /* set sigp_Bphi = sigp_1phi when we enter loop at j=n2-2, k=0 */
-      if(JK==n3*(n2-2)-1) sigp_Bphi = sigp_1phi;
+      /* set sig01_AB = sigp_1phi when we enter loop at j=n2-2, k=0 */
+      if(JK==n3*(n2-2)-1) sig01_AB = sigp_1phi;
 
-      /* find sigp_Bphi at B,phi such that q(sigp_Bphi; lam=0, B, phi)=0 */
+      /* find sig01_AB at B,phi such that q(sig01_AB; lam=0, B, phi)=0 */
       B   = grid_p->box[dom]->v[iY][Index(0,j,k)];
       phi = grid_p->box[dom]->v[iZ][Index(0,j,k)];
-      /* use newton_linesrch_its to find sigp_Bphi */
+      /* use newton_linesrch_its to find sig01_AB */
       pars->sigp_1phi = sigp_1phi;
       pars->B = B;
       pars->phi = phi;
@@ -753,8 +729,8 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       pars->outerdom = outerdom;
       if(use_last_result_as_new_guess)
       {
-        /* guess for vec[1] is set to sigp_Bphi, the result of previous iteration */
-        vec[1] = sigp_Bphi;
+        /* guess for vec[1] is set to sig01_AB, the result of previous iteration */
+        vec[1] = sig01_AB;
       }
       else
       {
@@ -767,7 +743,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
         vec[1] = w0*sigp_0phi + w1*sigp_1phi + wold*sigp_old;
       }
 //printf("itmax=%d tol=%g vec[1]=%g B=%g phi=%g\n",itmax,tol,vec[1], B,phi);
-      if(use_newton_tofind_sigp_Bphi)
+      if(use_newton_tofind_sig01_AB)
       {
         stat=newton_linesrch_itsP(vec, 1, &check, q_of_sig_forgiven_ABP,
                                   (void *) pars, itmax, tol);
@@ -802,16 +778,16 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       if(check || stat<0)
         printf("reset_Coordinates_AnsorgNS_sigma_pm: check=%d stat=%d\n",
                check, stat);
-      sigp_Bphi = vec[1];
+      sig01_AB = vec[1];
 
-      /* set Coordinates_AnsorgNS_sigma_pm = sigp_Bphi in both domains */
+      /* set Coordinates_AnsorgNS_sigma_pm = sig01_AB in both domains */
       for(i=0; i<n1; i++)
       {
-        gridnew->box[innerdom]->v[isigma][Index(i,j,k)] = sigp_Bphi;
-        gridnew->box[outerdom]->v[isigma][Index(i,j,k)] = sigp_Bphi;
+        gridnew->box[innerdom]->v[isigma][Index(i,j,k)] = sig01_AB;
+        gridnew->box[outerdom]->v[isigma][Index(i,j,k)] = sig01_AB;
       }
 //printf("B=%g phi=%g  ", B, phi);
-//printf("sigp_Bphi=%g sigp_0phi=%g sigp_1phi=%g\n", sigp_Bphi, sigp_0phi, sigp_1phi);
+//printf("sig01_AB=%g sigp_0phi=%g sigp_1phi=%g\n", sig01_AB, sigp_0phi, sigp_1phi);
     } /* end for JK */
   }
   /* make sure that sigma has only one value at B=0 and also at B=1 */
