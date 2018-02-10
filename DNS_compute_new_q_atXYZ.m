@@ -17,26 +17,17 @@ tocompute = {
   (* deriv of Sigma *)
   Cinstruction == "FirstDerivsOf_S(box,index_DNSdata_Sigma,
                                    Ind(\"DNSdata_Sigmax\"));",
-  Cif == (bi==1),
-    Cinstruction == "\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), 0,1);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), 0,1);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmaz\"), 0,1);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBx\"), 0,1);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBy\"), 0,1);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBz\"), 0,1);",
-  Cif == end,
-  Cif == (bi==2),
-    Cinstruction == "\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), 3,2);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), 3,2);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmaz\"), 3,2);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBx\"), 3,2);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBy\"), 3,2);\n
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBz\"), 3,2);",
+  Cif == (MATTRtouch),
+    Cinstruction == "int biin = bi-6; /* works only for my CubSph setup */ \n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), biin,bi);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), biin,bi);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmaz\"), biin,bi);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBx\"), biin,bi);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBy\"), biin,bi);\n
+    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_wBz\"), biin,bi);",
   Cif == end,
 
-  (* x,y *)
+  (* x,y,z *)
   Cinstruction == "if(box->x_of_X[1] != NULL) {",
   Cinstruction == "x = box->x_of_X[1]((void *) box, -1, X,Y,Z);",
   Cinstruction == "y = box->x_of_X[2]((void *) box, -1, X,Y,Z);",
@@ -286,6 +277,7 @@ BeginCFunction[] := Module[{},
 
   pr["tBox *box = grid->box[bi];\n"];
   pr["int ijk;\n\n"];
+  pr["int MATTRtouch  = (box->MATTR== TOUCH);\n\n"];
   pr["\n"];
   pr["\n"];
 ];
