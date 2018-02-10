@@ -432,9 +432,6 @@ int DNSdata_startup(tGrid *grid)
   /* do nothing if DNSdata_Interpolate_pointsfile exists */
   if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
 
-  /* set values of A,B,phi in box4/5 */
-  set_DNSdata_ABphi(grid);
-
   /* load data from some old checkpoint file */
   if(initFromChkp && GetsLax("outdir_previous_iteration")!=NULL)
   {
@@ -1127,16 +1124,6 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);  
     Setd("DNSdata_C1", Cvec[1]);
 
-    /* filter domain shape to keep star1's surface smooth during iterations */
-    filter_Coordinates_AnsorgNS_sigma_pm(grid, 0);
-
-    /* see if we keep the new domain shape and C1 */
-    restore_grid_pdb_if_change_in_star_is_large(1,grid,pdb, grid_bak,pdb_bak);
-
-    /* average domain shape of star1 on grid and grid_bak */
-    average_current_and_old_surfaceshape(Getd("DNSdata_domainshape_weight"),
-                                         0, grid,pdb, grid_bak,pdb_bak);
-
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
     pars->grid = grid;
@@ -1151,15 +1138,6 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);  
     Setd("DNSdata_C2", Cvec[1]);
 
-    /* filter domain shape to keep star2's surface smooth during iterations */
-    filter_Coordinates_AnsorgNS_sigma_pm(grid, 3);
-
-    /* see if we keep the new domain shape and C2 */
-    restore_grid_pdb_if_change_in_star_is_large(2, grid,pdb, grid_bak,pdb_bak);
-
-    /* average domain shape of star2 on grid and grid_bak */
-    average_current_and_old_surfaceshape(Getd("DNSdata_domainshape_weight"),
-                                         3, grid,pdb, grid_bak,pdb_bak);
 
     printf("adjust_C1_C2_q_keep_restmasses:\n");
     printf(" new: DNSdata_C1=%g DNSdata_C2=%g\n",
@@ -1176,16 +1154,6 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     /* compute new q in star1 */
     compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, pars->grid0, 0);
 
-    /* filter domain shape to keep star1's surface smooth during iterations */
-    filter_Coordinates_AnsorgNS_sigma_pm(grid, 0);
-
-    /* see if we keep the new domain shape and C1 */
-    restore_grid_pdb_if_change_in_star_is_large(1,grid,pdb, grid_bak,pdb_bak);
-
-    /* average domain shape of star1 on grid and grid_bak */
-    average_current_and_old_surfaceshape(Getd("DNSdata_domainshape_weight"),
-                                         0, grid,pdb, grid_bak,pdb_bak);
-
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
     pars->grid = grid;
@@ -1195,16 +1163,6 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     /* compute new q in star2 */
     compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, pars->grid0, 3);
   
-    /* filter domain shape to keep star2's surface smooth during iterations */
-    filter_Coordinates_AnsorgNS_sigma_pm(grid, 3);
-
-    /* see if we keep the new domain shape and C2 */
-    restore_grid_pdb_if_change_in_star_is_large(2, grid,pdb, grid_bak,pdb_bak);
-
-    /* average domain shape of star2 on grid and grid_bak */
-    average_current_and_old_surfaceshape(Getd("DNSdata_domainshape_weight"),
-                                         3, grid,pdb, grid_bak,pdb_bak);
-
     printf("adjust_C1_C2_q_keep_restmasses: adjusted q, but kept C1/2\n");
   }
 
@@ -1302,16 +1260,6 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
     compute_new_q_and_adjust_domainshapes_InterpFromGrid0(pars->grid,
                                                           pars->grid0, 0);
 
-    /* filter domain shape to keep star1's surface smooth during iterations */
-    filter_Coordinates_AnsorgNS_sigma_pm(grid, 0);
-
-    /* see if we keep the new domain shape and C1 */
-    restore_grid_pdb_if_change_in_star_is_large(1,grid,pdb, grid_bak,pdb_bak);
-
-    /* average domain shape of star1 on grid and grid_bak */
-    average_current_and_old_surfaceshape(Getd("DNSdata_domainshape_weight"),
-                                         0, grid,pdb, grid_bak,pdb_bak);
-
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
     pars->grid = grid;
@@ -1330,16 +1278,6 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
     if(Getd("DNSdata_qm2")>0)
       compute_new_q_and_adjust_domainshapes_InterpFromGrid0(pars->grid,
                                                             pars->grid0, 3);
-
-    /* filter domain shape to keep star2's surface smooth during iterations */
-    filter_Coordinates_AnsorgNS_sigma_pm(grid, 3);
-
-    /* see if we keep the new domain shape and C2 */
-    restore_grid_pdb_if_change_in_star_is_large(2, grid,pdb, grid_bak,pdb_bak);
-
-    /* average domain shape of star2 on grid and grid_bak */
-    average_current_and_old_surfaceshape(Getd("DNSdata_domainshape_weight"),
-                                         3, grid,pdb, grid_bak,pdb_bak);
 
     printf("adjust_C1_C2_q_keep_qmax:\n");
     printf(" new: DNSdata_C1=%g DNSdata_C2=%g\n",
@@ -1803,9 +1741,6 @@ void dFuncdx_at_Xfm1_2_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* set DNSdata_Omega & DNSdata_x_CM */
   Setd("DNSdata_Omega", vec[1]);
   if(n>=2) Setd("DNSdata_x_CM",  vec[2]);
-
-  /* compute Func=(q we would have for corot) in DNSdata_temp4 */
-  compute_qcorot_with_corotation_formula(grid, Ind("DNSdata_temp4"));
 
   /* get deriv dFunc of Func in box bi1 and bi2 in DNSdata_temp1
      and dFunc's coeffs c in DNSdata_temp2 */
@@ -2612,9 +2547,8 @@ int DNSdata_solve(tGrid *grid)
     if(Getv("DNSdata_center_new_q_timebin", "before_ell_solve"))
       DNSdata_center_q_if_desired(grid, it);
 
-    /* center fields around each star and also keep inner edge if desired */
+    /* center fields around each star */
     DNSdata_center_fields_if_desired(grid, it);
-    DNSdata_keep_xin_if_desired(grid, it);
 
     /* save old values before ell. solve */
     varcopy(grid, Ind("DNSdata_Psiold"),    Ind("DNSdata_Psi"));
@@ -2759,10 +2693,6 @@ int DNSdata_solve(tGrid *grid)
             totalerr = average_current_and_old(Sigma_esw/Sigma_esw1, 
                                                grid,vlFu,vlu,vluDerivs,vlJdu);
         }
-        /* try to smooth DNSdata_Sigma near the boundary, recomp Err */
-        smooth_DNSdata_Sigma_NearBoundary(grid, 2, tol, linear_solver);
-        F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
-
         /* reset Sigmaold so that Sigma does not change when we average later */
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
       }
