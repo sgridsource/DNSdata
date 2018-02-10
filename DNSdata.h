@@ -110,12 +110,6 @@ void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
 void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
                                                  int vind, int dummy);
 void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2);
-void DNS_enforce_uniqueness_on_axis(tVarList *vlu);
-void DNS_averageVar_on_axis(tGrid *grid, int vind, int innerdom);
-double DNS_update_q_atXYZ(tGrid *grid2, 
-                          int b2, double X2, double Y2, double Z2,
-                          double w, tGrid *grid1);
-void DNS_update_q(tGrid *grid2, double w, tGrid *grid1);
 void DNSgrid_init_Coords_pm(tGrid *grid, int innerdom);
 void DNSgrid_init_Coords(tGrid *grid);
 void DNSgrid_scale_Coordinates_AnsorgNS_sigma(tGrid *grid, double fac, int ibd);
