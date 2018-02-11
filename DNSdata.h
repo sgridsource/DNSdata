@@ -94,8 +94,8 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
 int set_boxsizes(tGrid *grid);
 int set_DNS_box_attribs(tGrid *grid);
 int set_sigma_pm_vars(tGrid *grid);
-void reset_Coordinates_AnsorgNS_sigma_pm(tGrid *grid, tGrid *gridnew,
-                                         int innerdom,  int outerdom);
+void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
+                                           int star);
 double InnerVolumeIntegral(tGrid *grid, int star, int vind);
 double GridVolumeIntegral(tGrid *grid, int vind);
 double VolumeIntegral_inDNSgridBox(tGrid *grid, int b, int vind);
@@ -110,7 +110,7 @@ void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
 void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
                                                  int vind, int dummy);
 void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2);
-void DNSgrid_init_Coords_pm(tGrid *grid, int innerdom);
+//void DNSgrid_init_Coords_pm(tGrid *grid, int star);
 void DNSgrid_init_Coords(tGrid *grid);
 void DNSgrid_scale_Coordinates_AnsorgNS_sigma(tGrid *grid, double fac, int ibd);
 void DNSgrid_copy_DomainShape(tGrid *grid, int ibd);
@@ -119,7 +119,7 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc);
 void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename);
 void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi, 
                                               double Val, double lim);
-void set_Var_to_Val_atA0(tGrid *grid, int vi, double Val);
+void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val);
 int set_DNSdata_CoordFac(tGrid *grid);
 void debug_Coordinates_AnsorgNS_sigma_pm_B01(tGrid *grid, int dom, char *label);
 void debug_Coordinates_AnsorgNS_sigma_pm_B01_dom03(tGrid *grid, char *label);

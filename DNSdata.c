@@ -77,8 +77,6 @@ tVarList *vldu, *vlJdu, *vlduDerivs;
 
 
 /* functions in this file */
-void save_surfacepos_in_DNSdata_surface_sigma_pm(int star, tGrid *grid,
-                                                 tGrid *grid_bak, double t);
 void compute_ABphi_from_xyz(tBox *box, double *A, double *B, double *phi,
                             double x, double y, double z);
 void make_vl_vlDeriv_vlF_vld_vldDerivs_vlJd_forComponent(tGrid *grid,
@@ -142,8 +140,8 @@ void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid, 
                                                            tGrid *grid0, 
-                                                           int innerdom);
-void compute_new_q_and_adjust_domainshapes(tGrid *grid, int innerdom);
+                                                           int star);
+void compute_new_q_and_adjust_domainshapes(tGrid *grid, int star);
 void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm1_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
@@ -566,7 +564,7 @@ int DNSdata_startup(tGrid *grid)
     if(ysh1 != 0.0 && Getv("DNSdata_adjustdomain01","yes"))
     {
       /* adjust grid so that new q=0 is at A=0 */
-      compute_new_q_and_adjust_domainshapes(grid, 0);
+      compute_new_q_and_adjust_domainshapes(grid, STAR1);
 
       /* set q to zero if q<0, and also in region 1 & 2 */
       set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
@@ -585,8 +583,8 @@ int DNSdata_startup(tGrid *grid)
   if(Getv("DNSdata_init_q_fromfields", "yes"))
   {
     /* adjust grid so that new q=0 is at A=0 */
-    compute_new_q_and_adjust_domainshapes(grid, 0);
-    compute_new_q_and_adjust_domainshapes(grid, 3);
+    compute_new_q_and_adjust_domainshapes(grid, STAR1);
+    compute_new_q_and_adjust_domainshapes(grid, STAR2);
   
     /* set q to zero if q<0, and also in region 1 & 2 */
     set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
@@ -595,10 +593,6 @@ int DNSdata_startup(tGrid *grid)
   /* set qg=q, qgold=qg */
   varcopy(grid, Ind("DNSdata_qg"), Ind("DNSdata_q"));  
   varcopy(grid, Ind("DNSdata_qgold"), Ind("DNSdata_qg"));  
-
-  /* save initial surface positions in DNSdata_surface_sigma_pm */
-  save_surfacepos_in_DNSdata_surface_sigma_pm(1, grid, grid, 99999.0);
-  save_surfacepos_in_DNSdata_surface_sigma_pm(2, grid, grid, 99999.0);
 
   /* set DNSdata_actual_xyzmax pars */
   set_DNSdata_actual_xyzmax_pars(grid);
@@ -722,8 +716,8 @@ int DNSdata_center_fields_if_desired(tGrid *grid, int it)
     {
       if(Getv("DNSdata_center_fields", "adjust_domainshapes"))
       {
-        compute_new_q_and_adjust_domainshapes(grid, 0);
-        compute_new_q_and_adjust_domainshapes(grid, 3);
+        compute_new_q_and_adjust_domainshapes(grid, STAR1);
+        compute_new_q_and_adjust_domainshapes(grid, STAR2);
       }
       else
         DNS_compute_new_centered_q(grid);
@@ -898,8 +892,8 @@ int DNSdata_center_q_if_desired(tGrid *grid, int it)
     Sets("DNSdata_center_new_q_flag", "yes");  /* activate centering of q */
     if(Getv("DNSdata_center_new_q", "adjust_domainshapes"))
     {
-      compute_new_q_and_adjust_domainshapes(grid, 0);
-      compute_new_q_and_adjust_domainshapes(grid, 3);
+      compute_new_q_and_adjust_domainshapes(grid, STAR1);
+      compute_new_q_and_adjust_domainshapes(grid, STAR2);
     }
     else 
     {
@@ -908,11 +902,6 @@ int DNSdata_center_q_if_desired(tGrid *grid, int it)
     Sets("DNSdata_center_new_q_flag", "no");  /* deactivate centering of q */
     /* set q to zero if q<0 or in region 1 and 2 */
     set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
-
-    /* enforce uniqueness on axis:
-       set vars equal to val at phi=0 for all phi>0 */
-    if(Getv("DNSdata_uniqueness_on_axis", "yes"))
-      DNS_enforce_uniqueness_on_axis(vlu);
 
     /* set actual positions of maxima again ? */
     if(Getv("DNSdata_center_new_q", "set_DNSdata_actual_xyzmax"))
@@ -1152,7 +1141,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* compute new q in star1 */
-    compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, pars->grid0, 0);
+    compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, pars->grid0, STAR1);
 
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
@@ -1161,7 +1150,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* compute new q in star2 */
-    compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, pars->grid0, 3);
+    compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, pars->grid0, STAR2);
   
     printf("adjust_C1_C2_q_keep_restmasses: adjusted q, but kept C1/2\n");
   }
@@ -1258,7 +1247,7 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
 
     /* setup new domain with new q */
     compute_new_q_and_adjust_domainshapes_InterpFromGrid0(pars->grid,
-                                                          pars->grid0, 0);
+                                                          pars->grid0, STAR1);
 
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
@@ -1277,7 +1266,7 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
     /* setup new domain with new q */
     if(Getd("DNSdata_qm2")>0)
       compute_new_q_and_adjust_domainshapes_InterpFromGrid0(pars->grid,
-                                                            pars->grid0, 3);
+                                                            pars->grid0, STAR2);
 
     printf("adjust_C1_C2_q_keep_qmax:\n");
     printf(" new: DNSdata_C1=%g DNSdata_C2=%g\n",
@@ -2541,7 +2530,7 @@ int DNSdata_solve(tGrid *grid)
     if(Getv("DNSdata_set_negative_q", "zero"))
       set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
     if(Getv("DNSdata_set_q_atA0", "zero"))
-      set_Var_to_Val_atA0(grid, Ind("DNSdata_q"), 0.0);
+      set_Var_to_Val_atSurface(grid, Ind("DNSdata_q"), 0.0);
 
     /* center q first, then solve and adjust C1/2, Omega, xCM. */
     if(Getv("DNSdata_center_new_q_timebin", "before_ell_solve"))
@@ -3783,9 +3772,9 @@ void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
 
   /* reset sigma such that q=0 is at A=0 for box0/1 and box3/2 */
   if(q_b1[Index(n1-1,n2-1,0)]<0.0)
-    reset_Coordinates_AnsorgNS_sigma_pm(grid, grid2, 0, 1);
+    reset_Coordinates_CubedSphere_sigma01(grid, grid2, STAR1);
   if(q_b2[Index(n1-1,n2-1,0)]<0.0)
-    reset_Coordinates_AnsorgNS_sigma_pm(grid, grid2, 3, 2);
+    reset_Coordinates_CubedSphere_sigma01(grid, grid2, STAR2);
 
   /* initialize coords on grid2 */
   DNSgrid_init_Coords(grid2);
@@ -3830,7 +3819,7 @@ void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
    interpolate vars from grid0 which is left untouched. */
 void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid, 
                                                            tGrid *grid0, 
-                                                           int innerdom)
+                                                           int star)
 {
   tGrid *grid2;
   int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
@@ -3838,10 +3827,9 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   void (*Interp_From_Grid1_To_Grid2)(tGrid *grid1, tGrid *grid2, int vind,
                                      int innerdom);
 
-  if(innerdom==0)      outerdom=1;
-  else if(innerdom==3) outerdom=2;  
-  else errorexit("compute_new_q_and_adjust_domainshapes: "
-                 "innerdom is not 0 or 3");
+  if(star>STAR2 || star<STAR1)
+    errorexit("compute_new_q_and_adjust_domainshapes_InterpFromGrid0: "
+              "star is not STAR1 or STAR2");
 
   /* compute new q */
   DNS_compute_new_centered_q(grid);
@@ -3851,7 +3839,7 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   copy_grid(grid, grid2, 0);
 
   /* reset sigma such that q=0 at A=0 */
-  reset_Coordinates_AnsorgNS_sigma_pm(grid, grid2, innerdom, outerdom);
+  reset_Coordinates_CubedSphere_sigma01(grid, grid2, star);
   /* NOTE: coords of grid2 are initialized in if clause below. */
 
   /* do we make changes on both sides of grid? */
@@ -3868,28 +3856,28 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   else
   {
     /* initialize coords of grid2 on side of innerdom */
-    DNSgrid_init_Coords_pm(grid2, innerdom);
+    errorexit("DNSgrid_init_Coords_pm(grid2, star);");
     /* use interpolator that does only side of innerdom */
     Interp_From_Grid1_To_Grid2 = Interp_Var_From_Grid1_To_Grid2_pm;
   }
   /* interpolate q (and maybe some other vars) from grid onto new grid2 */
-  //  Interp_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qg"),innerdom);
-  //  Interp_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qgold"),innerdom);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Psi"),innerdom);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_alphaP"),innerdom);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Bx"),innerdom);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_By"),innerdom);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Bz"),innerdom);
-  if( (innerdom==0 && !Getv("DNSdata_rotationstate1","corotation")) ||
-      (innerdom==3 && !Getv("DNSdata_rotationstate2","corotation"))   )
+  //  Interp_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qg"),star);
+  //  Interp_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qgold"),star);
+  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Psi"),star);
+  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_alphaP"),star);
+  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Bx"),star);
+  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_By"),star);
+  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Bz"),star);
+  if( (star==STAR1 && !Getv("DNSdata_rotationstate1","corotation")) ||
+      (star==STAR2 && !Getv("DNSdata_rotationstate2","corotation"))   )
   {
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Sigma"),innerdom);
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBx"),innerdom);
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBy"),innerdom);
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBz"),innerdom);
+    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Sigma"),star);
+    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBx"),star);
+    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBy"),star);
+    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBz"),star);
   }
   if(interp_qgold)
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_qgold"),innerdom);
+    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_qgold"),star);
 
   DNS_compute_new_centered_q(grid2);
 
@@ -3902,9 +3890,9 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 }
 /* compute the new q and adjust the shape of the boundary between domain0/1
    or domain3/2 accordingly. This is a wrapper that modifies grid */
-void compute_new_q_and_adjust_domainshapes(tGrid *grid, int innerdom)
+void compute_new_q_and_adjust_domainshapes(tGrid *grid, int star)
 {
-  compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid, innerdom);
+  compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid, star);
 }
 
 /* compute difference m01 - DNSdata_m01 */
@@ -3919,8 +3907,8 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   Setd("DNSdata_C1", vec[1]);
 
   /* adjust grid so that new q=0 is at A=0 */
-  //compute_new_q_and_adjust_domainshapes(grid, 0);
-  compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid0, 0);
+  //compute_new_q_and_adjust_domainshapes(grid, STAR1);
+  compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid0, STAR1);
 
   /*************************************/
   /* compute rest mass error Delta_m01 */
@@ -3948,8 +3936,8 @@ void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   Setd("DNSdata_C2", vec[1]);
 
   /* adjust grid so that new q=0 is at A=0 */
-  //compute_new_q_and_adjust_domainshapes(grid, 3);
-  compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid0, 3);
+  //compute_new_q_and_adjust_domainshapes(grid, STAR2);
+  compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid0, STAR2);
 
   /*************************************/
   /* compute rest mass error Delta_m01 */

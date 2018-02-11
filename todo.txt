@@ -10,6 +10,8 @@ DNSgrid.c
 DNSdata.c
 DNS_CTS.m
 set_DNSdata_Sigma_BCs.m
+DNS_compute_new_q_atXYZ.m
+DNS_set_dlnIntegEuler.m
 
 
 still need changing:

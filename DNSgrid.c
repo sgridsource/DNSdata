@@ -460,23 +460,28 @@ void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi,
       if( Var[i]<lim || box->MATTR!=INSIDE )  Var[i] = Val;
   }
 }
-/* set q (or other Var) to zero at A=0 */
+/* set q (or other Var) to zero at star surface */
 void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val)
 {
   int b;
-errorexit("determine boxes to loop over");
-  for(b=0; b<=3; b++)
+
+  forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
     int n1 = box->n1;
     int n2 = box->n2;
     int n3 = box->n3;
     double *Var = box->v[vi];
-    int j,k;
+    int i,j,k;
+
+    /* check if we are at surface, and if so set index i there */
+    if(box->BOUND!=SSURF) continue;
+    if(box->MATTR==INSIDE) i=n1-1;
+    else                   i=0;
 
     for(k=0; k<n3; k++)
     for(j=0; j<n2; j++)  
-      Var[Index(0,j,k)] = Val;
+      Var[Index(i,j,k)] = Val;
   }
 }
 
@@ -1278,7 +1283,7 @@ int DNSgrid_Get_BoxAndCoords_of_xyz(tGrid *grid1,
 
 
 /* Interpolate Var with index vind from grid1 to grid2 
-   for domains centered on innerdom */
+   for domains centered on star */
 void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
                                        int star)
 {
@@ -1291,6 +1296,7 @@ void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
   int zind = Ind("z");
   int b,i;
 
+errorexit("some boxes do not need to be interpolated!!!");
   /* save coeffs of vind on grid1 in cind = Ind("Temp1") */
   forallboxes(grid1, b)
   {
@@ -1512,8 +1518,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
 
   if(strcmp(DNSdata_b_sav, Gets("DNSdata_b"))==0)
   {
-    /* set values of A,B,phi in box4/5 */
-    set_DNSdata_ABphi(grid);
+    errorexit("set vars ioX bfaces need for interbox BCs with interpolation");
 
     /* set wB */
     DNS_set_wB(grid, 1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
