@@ -294,16 +294,38 @@ int set_DNS_boxsizes(tGrid *grid)
   Setd("DNSdata_C2", Cc);
   printf(" DNSdata_C2 = %g\n", Getd("DNSdata_C2"));
 
-  /* set some box pars */
-  if(Getv("DNSdata_grid", "36CS_2xyz"))
+  /* set cubed spheres, for now we disregard the par DNSdata_grid */
+  switch(grid->nboxes)
   {
     double dc = DNSdata_b; 
-    /* Sets("nboxes", "38");  // <--cannot be set here, needs to be set earlier */
-    printf("using: DNSdata_grid = 36CS_2xyz\n");
-    two_spheres_around_two_full_cubes(grid, 0, dc,
-                                      0.5*rf_surf1, rf_surf1,
-                                      0.5*rf_surf2, rf_surf2,
-                                      4.0*dc, 10000.0*dc);
+    double xc[4];
+
+    case 13:
+      xc[2] = xc[3] = 0.0;
+      xc[1] = dc;
+      arrange_1box12CubSph_into_full_cube(grid, 0, xc, 
+                                          0.5*rf_surf1, rf_surf1, dc);
+      break;
+    case 26:
+      two_full_cubes_touching_at_x0(grid, 0, dc,
+                                    0.5*rf_surf1, rf_surf1,
+                                    0.5*rf_surf2, rf_surf2);
+      break;
+    case 32:
+      sphere_around_two_full_cubes_touching_at_x0(grid, 0, dc,
+                                                  0.5*rf_surf1, rf_surf1,
+                                                  0.5*rf_surf2, rf_surf2,
+                                                  4.0*dc);
+      break;
+    case 38:
+      printf("using: DNSdata_grid = 36CS_2xyz\n");
+      two_spheres_around_two_full_cubes(grid, 0, dc,
+                                        0.5*rf_surf1, rf_surf1,
+                                        0.5*rf_surf2, rf_surf2,
+                                        4.0*dc, 10000.0*dc);
+      break;
+    default:
+      errorexit("nboxes should be 13, 26, 32, or 38");
   }
 
   prTimeIn_s("WallTime: ");
