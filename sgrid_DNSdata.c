@@ -157,10 +157,10 @@ int sgrid_DNSdata()
     AddPar("DNSdata_adjustdomain01", "yes", "if we adjust domainshapes "
            "after shift [yes,no]");
   }
-  AddPar("DNSdata_Sigma_surface_BCs", "AddInnerVolIntToBC RegularityOnAxis",
+  AddPar("DNSdata_Sigma_surface_BCs", "AddInnerVolIntToBC",
          "BCs for Sigma on star surfaces "
-         "[AddInnerVolIntToBC,AddInnerSumToBC,RegularityOnAxis,"
-         "ZeroAtPoint,InnerVolIntZero,InnerSumZero,AtA0B0,AtA0B1,"
+         "[AddInnerVolIntToBC,AddInnerSumToBC,"
+         "ZeroAtPoint,InnerVolIntZero,InnerSumZero,"
          "none,ZeroInOuterBoxes,EllEqn]");
   AddPar("DNSdata_InnerToOuterSigmaTransition", "C2", 
          "smoothness (at A=0) as we go from inner to outer box [C2,C1,C0]");
@@ -203,14 +203,13 @@ int sgrid_DNSdata()
          "]");
   AddPar("DNSdata_adjust_first_at", "0", 
          "first iteration when we use DNSdata_adjust. -1 means never");
-  AddPar("DNSdata_adjust_mintol", "1e-10", "always use tol>=mintol in adjust, "
-         "e.g. when DNSdata_adjust=keep_xout");
+  AddPar("DNSdata_adjust_mintol", "1e-10", "always use tol>=mintol in adjust");
   AddPar("DNSdata_set_Surface_q", "no", "what to do with q at surface [no,zero]");
   AddPar("DNSdata_set_negative_q", "no", "what to do with q<0 [no,zero]");
   AddPar("DNSdata_EllSolver_method", "DNS_Eqn_Iterator",
          "how we solve for Psi,B^i,alphaP,Sigma "
          "[allatonce, DNS_Eqn_Iterator, DNS_ordered_Eqn_Iterator,"
-         " DNS_ordered_Var_Eqn_Iterator, sequence1, sequence2, sequence3]");
+         " DNS_ordered_Var_Eqn_Iterator]");
   AddPar("DNSdata_CTS_Eqs_Iteration_order", 
          "DNSdata_Psi DNSdata_Bx DNSdata_By DNSdata_Bz DNSdata_alphaP",
          "Order we use in function DNS_ordered_Eqn_Iterator. "
