@@ -343,6 +343,7 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("DNSdata_lSigmaXXX"));
   enablevar(grid, Ind("DNSdata_wBx"));
   enablevar(grid, Ind("DNSdata_q"));
+  enablevar(grid, Ind("DNSdata_qg"));
   enablevar(grid, Ind("DNSdata_wBxx"));
   enablevar(grid, Ind("DNSdata_qx"));
   enablevar(grid, Ind("DNSdata_VRx"));
@@ -355,7 +356,6 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("DNSdata_alphaPold"));
   enablevar(grid, Ind("DNSdata_Sigmaold"));
   enablevar(grid, Ind("DNSdata_qgold"));
-  //enablevar(grid, Ind("DNSdata_qg"));
   //enablevar(grid, Ind("DNSdata_qcorot"));
   //enablevar(grid, Ind("DNSdata_qnocent"));
   //enablevar(grid, Ind("DNSdata_surface_sigma_pm"));

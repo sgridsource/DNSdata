@@ -51,6 +51,8 @@ int sgrid_DNSdata()
   AddVar("DNSdata_wB",  "Ij","1st deriv of wB");
   AddVar("DNSdata_q",   "i", "1st deriv of q");
 
+  /* q we get from DNS_compute_new_q, with neg. values kept in boxes around stars */
+  AddVar("DNSdata_qg", "", "global smooth q with neg. values kept");
   /* sometimes we save the old vars before the ell. solve */
   AddVar("DNSdata_Psiold",    "",  "old Psi");
   AddVar("DNSdata_Bold",      "I", "old B");
@@ -110,6 +112,7 @@ int sgrid_DNSdata()
   AddPar("DNSdata_actual_xmax2", "0", "x-pos. of actual global max of q in NS2");
   AddPar("DNSdata_actual_ymax2", "0", "y-pos. of actual global max of q in NS2");
   AddPar("DNSdata_actual_zmax2", "0", "z-pos. of actual global max of q in NS2");
+  AddPar("DNSdata_q_derivs", "dq", "how we compute the derivs of q [dq,dqg]");
   AddPar("DNSdata_drho0_inBC", "dq", "what we use for drho0 in BC [dq,dA]");
   AddPar("DNSdata_center_new_q", "no",
          "if and how we center new q on (DNSdata_xmax1/2,0,0) "
