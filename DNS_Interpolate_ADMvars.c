@@ -155,13 +155,7 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
         bladd_ifAttrib(grid, iSIDE, star, bl);
         nearest_b_XYZ_of_xyz_inboxlist(grid, bl->e,bl->n,
                                        &b, &ind, &X,&Y,&Z, x,y,z);
-        if(grid->box[b]->COORD!=CART)
-        {
-          if(dequal(Y, 0.0)) Y=0.01;
-          if(dequal(Y, 1.0)) Y=1.0-0.01;
-          Z = Arg_plus(y,z);
-        }
-        else
+        if(grid->box[b]->COORD==CART)
         {
           X=x;
           Y=y;
@@ -170,7 +164,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
         if(pr) printf("guess:  b=%d (X,Y,Z)=(%g,%g,%g)  nearest ind=%d\n", b, X,Y,Z, ind);
 
         /* get X,Y,Z, b of x,y,z */
-        b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, grid->box[b],ind,x,y,z);
+        b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z,
+                                          grid->box[b],ind, x,y,z);
         if(pr) printf("actual: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
         if(b<0)
         {
