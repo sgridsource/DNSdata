@@ -97,30 +97,6 @@ int DNS_Eqn_Iterator(tGrid *grid, int itmax, double tol, double *normres,
 	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
 	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
   int pr);
-int DNS_Eqn_sequence1(tGrid *grid, 
-  int Newton_itmax, double Newton_tol, double *normres, 
-  int (*linear_solver)(tVarList *x, tVarList *b, 
-            tVarList *r, tVarList *c1,tVarList *c2,
-	    int itmax, double tol, double *normres,
-	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
-	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
-  int pr);
-int DNS_Eqn_sequence2(tGrid *grid, 
-  int Newton_itmax, double Newton_tol, double *normres, 
-  int (*linear_solver)(tVarList *x, tVarList *b, 
-            tVarList *r, tVarList *c1,tVarList *c2,
-	    int itmax, double tol, double *normres,
-	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
-	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
-  int pr);
-int DNS_Eqn_sequence3(tGrid *grid, 
-  int Newton_itmax, double Newton_tol, double *normres, 
-  int (*linear_solver)(tVarList *x, tVarList *b, 
-            tVarList *r, tVarList *c1,tVarList *c2,
-	    int itmax, double tol, double *normres,
-	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
-	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
-  int pr);
 double GetInnerRestMass(tGrid *grid, int bi);
 void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
