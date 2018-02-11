@@ -11,7 +11,7 @@ int sgrid_DNSdata()
   printf("Adding DNSdata\n");
 
   /* functions */
-  AddFun(PRE_GRID, set_boxsizes, "setup initial box sizes");
+  AddFun(PRE_GRID, set_DNS_boxsizes, "setup initial box sizes");
   AddFun(POST_GRID, set_DNS_box_attribs, "set box Attribs for DNSdata");
   AddFun(PRE_INITIALDATA, DNSdata_startup, "initialize DNSdata");
   AddFun(INITIALDATA, setDNSdata, "set the DNS data");

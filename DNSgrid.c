@@ -40,7 +40,7 @@ void DNSdata_LowPassFilter_with_dsigma_pm_dBphi_01_EQ0(tGrid *grid,int innerdom)
 
 
 /* setup initial boxsizes */
-int set_boxsizes(tGrid *grid)
+int set_DNS_boxsizes(tGrid *grid)
 {
   double m1, Phic1, Psic1;
   double m2, Phic2, Psic2;
@@ -58,7 +58,7 @@ int set_boxsizes(tGrid *grid)
   double fvec[2];
   int check, stat;
 
-  printf("set_boxsizes: setting box sizes and coordinates used ...\n");
+  printf("set_DNS_boxsizes: setting box sizes and coordinates used ...\n");
   prTimeIn_s("WallTime: ");
 
   /* reset initial DNSdata_m01/2 if needed */

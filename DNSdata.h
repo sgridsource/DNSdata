@@ -91,7 +91,7 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
                              double *m0);
 
 /* from DNSgrid.c */
-int set_boxsizes(tGrid *grid);
+int set_DNS_boxsizes(tGrid *grid);
 int set_DNS_box_attribs(tGrid *grid);
 int set_sigma_pm_vars(tGrid *grid);
 void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
