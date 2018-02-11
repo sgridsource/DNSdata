@@ -52,7 +52,6 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   double *inbuf;
   double *outbuf;
   int insize, outsize, bpos, ncount, wcount;
-  tGrid *grid2=NULL;
   tVarList *vlu;
   tVarList *vlc;
   int corot1 = Getv("DNSdata_rotationstate1","corotation");
@@ -98,20 +97,6 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   /* write coeffs of vlu in all boxes into vlc */
   forallboxes(grid, b)
     spec_Coeffs_varlist(grid->box[b], vlu, vlc);
-
-  /* pick grid2 used to get guess for X,Y,Z */
-  if(GetvLax("DNSdata_Interpolate_make_finer_grid2_forXYZguess", "no"))
-    grid2 = grid;
-  else
-  {
-    /* make a finer grid2 so that nearest_b_XYZ_of_xyz_inboxlist used
-       with grid2 finds points that are closer to the correct point. */
-    printf(" making finer grid2 to get a good guess for X,Y,Z ...\n");
-    prTimeIn_s(" WallTime: ");
-    /* use 40 points in A,B and leave point number in other directions. */
-    grid2 = make_grid_with_sigma_pm(grid, 40, 
-                                    grid->box[1]->n3, grid->box[5]->n1);
-  }
 
   /* filenames */
   pointsfile = Gets("DNSdata_Interpolate_pointsfile");
@@ -167,10 +152,10 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
         if(x>=0.0) star=STAR1;
         else       star=STAR2;
         clear_intList(bl);
-        bladd_ifAttrib(grid2, iSIDE, star, bl);
-        nearest_b_XYZ_of_xyz_inboxlist(grid2, bl->e,bl->n,
+        bladd_ifAttrib(grid, iSIDE, star, bl);
+        nearest_b_XYZ_of_xyz_inboxlist(grid, bl->e,bl->n,
                                        &b, &ind, &X,&Y,&Z, x,y,z);
-        if(grid2->box[b]->COORD!=CART)
+        if(grid->box[b]->COORD!=CART)
         {
           if(dequal(Y, 0.0)) Y=0.01;
           if(dequal(Y, 1.0)) Y=1.0-0.01;
@@ -185,7 +170,7 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
         if(pr) printf("guess:  b=%d (X,Y,Z)=(%g,%g,%g)  nearest ind=%d\n", b, X,Y,Z, ind);
 
         /* get X,Y,Z, b of x,y,z */
-        b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, grid2->box[b],ind,x,y,z);
+        b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, grid->box[b],ind,x,y,z);
         if(pr) printf("actual: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
         if(b<0)
         {
@@ -271,9 +256,6 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
     wcount = fwrite(outbuf, outsize, ncount, out);
     if(wcount!=ncount)  errorexit("write count is wrong");
   } while(ncount==nelem); /* if we could fill buffer once, try again */
-
-  /* remove grid2, if it does not point to grid itself */
-  if(grid2 != grid) free_grid(grid2);
 
   /* close files */
   fclose(out);

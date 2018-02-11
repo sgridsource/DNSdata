@@ -1276,10 +1276,16 @@ int DNSgrid_Get_BoxAndCoords_of_xyz(tGrid *grid1,
 }
 
 
+/* Interpolate Var with index vind from grid1 to grid2 */
+void Interpolate_Var_From_Grid1_To_Grid2(tGrid *grid1, tGrid *grid2, int vind)
+{
+  Interp_Var_From_Grid1_To_Grid2_star(grid1, grid2, vind, STAR1);
+  Interp_Var_From_Grid1_To_Grid2_star(grid1, grid2, vind, STAR2);
+}
 /* Interpolate Var with index vind from grid1 to grid2 
-   for domains centered on star */
-void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
-                                       int star)
+   for domains that touch surface of star */
+void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
+                                         int star)
 {
   int cind = Ind("temp1");
   int Xind = Ind("X");
@@ -1290,13 +1296,12 @@ void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
   int zind = Ind("z");
   int b,i;
 
-errorexit("some boxes do not need to be interpolated!!!");
   /* save coeffs of vind on grid1 in cind = Ind("Temp1") */
   forallboxes(grid1, b)
   {
     tBox *box = grid1->box[b];
-    /* do nothing if we are on wrong side of grid */
-    if(box->SIDE!=star) continue;
+    /* do nothing if we are on wrong side of grid or not near star surface */
+    if(box->SIDE!=star || box->BOUND!=SSURF) continue;
 
     spec_Coeffs(box, box->v[vind], box->v[cind]);
   }
@@ -1313,12 +1318,12 @@ errorexit("some boxes do not need to be interpolated!!!");
     double *pz = box->v[zind];
     double *pv = box->v[vind];
 
-    /* do nothing if we are on wrong side of grid */
-    if(box->SIDE!=star) continue;
+    /* do nothing if we are on wrong side of grid or not near star surface */
+    if(box->SIDE!=star || box->BOUND!=SSURF) continue;
 
     /* here we can use SGRID_LEVEL6_Pragma(omp parallel) */
-#undef SERIAL_Interp_Var_From_Grid1_To_Grid2_pm
-#ifndef SERIAL_Interp_Var_From_Grid1_To_Grid2_pm
+#undef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
+#ifndef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
     SGRID_LEVEL6_Pragma(omp parallel)
     {
       tGrid *grid1_p = make_empty_grid(grid1->nvariables, 0);
@@ -1328,7 +1333,7 @@ errorexit("some boxes do not need to be interpolated!!!");
       tGrid *grid1_p = grid1;
 #endif
       /* start loop */
-#ifndef SERIAL_Interp_Var_From_Grid1_To_Grid2_pm
+#ifndef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
       SGRID_LEVEL6_Pragma(omp for) 
 #endif
       forallpoints(box,i)
@@ -1355,7 +1360,7 @@ errorexit("some boxes do not need to be interpolated!!!");
         }
 
       } /* end forallpoints loop */
-#ifdef SERIAL_Interp_Var_From_Grid1_To_Grid2_pm
+#ifdef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
     }
 #else
       /* free local grid copy */
@@ -1363,12 +1368,6 @@ errorexit("some boxes do not need to be interpolated!!!");
     }
 #endif
   } /* end forallboxes(grid2,b) */
-}
-/* wrapper for Interpolate_Var_From_Grid1_To_Grid2 with extra dummy argument */
-void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
-                                                 int vind, int dummy)
-{
-  Interpolate_Var_From_Grid1_To_Grid2(grid1, grid2, vind);
 }
 
 /* copy variable at i=n1-1 from Box1 to i=0 in Box2 */

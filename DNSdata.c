@@ -3823,8 +3823,6 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   tGrid *grid2;
   int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
   int outerdom;
-  void (*Interp_From_Grid1_To_Grid2)(tGrid *grid1, tGrid *grid2, int vind,
-                                     int innerdom);
 
   if(star>STAR2 || star<STAR1)
     errorexit("compute_new_q_and_adjust_domainshapes_InterpFromGrid0: "
@@ -3841,43 +3839,24 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   reset_Coordinates_CubedSphere_sigma01(grid, grid2, star);
   /* NOTE: coords of grid2 are initialized in if clause below. */
 
-  /* do we make changes on both sides of grid? */
-  if(Getv("DNSdata_adjust_domainshapes_Grid1_To_Grid2_Interpolator",
-          "Interpolate_Var_From_Grid1_To_Grid2_wrapper"))
-  {
-    /* initialize coords of grid2 on both sides of grid */
-    DNSgrid_init_Coords(grid2);
-    /* NOTE: next we have to use Interpolate_Var_From_Grid1_To_Grid2_wrapper
-       We have to interpolate on both sides of the grid since 
-       DNSgrid_init_Coords changes box4/5 on both sides!!! */
-    Interp_From_Grid1_To_Grid2 = Interpolate_Var_From_Grid1_To_Grid2_wrapper;
-  }
-  else
-  {
-    /* initialize coords of grid2 on side of innerdom */
-    DNSgrid_init_Coords_for_star(grid2, star);
-
-    /* use interpolator that does only side of innerdom */
-    Interp_From_Grid1_To_Grid2 = Interp_Var_From_Grid1_To_Grid2_pm;
-  }
   /* interpolate q (and maybe some other vars) from grid onto new grid2 */
-  //  Interp_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qg"),star);
-  //  Interp_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qgold"),star);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Psi"),star);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_alphaP"),star);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Bx"),star);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_By"),star);
-  Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Bz"),star);
+  //  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_qg"),star);
+  //  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_qgold"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_Psi"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_alphaP"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_Bx"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_By"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_Bz"),star);
   if( (star==STAR1 && !Getv("DNSdata_rotationstate1","corotation")) ||
       (star==STAR2 && !Getv("DNSdata_rotationstate2","corotation"))   )
   {
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_Sigma"),star);
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBx"),star);
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBy"),star);
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_wBz"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_Sigma"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBx"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBy"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBz"),star);
   }
   if(interp_qgold)
-    Interp_From_Grid1_To_Grid2(grid0, grid2, Ind("DNSdata_qgold"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_qgold"),star);
 
   DNS_compute_new_centered_q(grid2);
 
