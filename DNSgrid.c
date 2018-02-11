@@ -64,10 +64,8 @@ int set_DNS_boxsizes(tGrid *grid)
     /* set DNSdata_desired_m01/2 if needed */
     if(Getd("DNSdata_desired_m01")<0.0) Setd("DNSdata_desired_m01", m01);
     if(Getd("DNSdata_desired_m02")<0.0) Setd("DNSdata_desired_m02", m02);
-    if(Getd("DNSdata_desired_kappa")<0.0) Setd("DNSdata_desired_kappa", kappa);
     printf("   DNSdata_desired_m01 = %g\n", Getd("DNSdata_desired_m01"));
     printf("   DNSdata_desired_m02 = %g\n", Getd("DNSdata_desired_m02"));
-    printf("   DNSdata_desired_kappa = %g\n", Getd("DNSdata_desired_kappa"));
     /* set initial DNSdata_m01/2 */
     m01 = Getd("DNSdata_init_m01");
     m02 = Getd("DNSdata_init_m02");
