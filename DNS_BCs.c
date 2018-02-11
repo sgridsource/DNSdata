@@ -310,7 +310,6 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
     int iPsiz = vluDerivs->index[vindDerivs+2];
     int ncomp = VarNComponents(iPsi);
     double PsiFarLimit = VarFarLimit(iPsi)*nonlin;
-    double FarLimitBC_R = Getd("DNSdata_FarLimitBC_Radius");
     char *varname = VarName(vlu->index[vind]);
     int is_Sigma = 0;
 
