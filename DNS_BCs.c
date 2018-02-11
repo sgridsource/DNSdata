@@ -46,11 +46,22 @@ void DNS_approx_normal(tBface *bface, int ijk, double *nx, double *ny, double *n
   }
 }
 
+
+/* set BC's between boxes and at outerbound */
+void set_interbox_and_outer_BCs(tBox *box, int iFPsi, int iPsi,
+                                int iPsix, int iPsiy, int iPsiz,
+                                double PsiFarLimit, int setFarLimit,
+                                intList *skip_f)
+{
+// copy something like Poisson3_set_interbox_and_outerBCs here
+}
+
+
 /* set BC's between boxes and at outerbound */
 void set_interbox_and_FarLimit_BCs(tBox *box, int iFPsi, int iPsi,
-                                  int iPsix, int iPsiy, int iPsiz,
-                                  double PsiFarLimit, int setFarLimit,
-                                  intList *skip_f)
+                                   int iPsix, int iPsiy, int iPsiz,
+                                   double PsiFarLimit, int setFarLimit,
+                                   intList *skip_f)
 {
   tGrid *grid = box->grid;
   double *FPsi = box->v[iFPsi];
