@@ -179,12 +179,12 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
   int corot;
   double omegax, omegay, omegaz;
 
-  if(star==1)
+  if(star==STAR1)
   {
     corot=corot1;
     omegax=omegax1;  omegay=omegay1;  omegaz=omegaz1;
   }
-  else if(star==2)
+  else if(star==STAR2)
   {
     corot=corot2;
     omegax=omegax2;  omegay=omegay2;  omegaz=omegaz2;
@@ -557,9 +557,9 @@ int DNSdata_startup(tGrid *grid)
     }
 
     /* set wB in both stars */
-    DNS_set_wB(grid, 1, xc1,0.0,0.0);
-    DNS_set_wB(grid, 2, xc2,0.0,0.0);
-    
+    DNS_set_wB(grid, STAR1, xc1,0.0,0.0);
+    DNS_set_wB(grid, STAR2, xc2,0.0,0.0);
+
     /* if NS1 is shifted in y-direc. (for testing) adjust grid on right side */
     if(ysh1 != 0.0 && Getv("DNSdata_adjustdomain01","yes"))
     {
@@ -2549,9 +2549,8 @@ int DNSdata_solve(tGrid *grid)
     varcopy(grid, Ind("DNSdata_qgold"),     Ind("DNSdata_qg"));
 
     /* set wB before we solve */
-    DNS_set_wB(grid, 1, Getd("DNSdata_actual_xmax1"),0.0,0.0); 
-    DNS_set_wB(grid, 2, Getd("DNSdata_actual_xmax2"),0.0,0.0); 
-
+    DNS_set_wB(grid, STAR1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
+    DNS_set_wB(grid, STAR2, Getd("DNSdata_actual_xmax2"),0.0,0.0);
 
     /* check if we do another ell. solve for DNSdata_Sigma */
     realnormres_old = realnormres; /* save realnormres */

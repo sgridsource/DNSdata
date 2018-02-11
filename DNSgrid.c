@@ -9,17 +9,13 @@
 #define pow2(x)    ((x)*(x))
 
 /* struct types used in root finder newton_linesrch_itsP */
-typedef struct T_grid_b_struct {
-  tGrid *grid; /* grid */
-  int b;      /* box1 */
-} t_grid_b_struct;
-
-typedef struct T_grid_b_A_B_struct {
+typedef struct T_grid_b_star_A_B_struct {
   tGrid *grid; /* grid */
   int b;       /* box number */
+  int star;    /* STAR1/2 */
   double A;    /* A coord */
   double B;    /* B coord */
-} t_grid_b_A_B_struct;
+} t_grid_b_star_A_B_struct;
 
 /* global vars in this file */
 double rf_surf1; /* radius of star1 */
@@ -29,10 +25,8 @@ double P_core2;  /* core pressure of star2 */
 /* global vars in this file for root finding */
 tBox *DNSdata_q_VectorFunc_box;      /* box for BNdata_q_VectorFunc */
 double *DNSdata_q_VectorFunc_coeffs; /* coeffs for BNdata_q_VectorFunc */
-double DNSdata_q_VectorFunc_A;       /* B for DNSdata_q_VectorFunc */
-double DNSdata_q_VectorFunc_B;     /* phi for DNSdata_q_VectorFunc */
-/* global vars in this file for minimization with numrec's powell */
-t_grid_b_struct *grid_b_PARS;
+double DNSdata_q_VectorFunc_A;       /* A for DNSdata_q_VectorFunc */
+double DNSdata_q_VectorFunc_B;       /* B for DNSdata_q_VectorFunc */
 
 /* funs in this file */
 void m01_VectorFunc(int n, double *vec, double *fvec);
@@ -509,7 +503,7 @@ void DNSdata_q_VectorFunc(int n, double *vec, double *fvec)
 /* q as a func of lam for a given  A, B */
 double q_of_lam_forgiven_AB_ZP(double lam, void *p)
 {
-  t_grid_b_A_B_struct *pars = (t_grid_b_A_B_struct *) p;
+  t_grid_b_star_A_B_struct *pars = (t_grid_b_star_A_B_struct *) p;
   tGrid *grid = pars->grid;
   int b       = pars->b;
   double A    = pars->A;
@@ -563,10 +557,10 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
     boxnewin = gridnew->box[innerdom];
     isigma0 = boxnew->CI->iSurf[0];
     isigma1 = boxnewin->CI->iSurf[1];
-    isigma0_dA = boxnew->CI->idSurfdX[0][1];
-    isigma0_dB = boxnew->CI->idSurfdX[0][2];
-    isigma1_dA = boxnewin->CI->idSurfdX[1][1];
-    isigma1_dB = boxnewin->CI->idSurfdX[1][2];
+    isigma0_dA = boxnew->CI->idSurfdX[0][2];
+    isigma0_dB = boxnew->CI->idSurfdX[0][3];
+    isigma1_dA = boxnewin->CI->idSurfdX[1][2];
+    isigma1_dB = boxnewin->CI->idSurfdX[1][3];
 
     /* set pointer to q outside and inside star */
     q_out= box->v[iq];  
@@ -575,7 +569,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
     /* loop over surface of star touching box */
     forplane1(i0,j,k, n1,n2,n3, 0)
     {
-      t_grid_b_A_B_struct pars[1];
+      t_grid_b_star_A_B_struct pars[1];
       int ind = Index(0,j,k);
       int indin = Ind_n1n2(n1in-1,j,k, n1in,n2in);
       double A = box->v[iY][ind];
@@ -1377,8 +1371,28 @@ void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
   Interpolate_Var_From_Grid1_To_Grid2(grid1, grid2, vind);
 }
 
-
-
+/* copy variable at i=n1-1 from Box1 to i=0 in Box2 */
+/* This can be used to make a var continues across inner and outer domains. */
+void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2)
+{
+  int i,j,k, ijk1, ijk2; 
+  int n1_1 = grid->box[b1]->n1;
+  int n2_1 = grid->box[b1]->n2;
+  int n3_1 = grid->box[b1]->n3;
+  int n1_2 = grid->box[b2]->n1;
+  int n2_2 = grid->box[b2]->n2;
+  int n3_2 = grid->box[b2]->n3;
+  double *v1 = grid->box[b1]->v[vind];
+  double *v2 = grid->box[b2]->v[vind];
+  if(n2_2!=n2_1 || n3_2!=n3_1)
+    errorexit("(n2,n3) has to be equal in both boxes");
+  forplane1(i,j,k, n1_2,n2_2,n3_2, 0)
+  {
+    ijk1 = Ind_n1n2(n1_1-1,j,k, n1_1,n2_1);
+    ijk2 = Ind_n1n2(0,j,k, n1_2,n2_2);
+    v2[ijk2] = v1[ijk1];
+  }
+}
 
 
 
@@ -1436,37 +1450,35 @@ int set_DNSdata_CoordFac(tGrid *grid)
 void m0errOFsigmafac_VectorFuncP(int n, double *vec, double *fvec, void *p)
 {
   tGrid *grid;
-  int dom;
+  int star;
   double fac = vec[1];
   double m0;
-  t_grid_b_struct *pars;
+  t_grid_b_star_A_B_struct *pars;
 
   /* get pars */
-  pars = (t_grid_b_struct *) p;
+  pars = (t_grid_b_star_A_B_struct *) p;
   grid = pars->grid;
-  dom  = pars->b;
-  /* In here it seems pars->b is the inner box i.e. 0 or 3, it should never
-     contain something else. */
+  star = pars->star;
 
   /* scale sigma */
-  DNSgrid_scale_Coordinates_AnsorgNS_sigma(grid, fac, dom);
+  DNSgrid_scale_Coordinates_CubSph_sigma(grid, fac, star);
   DNSgrid_init_Coords(grid);
   /* set wB */
-  if(dom==0) DNS_set_wB(grid, 1, Getd("DNSdata_xmax1"),0.0,0.0);
-  else       DNS_set_wB(grid, 2, Getd("DNSdata_xmax2"),0.0,0.0); 
+  if(star==STAR1) DNS_set_wB(grid, star, Getd("DNSdata_xmax1"),0.0,0.0);
+  else            DNS_set_wB(grid, star, Getd("DNSdata_xmax2"),0.0,0.0);
   /* get new mass */
-  m0 =  GetInnerRestMass(grid, dom);
+  m0 =  GetInnerRestMass(grid, star);
   printf("m0errOFsigmafac_VectorFuncP: fac=%g => m0%d=%g\n",
-         fac, (dom>=2)+1, m0);
+         fac, star, m0);
   fflush(stdout);
   /* set sigma back to what it was */
-  DNSgrid_scale_Coordinates_AnsorgNS_sigma(grid, 1.0/fac, dom);
+  DNSgrid_scale_Coordinates_CubSph_sigma(grid, 1.0/fac, star);
   DNSgrid_init_Coords(grid);
   /* set wB */
-  if(dom==0) DNS_set_wB(grid, 1, Getd("DNSdata_xmax1"),0.0,0.0);
-  else       DNS_set_wB(grid, 2, Getd("DNSdata_xmax2"),0.0,0.0); 
+  if(star==STAR1) DNS_set_wB(grid, star, Getd("DNSdata_xmax1"),0.0,0.0);
+  else            DNS_set_wB(grid, star, Getd("DNSdata_xmax2"),0.0,0.0);
   /* set fvec */
-  if(dom==0)
+  if(star==STAR1)
     fvec[1] = Getd("DNSdata_m01") - m0;
   else
     fvec[1] = Getd("DNSdata_m02") - m0;
@@ -1521,8 +1533,8 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
     errorexit("set vars ioX bfaces need for interbox BCs with interpolation");
 
     /* set wB */
-    DNS_set_wB(grid, 1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
-    DNS_set_wB(grid, 2, Getd("DNSdata_actual_xmax2"),0.0,0.0); 
+    DNS_set_wB(grid, STAR1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
+    DNS_set_wB(grid, STAR2, Getd("DNSdata_actual_xmax2"),0.0,0.0);
   }
   else /* set DNSdata_b=DNSdata_b_sav and adjust other pars */
   {
@@ -1531,7 +1543,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
     double r, rc, dr, dOm;
     double facvec[2];
     int stat, check;
-    t_grid_b_struct pars[1];
+    t_grid_b_star_A_B_struct pars[1];
 
     /* rc = (distance from checkpoint) */
     rc = Getd("DNSdata_xmax1")-Getd("DNSdata_xmax2");
@@ -1557,8 +1569,8 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
        holes in box0/3 */
     DNSgrid_init_Coords(grid);
     /* set wB */
-    DNS_set_wB(grid, 1, Getd("DNSdata_xmax1"),0.0,0.0);
-    DNS_set_wB(grid, 2, Getd("DNSdata_xmax2"),0.0,0.0); 
+    DNS_set_wB(grid, STAR1, Getd("DNSdata_xmax1"),0.0,0.0);
+    DNS_set_wB(grid, STAR2, Getd("DNSdata_xmax2"),0.0,0.0);
     /* Ok now we have complete data, but the var 
        Coordinates_AnsorgNS_sigma_pm should probabaly be changed as well! */
 
@@ -1576,10 +1588,10 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
                                (void *) pars, 100, 0.01*m01);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
     /* use factor to scale sigma */
-    DNSgrid_scale_Coordinates_AnsorgNS_sigma(grid, facvec[1], 0);
+    DNSgrid_scale_Coordinates_CubSph_sigma(grid, facvec[1], STAR1);
     DNSgrid_init_Coords(grid);
     /* set wB */
-    DNS_set_wB(grid, 1, Getd("DNSdata_xmax1"),0.0,0.0);
+    DNS_set_wB(grid, STAR1, Getd("DNSdata_xmax1"),0.0,0.0);
 
     /* star2 */
     pars->grid = grid;
@@ -1589,10 +1601,10 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
                                (void *) pars, 100, 0.01*m02);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
     /* use factor to scale sigma */
-    DNSgrid_scale_Coordinates_AnsorgNS_sigma(grid, facvec[1], 3);
+    DNSgrid_scale_Coordinates_CubSph_sigma(grid, facvec[1], STAR2);
     DNSgrid_init_Coords(grid);
     /* set wB */
-    DNS_set_wB(grid, 2, Getd("DNSdata_xmax2"),0.0,0.0); 
+    DNS_set_wB(grid, STAR2, Getd("DNSdata_xmax2"),0.0,0.0);
   }
 
   /* check the vars we set for NANs */
@@ -1643,3 +1655,64 @@ void DNSgrid_init_Coords(tGrid *grid)
   DNSgrid_init_Coords_for_star(grid, -1); /* init both sides of grid */
 }
 
+
+/* scale Coordinates_AnsorgNS_sigma and its deriv on one side
+   by a factor fac. */
+void DNSgrid_scale_Coordinates_CubSph_sigma(tGrid *grid, double fac, int star)
+{
+  int b;
+
+  if(star<STAR1 || star>STAR2)
+    errorexit("must have STAR1<=star<=STAR2");
+
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    tBox *boxin;
+    int innerdom;
+    int i,j,k, n1,n2,n3;
+    int isigma0,isigma0_dA,isigma0_dB, isigma1,isigma1_dA,isigma1_dB;
+    double *sigma, *sigma_dA, *sigma_dB;
+
+    if(box->SIDE!=star || box->BOUND!=SSURF) continue;
+
+    innerdom = b-6; /* works only for my CubSph arrangement */
+    boxin = grid->box[innerdom];
+    isigma0    = box->CI->iSurf[0];
+    isigma0_dA = box->CI->idSurfdX[0][2];
+    isigma0_dB = box->CI->idSurfdX[0][3];
+    isigma1    = boxin->CI->iSurf[1];
+    isigma1_dA = boxin->CI->idSurfdX[1][2];
+    isigma1_dB = boxin->CI->idSurfdX[1][3];
+
+    /* scale sigma in outer box b */
+    sigma      =  box->v[isigma0];
+    sigma_dA   =  box->v[isigma0_dA];
+    sigma_dB   =  box->v[isigma0_dB];
+    n1=box->n1;
+    n2=box->n2;
+    n3=box->n3;
+    forplane1(i,j,k, n1,n2,n3, 0)
+    {
+      int ind = Index(i,j,k);
+      sigma[ind] *= fac;
+      sigma_dA[ind] *= fac;
+      sigma_dB[ind] *= fac;
+    }
+
+    /* scale sigma in innerdom */
+    sigma      =  boxin->v[isigma1];
+    sigma_dA   =  boxin->v[isigma1_dA];
+    sigma_dB   =  boxin->v[isigma1_dB];
+    n1=boxin->n1;
+    n2=boxin->n2;
+    n3=boxin->n3;
+    forplane1(i,j,k, n1,n2,n3, n1-1)
+    {
+      int ind = Index(i,j,k);
+      sigma[ind] *= fac;
+      sigma_dA[ind] *= fac;
+      sigma_dB[ind] *= fac;
+    }
+  }
+}

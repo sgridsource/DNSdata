@@ -112,17 +112,17 @@ void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
 void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2);
 void DNSgrid_init_Coords_for_star(tGrid *grid, int star);
 void DNSgrid_init_Coords(tGrid *grid);
-void DNSgrid_scale_Coordinates_AnsorgNS_sigma(tGrid *grid, double fac, int ibd);
-void DNSgrid_copy_DomainShape(tGrid *grid, int ibd);
-void DNSgrid_set_Var_equalmasses_sym(tGrid *grid, int ibd, int iv, int sym);
+void DNSgrid_scale_Coordinates_CubSph_sigma(tGrid *grid, double fac, int star);
+//void DNSgrid_copy_DomainShape(tGrid *grid, int ibd);
+//void DNSgrid_set_Var_equalmasses_sym(tGrid *grid, int ibd, int iv, int sym);
 void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc);
 void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename);
 void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi, 
                                               double Val, double lim);
 void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val);
 int set_DNSdata_CoordFac(tGrid *grid);
-void debug_Coordinates_AnsorgNS_sigma_pm_B01(tGrid *grid, int dom, char *label);
-void debug_Coordinates_AnsorgNS_sigma_pm_B01_dom03(tGrid *grid, char *label);
+//void debug_Coordinates_AnsorgNS_sigma_pm_B01(tGrid *grid, int dom, char *label);
+//void debug_Coordinates_AnsorgNS_sigma_pm_B01_dom03(tGrid *grid, char *label);
 
 /* from DNS_Interpolate_ADMvars.c */
 int DNS_Interpolate_ADMvars(tGrid *grid);
