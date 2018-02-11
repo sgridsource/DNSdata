@@ -60,14 +60,14 @@ int DNS_compute_chi(tGrid *grid)
 
     /* Computation of chi*/
     /* for box 3*/
-
+printf("DNS_compute_chi should not be done in box3");
      chieq   = grid-> box[3]->v[index_DNSdata_temp2 + 0];
      chipole = grid-> box[3]->v[index_DNSdata_temp3 + 0];
      temp4   = grid-> box[3]->v[index_DNSdata_temp4 + 0];
   
      zmin = 0;
      Bstepmin =0; 
- 
+
      for (i = 0; i<m; i++ ){
             Bstep = (double) (i) / (double) (m);
             z     = z_of_NAnsorgNS3(grid-> box[3], -1, 0, Bstep, 0.5*PI);
@@ -86,6 +86,8 @@ int DNS_compute_chi(tGrid *grid)
      Setd("DNSdata_mass_shedding1",chi);
   
      /*for box 0*/
+printf("DNS_compute_chi should not be done in box0");
+printf("  WARNING: DNS_compute_chi results are WRONG!!!");
       chieq   = grid-> box[0]->v[index_DNSdata_temp2 + 0];
       chipole = grid-> box[0]->v[index_DNSdata_temp3 + 0];
       temp4   = grid-> box[0]->v[index_DNSdata_temp4 + 0];
