@@ -79,8 +79,7 @@ int set_DNS_boxsizes(tGrid *grid)
   /* for TOV we need an EoS so we need to init EoS here */
   if(Getv("DNSdata_EoS_type", "pwp"))
   {     
-    if(!Getv("DNSdata_EoS_file", " ")) DNS_pwp_init_file();
-    else DNS_pwp_init_parameter();
+    DNS_pwp_init_parameter();
   }
   else if(Getv("DNSdata_EoS_type", "poly"))  DNS_poly_init();
   else errorexit("unkown DNSdata_EoS_type");
