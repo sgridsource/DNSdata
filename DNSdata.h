@@ -110,7 +110,7 @@ void Interp_Var_From_Grid1_To_Grid2_pm(tGrid *grid1, tGrid *grid2, int vind,
 void Interpolate_Var_From_Grid1_To_Grid2_wrapper(tGrid *grid1, tGrid *grid2,
                                                  int vind, int dummy);
 void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2);
-//void DNSgrid_init_Coords_pm(tGrid *grid, int star);
+void DNSgrid_init_Coords_for_star(tGrid *grid, int star);
 void DNSgrid_init_Coords(tGrid *grid);
 void DNSgrid_scale_Coordinates_AnsorgNS_sigma(tGrid *grid, double fac, int ibd);
 void DNSgrid_copy_DomainShape(tGrid *grid, int ibd);

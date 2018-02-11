@@ -1612,3 +1612,34 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
   free(DNSdata_xmax1_sav);
   free(DNSdata_xmax2_sav);
 }
+
+
+/************************************************************************/
+/* utilities to manipulate the grid */
+/************************************************************************/
+/* given a new cubed sphere sigma0/1 and its derivs
+   initialize Coordinates. */
+void DNSgrid_init_Coords_for_star(tGrid *grid, int star)
+{
+  int Coordinates_verbose = Getv("Coordinates_verbose", "yes");
+
+  /* avoid too much printf */
+  if(Coordinates_verbose) Sets("Coordinates_verbose", "no");
+
+  /* initialize coords on grid, reset x,y,z, dXdx and such */
+  init_CoordTransform_And_Derivs(grid);
+
+  /* set values of A,B,phi in box4/5 */
+  errorexit("do something like set_BNSdata_ABphi(grid); ... "
+            "but maybe inside init_CoordTransform_And_Derivs ???");
+
+  /* put back original Coordinates_verbose */
+  if(Coordinates_verbose) Sets("Coordinates_verbose", "yes");
+}
+/* given a new cubed sphere sigma0/1 and its derivs
+   initialize Coordinates. */
+void DNSgrid_init_Coords(tGrid *grid)
+{
+  DNSgrid_init_Coords_for_star(grid, -1); /* init both sides of grid */
+}
+

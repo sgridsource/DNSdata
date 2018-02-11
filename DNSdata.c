@@ -3856,7 +3856,8 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   else
   {
     /* initialize coords of grid2 on side of innerdom */
-    errorexit("DNSgrid_init_Coords_pm(grid2, star);");
+    DNSgrid_init_Coords_for_star(grid2, star);
+
     /* use interpolator that does only side of innerdom */
     Interp_From_Grid1_To_Grid2 = Interp_Var_From_Grid1_To_Grid2_pm;
   }
