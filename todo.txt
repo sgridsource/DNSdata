@@ -1,6 +1,12 @@
 completed:
 ---
-nothing
+is in a state that can compile
+
+
+broken:
+--
+set_DNSdata_actual_xyzmax_pars
+
 
 
 started to change:
@@ -19,8 +25,12 @@ still need changing:
 ---
 all else
 
+
+
+
 check:
-in DNS_CTS.m
+---
+in DNS_CTS.m , ...
   OmegaCrossR1 == - Omega y,
   OmegaCrossR2 == + Omega (x-xC),
   OmegaCrossR3 == 0,
