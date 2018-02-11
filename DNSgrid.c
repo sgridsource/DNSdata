@@ -31,10 +31,6 @@ double DNSdata_q_VectorFunc_B;       /* B for DNSdata_q_VectorFunc */
 /* funs in this file */
 void m01_VectorFunc(int n, double *vec, double *fvec);
 void m02_VectorFunc(int n, double *vec, double *fvec);
-void minimize_dsigma_pm_dB_1_ByAdjusting_sigp_1phi(tGrid *grid, int innerdom);
-void set_dsigma_pm_dB_toZero_atB01(tGrid *grid, int innerdom);
-void DNSdata_LowPassFilter_with_dsigma_pm_dB_01_EQ0(tGrid *grid, int innerdom);
-void DNSdata_LowPassFilter_with_dsigma_pm_dBphi_01_EQ0(tGrid *grid,int innerdom);
 
 
 
