@@ -8,14 +8,6 @@
 #define Power pow
 
 /* struct types used in root finder newton_linesrch_itsP */
-typedef struct T_grid_x1_2_struct {
-  tGrid *grid;   /* grid */
-  double x1;  /* edge of NS1 */
-  double x2;  /* edge of NS2 */
-  int    it;  /* iteration number */
-  double tol; /* tolerance */
-} t_grid_x1_2_struct;
-
 typedef struct T_grid_bXYZ1_bXYZ2_struct {
   tGrid *grid; /* grid */
   int b1;      /* box1 */
@@ -53,17 +45,12 @@ extern tParameter *pdb;
 extern int npdb;
 extern int npdbmax;
 tGrid *central_q_errors_VectorFunc__grid; /* grid var for central_q_errors_VectorFunc */
-tGrid *xouts_error_VectorFunc__grid; /* grid var for xouts_error_VectorFunc */
-int    xouts_error_VectorFunc__it;   /* it for xouts_error_VectorFunc */
-double xouts_error_VectorFunc__tol;  /* tol for xouts_error_VectorFunc */
-double xouts_error_VectorFunc__xout1;  /* xout1 we currently try to achieve */
-double xouts_error_VectorFunc__xout2;  /* xout2 we currently try to achieve */
 tGrid *xmaxs_error_VectorFunc__grid; /* grid var for xmaxs_error_VectorFunc */
 double xmaxs_error_VectorFunc__xmax1;  /* xmax1 we currently try to achieve */
 double xmaxs_error_VectorFunc__xmax2;  /* xmax2 we currently try to achieve */
 tGrid *dqdx_at_Xmax1_2_VectorFunc__grid;  /* grid var for dqdx_at_Xmax1_2_VectorFunc */
-int dqdx_at_Xmax1_2_VectorFunc__bi1; /* boxind of max1 */
-int dqdx_at_Xmax1_2_VectorFunc__bi2; /* boxind of max2 */
+int    dqdx_at_Xmax1_2_VectorFunc__bi1; /* boxind of max1 */
+int    dqdx_at_Xmax1_2_VectorFunc__bi2; /* boxind of max2 */
 double dqdx_at_Xmax1_2_VectorFunc__Xmax1; /* pos. of max1 */
 double dqdx_at_Xmax1_2_VectorFunc__Ymax1; /* pos. of max1 */
 double dqdx_at_Xmax1_2_VectorFunc__Xmax2; /* pos. of max2 */
