@@ -12,7 +12,8 @@ int sgrid_DNSdata()
 
   /* functions */
   AddFun(PRE_GRID, set_DNS_boxsizes, "setup initial box sizes");
-  AddFun(POST_GRID, set_DNS_box_attribs, "set box Attribs for DNSdata");
+  AddFun(POST_GRID, DNSdata_setup_boxes, "setup boxes e.g. place Cub. Sph.");
+  AddFun(PRE_INITIALDATA, set_DNS_box_attribs, "set box Attribs for DNSdata");
   AddFun(PRE_INITIALDATA, DNSdata_startup, "initialize DNSdata");
   AddFun(INITIALDATA, setDNSdata, "set the DNS data");
   AddFun(ANALYZE, DNSdata_analyze, "compute properties of DNS data");
@@ -129,9 +130,10 @@ int sgrid_DNSdata()
          "max dy allowed before we try to center");
   AddPar("DNSdata_center_new_q_maxdz", "0",
          "max dz allowed before we try to center");
-  AddPar("DNSdata_center_fields", "no",
-         "if and how we center fields on (DNSdata_xmax1/2,0,0) "
-         "[no,center_yz,center_xyz,reset_q,adjust_domainshapes]");
+//  AddPar("DNSdata_center_fields", "no",
+//         "if and how we center fields on (DNSdata_xmax1/2,0,0) "
+//         "[no,center_yz,center_xyz,reset_q,adjust_domainshapes]");
+// there were more center fields options in BNSdata ...
   AddPar("DNSdata_Omega_init", "DNSdata_Omega", "ini. orbital angular velocity "
          "[#,estimate,estimate_from_desired_m0,DNSdata_Omega]");
   AddPar("DNSdata_x_CM_init", "DNSdata_x_CM",

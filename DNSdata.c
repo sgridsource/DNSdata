@@ -303,16 +303,12 @@ int DNSdata_startup(tGrid *grid)
   double DNSdata_b = Getd("DNSdata_b");
   double rs1, m1, Phic1, Psic1, m01;
   double rs2, m2, Phic2, Psic2, m02;
-  double xout1 = grid->box[0]->x_of_X[1](
-                     (void *) grid->box[0], 0, 0.0,0.0,0.0);
-  double xin1  = grid->box[0]->x_of_X[1](
-                     (void *) grid->box[0], 0, 0.0,1.0,0.0);
-  double xin2  = grid->box[3]->x_of_X[1](
-                     (void *) grid->box[3], 0, 0.0,1.0,0.0);
-  double xout2 = grid->box[3]->x_of_X[1](
-                     (void *) grid->box[3], 0, 0.0,0.0,0.0);
-  double xc1 = 0.5*(xout1+xin1);
-  double xc2 = 0.5*(xin2+xout2);
+  double xc1 = DNSdata_b;
+  double xc2 = -DNSdata_b;
+  double xout1 = DNSdata_b + rf_surf1;
+  double xin1  = DNSdata_b - rf_surf1;
+  double xin2  = -DNSdata_b + rf_surf2;
+  double xout2 = -DNSdata_b - rf_surf2;
   double ysh1;
 
   printf("Initializing DNSdata:\n");
@@ -354,15 +350,15 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("DNSdata_temp2"));
   enablevar(grid, Ind("DNSdata_temp3"));
   enablevar(grid, Ind("DNSdata_temp4"));
-  enablevar(grid, Ind("DNSdata_qg"));
   enablevar(grid, Ind("DNSdata_Psiold"));
   enablevar(grid, Ind("DNSdata_Boldx"));
   enablevar(grid, Ind("DNSdata_alphaPold"));
   enablevar(grid, Ind("DNSdata_Sigmaold"));
   enablevar(grid, Ind("DNSdata_qgold"));
-  enablevar(grid, Ind("DNSdata_qcorot"));
-  enablevar(grid, Ind("DNSdata_qnocent"));
-  enablevar(grid, Ind("DNSdata_surface_sigma_pm"));
+  //enablevar(grid, Ind("DNSdata_qg"));
+  //enablevar(grid, Ind("DNSdata_qcorot"));
+  //enablevar(grid, Ind("DNSdata_qnocent"));
+  //enablevar(grid, Ind("DNSdata_surface_sigma_pm"));
 
   /* enable some lapse and shift of ADMvars */
   enablevar(grid, Ind("alpha"));
@@ -378,10 +374,6 @@ int DNSdata_startup(tGrid *grid)
   /* set cart positions of qmax1/2 */
   if(Getd("DNSdata_xmax1")<=0.0) Setd("DNSdata_xmax1", xc1);
   if(Getd("DNSdata_xmax2")>=0.0) Setd("DNSdata_xmax2", xc2);
-
-  /* set cart positions of inner star edges */
-  if(Getd("DNSdata_xin1")<=0.0) Setd("DNSdata_xin1", xin1);
-  if(Getd("DNSdata_xin2")>=0.0) Setd("DNSdata_xin2", xin2);
 
   /* set the var DNSdata_CoordFacPower */
   enablevar(grid, Ind("DNSdata_CoordFac"));
@@ -536,11 +528,9 @@ int DNSdata_startup(tGrid *grid)
 
   /* print out maxima */
   printf("DNSdata_startup: DNSdata_qmax1 = %g  DNSdata_qmax2 = %g\n"
-         "                 DNSdata_xmax1 = %g  DNSdata_xmax2 = %g\n"
-         "                  DNSdata_xin1 = %g   DNSdata_xin2 = %g\n",
+         "                 DNSdata_xmax1 = %g  DNSdata_xmax2 = %g\n",
          Getd("DNSdata_qmax1"), Getd("DNSdata_qmax2"),
-         Getd("DNSdata_xmax1"), Getd("DNSdata_xmax2"),
-         Getd("DNSdata_xin1"), Getd("DNSdata_xin2"));
+         Getd("DNSdata_xmax1"), Getd("DNSdata_xmax2"));
 
   /* recompute q from the other fields */
   if(Getv("DNSdata_init_q_fromfields", "yes"))

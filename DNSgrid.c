@@ -287,6 +287,19 @@ int set_DNS_boxsizes(tGrid *grid)
   Setd("DNSdata_C2", Cc);
   printf(" DNSdata_C2 = %g\n", Getd("DNSdata_C2"));
 
+  /* look at DNSdata_grid and maybe setup box resolutions */
+  // ...
+
+  prTimeIn_s("WallTime: ");
+  return 0;
+}
+
+
+/* set attributes in boxes */
+int DNSdata_setup_boxes(tGrid *grid)
+{
+  double DNSdata_b = Getd("DNSdata_b");
+
   /* set cubed spheres, for now we disregard the par DNSdata_grid */
   switch(grid->nboxes)
   {
@@ -320,11 +333,8 @@ int set_DNS_boxsizes(tGrid *grid)
     default:
       errorexit("nboxes should be 13, 26, 32, or 38");
   }
-
-  prTimeIn_s("WallTime: ");
   return 0;
 }
-
 
 /* set attributes in boxes */
 int set_DNS_box_attribs(tGrid *grid)
