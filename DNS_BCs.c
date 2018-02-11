@@ -284,7 +284,7 @@ void set_interbox_and_FarLimit_BCs(tBox *box, int iFPsi, int iPsi,
 }
 
 
-/* new main BC routine, replaces set_DNSdata_BCs__old */
+/* new main BC routine, replaces set_BNSdata_BCs__old */
 void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
                          int nonlin)
 {
@@ -312,6 +312,7 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
     double PsiFarLimit = VarFarLimit(iPsi)*nonlin;
     char *varname = VarName(vlu->index[vind]);
     int is_Sigma = 0;
+    intList *skip_f;
 
     /* do nothing and goto end of loop if var with vind is not the one
        of the current block */
@@ -325,6 +326,7 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
     }
 
     /* box loop */
+    skip_f = alloc_intList(); /* list of face we want to skip */
     forallboxes(grid, b)
     {
       tBox *box = grid->box[b];
@@ -333,10 +335,12 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
       double *Psix = box->v[iPsix];
       double *Psiy = box->v[iPsiy];
       double *Psiz = box->v[iPsiz];
-      intList *skip_f = alloc_intList(); /* list of face we want to skip */
 
       /* do nothing and continue if current block is not in box b */
       if(blkinfo!=NULL) if(b!=blkinfo->bi) continue;
+
+      /* list of faces we want to skip */
+      clear_intList(skip_f);
 
       /* DNSdata_Sigma? */
       if(is_Sigma)
@@ -344,8 +348,8 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
         /* do nothing else for DNSdata_Sigma away from stars */
         if(box->MATTR == AWAY) continue;
 
-        /* we need BCs for Sigma in box1/2 at A=0, but not at A=1 !!! */
-        /* impose BC only at A=1 for boxes (1 and 2) that touch star */
+        /* we need BCs for Sigma in touching box at lam=0, but not elsewhere */
+        /* impose BC only at A=1 for boxes that touch star */
         if(box->MATTR == TOUCH)
         {
           int f;
@@ -358,8 +362,8 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
       set_interbox_and_FarLimit_BCs(box, iFPsi, iPsi, iPsix,iPsiy,iPsiz,
                                     PsiFarLimit, 1, skip_f);
 
-      free_intList(skip_f);
     } /* end forallboxes */
+    free_intList(skip_f);
 
     Incr_vindDerivs:
       /* increase index for derivs */
