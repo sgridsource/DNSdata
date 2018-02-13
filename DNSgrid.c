@@ -298,36 +298,34 @@ int set_DNS_boxsizes(tGrid *grid)
 /* set attributes in boxes */
 int DNSdata_setup_boxes(tGrid *grid)
 {
-  double DNSdata_b = Getd("DNSdata_b");
+  double dc = Getd("DNSdata_b");
+  double xc[4];
 
   /* set cubed spheres, for now we disregard the par DNSdata_grid */
   switch(grid->nboxes)
   {
-    double dc = DNSdata_b; 
-    double xc[4];
-
     case 13:
       xc[2] = xc[3] = 0.0;
       xc[1] = dc;
       arrange_1box12CubSph_into_full_cube(grid, 0, xc, 
-                                          0.5*rf_surf1, rf_surf1, dc);
+                                          0.375*rf_surf1, rf_surf1, dc);
       break;
     case 26:
       two_full_cubes_touching_at_x0(grid, 0, dc,
-                                    0.5*rf_surf1, rf_surf1,
-                                    0.5*rf_surf2, rf_surf2);
+                                    0.375*rf_surf1, rf_surf1,
+                                    0.375*rf_surf2, rf_surf2);
       break;
     case 32:
       sphere_around_two_full_cubes_touching_at_x0(grid, 0, dc,
-                                                  0.5*rf_surf1, rf_surf1,
-                                                  0.5*rf_surf2, rf_surf2,
+                                                  0.375*rf_surf1, rf_surf1,
+                                                  0.375*rf_surf2, rf_surf2,
                                                   4.0*dc);
       break;
     case 38:
       printf("using: DNSdata_grid = 36CS_2xyz\n");
       two_spheres_around_two_full_cubes(grid, 0, dc,
-                                        0.5*rf_surf1, rf_surf1,
-                                        0.5*rf_surf2, rf_surf2,
+                                        0.375*rf_surf1, rf_surf1,
+                                        0.375*rf_surf2, rf_surf2,
                                         4.0*dc, 10000.0*dc);
       break;
     default:

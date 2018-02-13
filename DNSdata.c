@@ -114,9 +114,9 @@ void find_Varmax_along_x_axis_usingDNSdata_temp123(tGrid *grid, int varind,
 void find_qmax1_along_x_axis(tGrid *grid, int *bi, double *X, double *Y);
 void central_q_errors_VectorFunc(int n, double *vec, double *fvec);
 void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec);
-double DNSdata_find_position_of_qmax(tGrid *grid, int *bi, 
+double DNSdata_find_position_of_qmax(tGrid *grid, int star, int *bi,
                                      double *X, double *Y, double *Z);
-double DNSdata_find_xyz_of_qmax(tGrid *grid, int *bi, 
+double DNSdata_find_xyz_of_qmax(tGrid *grid, int star, int *bi,
                                 double *x, double *y, double *z);
 void set_DNSdata_actual_xyzmax_pars(tGrid *grid);
 
@@ -3037,8 +3037,8 @@ int DNSdata_analyze(tGrid *grid)
 
   /* find global max of q in NS1/2 */
   Zmax1=Zmax2=0.0;
-  global_qmax1 = DNSdata_find_position_of_qmax(grid, &bi1, &Xmax1, &Ymax1, &Zmax1);
-  global_qmax2 = DNSdata_find_position_of_qmax(grid, &bi2, &Xmax2, &Ymax2, &Zmax2);
+  global_qmax1 = DNSdata_find_position_of_qmax(grid, STAR1, &bi1, &Xmax1, &Ymax1, &Zmax1);
+  global_qmax2 = DNSdata_find_position_of_qmax(grid, STAR2, &bi2, &Xmax2, &Ymax2, &Zmax2);
   if(grid->box[bi1]->x_of_X[1] != NULL)
   {
     glob_xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,Ymax1,Zmax1);
@@ -4208,160 +4208,35 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
 }
 
 
-/* find derivative (fvec[1],fvec[2],fvec[3]) of dq 
-   at (X,Y,Z)=(vec[1],vec[2],vec[3]) by interpolation if n=3
-   otherwise just find dq/dx, dq/dy */
-/* Note: before we can use this, we have to set par and "DNSdata_temp2" */
-void gradient_q_VectorFuncP(int n, double *vec, double *fvec, void *p)
-{
-  tBox *box = (tBox *) p;
-  double *cx= box->v[Ind("DNSdata_temp1")]; /* coeffs of dq_dx */
-  double *cy= box->v[Ind("DNSdata_temp2")];
-  double *cz= box->v[Ind("DNSdata_temp3")];
-  double X = vec[1];
-  double Y = vec[2];
-  double Z = 0;
-
-  if(n==3)
-  {
-    Z = vec[3];
-    fvec[3] = spec_interpolate(box, cz, X,Y,Z);
-  }
-  fvec[1] = spec_interpolate(box, cx, X,Y,Z);
-  fvec[2] = spec_interpolate(box, cy, X,Y,Z);
-//  printf("   at (bi=%d X=%g Y=%g Z=%g)\n"
-//         "   dq_dx=%.12g dq_dy=%.12g dq_dz=%.12g\n",
-//         box->b, X,Y,Z, fvec[1],fvec[2],fvec[3]);
-}
-
-/* find max q in or near box *bi, *bi has to be 0 or 3, return qmax */
-double DNSdata_find_position_of_qmax(tGrid *grid, int *bi, 
+/* find max q in star, return qmax */
+double DNSdata_find_position_of_qmax(tGrid *grid, int star, int *bi,
                                      double *X, double *Y, double *Z)
 {
+  double qmax=0;
   int b;
-  int bi_guess = *bi;
-  double Xvec[4];
-  int stat, check;
   tBox *box;
-  double *q, *cx,*cy,*cz, *c0;
-  double qmax;
 
-  /* get derivs of q in all boxes in DNSdata_qx/y/z
-     and coeffs od derivs in cx/y/z in DNSdata_temp1/2/3, 
-     plus q's coeffs c0 in DNSdata_temp4 */
+  /* find box and box index where Cart star box is */
   forallboxes(grid, b)
   {
     box = grid->box[b];
-    q = box->v[Ind("DNSdata_q")];
-    cx= box->v[Ind("DNSdata_temp1")];
-    cy= box->v[Ind("DNSdata_temp2")];
-    cz= box->v[Ind("DNSdata_temp3")];
-    c0= box->v[Ind("DNSdata_temp4")];
-    /* set coeffs of dq in DNSdata_temp1/2/3 */
-    FirstDerivsOf_S(box, Ind("DNSdata_q"), Ind("DNSdata_qx"));
-    spec_Coeffs(box, box->v[Ind("DNSdata_qx")], cx);
-    spec_Coeffs(box, box->v[Ind("DNSdata_qy")], cy);
-    spec_Coeffs(box, box->v[Ind("DNSdata_qz")], cz);
-    /* set coeffs of q in DNSdata_temp4 */
-    spec_Coeffs(box, q, c0);
+    if(box->SIDE != star) continue;
+    if(box->MATTR != INSIDE) continue;
+    /* for now we assume max is in Cart. box */
+    if(box->COORD == CART) break;
   }
+  *bi = b;
+  box_extremum_of_F(box, Ind("DNSdata_Psi"), X,Y,Z, &qmax);
 
-  /* set Xvec */
-  Xvec[1] = *X;
-  Xvec[2] = *Y;
-  Xvec[3] = *Z;
-
-  /* do we actually try to find Xvec[1],Xvec[2],Xvec[3]? */
-  if(Getv("DNSdata_find_position_of_qmax","find_XYZ"))
-  {
-    /* move Y away from boundary in case we are in box0/3 */
-    box = grid->box[*bi];
-    if(dlesseq(Xvec[2],box->bbox[2]))    Xvec[2] += dequaleps*1000.0;
-    if(dgreatereq(Xvec[2],box->bbox[3])) Xvec[2] -= dequaleps*1000.0;
-
-    /* use newton_linesrch_itsP to find max, use var box as parameters */
-    stat = newton_linesrch_itsP(Xvec, 3, &check,
-                                gradient_q_VectorFuncP, (void *) box,
-                                1000, dequaleps);
-    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
-    if(check || stat<0) printf("  --> Xvec=(%.15g,%.15g,%.15g)\n",
-                               Xvec[1],Xvec[2],Xvec[3]);
-  }
-  
-  /* make sure Y is inside bounding box */
-  box = grid->box[*bi];
-  if( Xvec[1]<box->bbox[0] ||
-      Xvec[1]>box->bbox[1] ||
-      Xvec[2]<box->bbox[2] ||
-      Xvec[2]>box->bbox[3] )
-  {
-    printf("DNSdata_find_position_of_qmax: Xvec=(%.15g,%.15g)\nis outside box%d. "
-           "Left *X,*Y,*Z unchanged.\n", Xvec[1],Xvec[2], *bi);
-    return -1.0;
-  }        
-  else
-  {     
-    *X = Xvec[1];
-    *Y = Xvec[2];
-    *Z = Xvec[3];
-  }
-
-  c0= box->v[Ind("DNSdata_temp4")];
-  qmax = spec_interpolate(box, c0, *X,*Y,*Z);
-  //printf(" global qmax is at: *bi=%d *X=%.11g *Y=%.11g *Z=%.11g\n",
-  //       *bi, *X, *Y, *Z);
   return qmax;
 }
 
 /* find cart coords of max of q */
-double DNSdata_find_xyz_of_qmax(tGrid *grid, int *bi, 
+double DNSdata_find_xyz_of_qmax(tGrid *grid, int star, int *bi, 
                                 double *x, double *y, double *z)
 {
-  double qmax=0;
-  double Xmax0, Xmax,Ymax,Zmax;
-
-  /* find max of q in NS1/2 along x-axis */
-  find_qmax1_along_x_axis(grid, bi, &Xmax0, &Ymax);
-  Xmax=Xmax0;
-  Zmax=0.0;
-  //printf("Ymax=%g\n",Ymax);
-
-  /* find global max of q in NS1/2 ? */
-  if(!Getv("DNSdata_find_xyz_of_qmax","max_along_axis"))
-    qmax = DNSdata_find_position_of_qmax(grid, bi, &Xmax, &Ymax, &Zmax);
-  if(qmax<0.0)
-  {
-    if(*bi<=1 || *bi==5)
-      *x = Getd("DNSdata_xmax1");
-    else
-      *x = Getd("DNSdata_xmax2");
-    *y = *z = 0.0;
-    return qmax;
-  }
-
-  /* do we want to use other values? */
-  if(Getv("DNSdata_find_xyz_of_qmax","xmax_along_axis"))
-  {
-    if( Xmax0<grid->box[*bi]->bbox[0] || Xmax0>grid->box[*bi]->bbox[1] )
-      printf("DNSdata_find_xyz_of_qmax = xmax_along_axis\n"
-             " Xmax0=%.15g is outside box%d. Using global max instead!\n",
-             Xmax0, *bi);
-    else Xmax=Xmax0;
-  }
-
-  if(grid->box[*bi]->x_of_X[1] != NULL)
-  {
-    *x = grid->box[*bi]->x_of_X[1]((void *) grid->box[*bi], -1, Xmax,Ymax,Zmax);
-    *y = grid->box[*bi]->x_of_X[2]((void *) grid->box[*bi], -1, Xmax,Ymax,Zmax);
-    *z = grid->box[*bi]->x_of_X[3]((void *) grid->box[*bi], -1, Xmax,Ymax,Zmax);
-  }
-  else
-  {
-    *x = Xmax;
-    *y = Ymax;
-    *z = Zmax;
-  }
-  return qmax;
+  /* for now we assume max is in Cart. box anyway */
+  return DNSdata_find_position_of_qmax(grid, star, bi, x,y,z);
 }
 
 /* set DNSdata_actual_x/y/z/max1/2 pars */
@@ -4370,21 +4245,17 @@ void set_DNSdata_actual_xyzmax_pars(tGrid *grid)
   int bi1, bi2;
   double x1,y1,z1, x2,y2,z2;
   double qmax1, qmax2;
-
+  double xc = Getd("DNSdata_b");
+  
   printf("set_DNSdata_actual_xyzmax_pars:  WallTime=%gs\n", getTimeIn_s());
   bi1=0;
-  bi2=3;
-  qmax1 = DNSdata_find_xyz_of_qmax(grid, &bi1, &x1,&y1,&z1);
-  qmax2 = DNSdata_find_xyz_of_qmax(grid, &bi2, &x2,&y2,&z2);
-  if(qmax1<0.0 || qmax2<0.0)
-  {
-    printf("set_DNSdata_actual_xyzmax_pars: DNSdata_find_xyz_of_qmax cannot find one\n");
-    printf("of the maxima: qmax1=%g qmax2=%g\n", qmax1, qmax2);
-    printf("Setting the following parameters to desired (not actual) values:\n");
-    x1 = Getd("DNSdata_xmax1");
-    x2 = Getd("DNSdata_xmax2");
-    y1 = y2 = z1 = z2 = 0.0;
-  }
+  bi2=13;
+  x1 = xc;
+  x2 =-xc;
+  y1 = y2 = z1 = z2 = 0.0;
+  qmax1 = DNSdata_find_xyz_of_qmax(grid, STAR1, &bi1, &x1,&y1,&z1);
+  qmax2 = DNSdata_find_xyz_of_qmax(grid, STAR2, &bi2, &x2,&y2,&z2);
+
   Setd("DNSdata_actual_xmax1", x1);
   Setd("DNSdata_actual_ymax1", y1);
   Setd("DNSdata_actual_zmax1", z1);
