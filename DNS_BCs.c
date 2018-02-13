@@ -53,8 +53,80 @@ void set_interbox_and_outer_BCs(tBox *box, int iFPsi, int iPsi,
                                 double PsiFarLimit, int setFarLimit,
                                 intList *skip_f)
 {
-// copy something like Poisson3_set_interbox_and_outerBCs here
+  tGrid *grid = box->grid;
+  double *FPsi = box->v[iFPsi];
+  double *Psi  = box->v[iPsi];
+  int idPsi[4];
+  int fi;
+  idPsi[1] = iPsix;
+  idPsi[2] = iPsiy;
+  idPsi[3] = iPsiz;
+
+  /* loop over bfaces */
+  for(fi=0; fi<box->nbfaces; fi++)
+  {
+    tBface *bface = box->bface[fi];
+    int ob  = bface->ob;
+    int pi, ind;
+
+    /* check if there is another box */
+    if(ob>=0)
+    {
+      if(bface->touch) /* bface touches one other face */
+      {
+        if(bface->same_fpts) /* we can copy */
+          FPsi_copy_for_bface(iFPsi, bface, iPsi, idPsi);
+        else if(bface->sameX && bface->sameY && bface->sameZ)
+          errorexit("if sameX=sameY=sameZ=1 we should have same_fpts=1");
+        else if(bface->sameX && bface->sameY)
+        {
+          int idir = 3;
+          FPsi_1Dinterp_for_bface(iFPsi, bface, idir, iPsi, idPsi);
+        }
+        else if(bface->sameX && bface->sameZ)
+        {
+          int idir = 2;
+          FPsi_1Dinterp_for_bface(iFPsi, bface, idir, iPsi, idPsi);
+        }
+        else if(bface->sameY && bface->sameZ)
+        {
+          int idir = 1;
+          FPsi_1Dinterp_for_bface(iFPsi, bface, idir, iPsi, idPsi);
+        }
+        else if(bface->sameX || bface->sameY || bface->sameZ)
+        {
+          /* we need 2d interpolation because the touching surfaces,
+             do not have any points in common */
+          int plN;
+          if(bface->sameX) plN=1;
+          if(bface->sameY) plN=2;
+          if(bface->sameZ) plN=3;
+          FPsi_2Dinterp_for_bface(iFPsi, bface, plN, iPsi, idPsi);
+        }
+        else if(bface->fpts_off_face)
+          errorexit("implement fpts_off_face=1 case!");
+        else
+          errorexit("we should not get here");
+      }
+      else /* bface is not associated with just one other face */
+      {
+        /* get values by 3d interpolation from box ob */
+        FPsi_3Dinterp_for_bface(iFPsi, bface, iPsi, idPsi);
+        if(bface->setnormalderiv)
+          errorexit("this non-touching bface, should have setnormalderiv=0");
+      }
+    }
+    else /* there is no other box */
+    {
+      /* set far limit BC */
+      if(bface->outerbound && setFarLimit)
+        forPointList_inbox(bface->fpts, box, pi, ind)
+          FPsi[ind] = Psi[ind] - PsiFarLimit;
+    }
+  }
 }
+
+
 
 
 /* set BC's between boxes and at outerbound */
