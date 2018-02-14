@@ -3981,13 +3981,14 @@ int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
                                       int *bi, double *X, double *vmax)
 {
   int stat, b;
+  *bi=-1;
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
     /* find boxes with matter for star and dom=0 or 1 */
     if(box->MATTR==INSIDE && box->SIDE==star && box->CI->dom<2)
       stat = box_extremum_of_F_in_dir(box, varind, 1, 0.,0., X, vmax);
-    if(stat>=0) break;
+    if(stat>=0) { *bi=b; break; }
   }
   return stat;
 }
