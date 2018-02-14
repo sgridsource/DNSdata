@@ -48,10 +48,10 @@ void DNS_approx_normal(tBface *bface, int ijk, double *nx, double *ny, double *n
 
 
 /* set BC's between boxes and at outerbound */
-void set_interbox_and_outer_BCs(tBox *box, int iFPsi, int iPsi,
-                                int iPsix, int iPsiy, int iPsiz,
-                                double PsiFarLimit, int setFarLimit,
-                                intList *skip_f)
+void DNS_set_interbox_and_outer_BCs(tBox *box, int iFPsi, int iPsi,
+                                    int iPsix, int iPsiy, int iPsiz,
+                                    double PsiFarLimit, int setFarLimit,
+                                    intList *skip_f)
 {
   tGrid *grid = box->grid;
   double *FPsi = box->v[iFPsi];
@@ -62,17 +62,23 @@ void set_interbox_and_outer_BCs(tBox *box, int iFPsi, int iPsi,
   idPsi[2] = iPsiy;
   idPsi[3] = iPsiz;
 
-  /* set BCs for cases where there is another box */
-  set_interbox_BCs_for_bfaces(box, iFPsi, iPsi, idPsi);
-
-  /* loop over bfaces again to treat outer BC */
+  /* loop over bfaces */
   forallbfaces(box, fi)
   {
     tBface *bface = box->bface[fi];
     int ob  = bface->ob;
     int pi, ind;
-    /* check if there is no box */
-    if(ob<0)
+
+    /* do nothing if bface->f is in skip_f */
+    if(in_intList(skip_f, bface->f)) continue;
+
+    /* check if there is other box */
+    if(ob>=0)
+    {
+      /* set BCs for cases where there is another box */
+      set_interbox_BCs_for_bface(iFPsi, bface, iPsi, idPsi);
+    }
+    else  /* there is no box */
     {
       /* set far limit BC */
       if(bface->outerbound && setFarLimit)
@@ -399,6 +405,7 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
       /* set some BCs for each box */
       set_interbox_and_FarLimit_BCs(box, iFPsi, iPsi, iPsix,iPsiy,iPsiz,
                                     PsiFarLimit, 1, skip_f);
+// replace above by DNS_set_interbox_and_outer_BCs
 
     } /* end forallboxes */
     free_intList(skip_f);
