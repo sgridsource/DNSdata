@@ -5,8 +5,9 @@ is in a state that can compile
 
 broken:
 --
-set_DNSdata_actual_xyzmax_pars
-
+-the qmax finder alo9ng the x-axis
+-maybe also set_DNSdata_actual_xyzmax_pars
+-we need to ensure that sigma1 is that at lam=1 where 2 SSURF boxes touch
 
 
 started to change:

@@ -403,8 +403,10 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
       }
 
       /* set some BCs for each box */
-      set_interbox_and_FarLimit_BCs(box, iFPsi, iPsi, iPsix,iPsiy,iPsiz,
-                                    PsiFarLimit, 1, skip_f);
+      //set_interbox_and_FarLimit_BCs(box, iFPsi, iPsi, iPsix,iPsiy,iPsiz,
+      //                              PsiFarLimit, 1, skip_f);
+      DNS_set_interbox_and_outer_BCs(box, iFPsi, iPsi, iPsix,iPsiy,iPsiz,
+                                     PsiFarLimit, 1, skip_f);
 // replace above by DNS_set_interbox_and_outer_BCs
 
     } /* end forallboxes */
