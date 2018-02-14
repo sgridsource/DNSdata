@@ -684,6 +684,7 @@ int DNSdata_center_fields_if_desired(tGrid *grid, int it)
     set_DNSdata_actual_xyzmax_pars(grid);
 
     /* print new masses */
+errorexit("need other boxes, not 0 and 3");
     m01 = GetInnerRestMass(grid, 0);
     m02 = GetInnerRestMass(grid, 3);
     printf("     => m01=%.19g m02=%.19g\n", m01, m02);
@@ -862,6 +863,7 @@ int DNSdata_center_q_if_desired(tGrid *grid, int it)
       set_DNSdata_actual_xyzmax_pars(grid);
 
     /* print new masses */
+errorexit("need other boxes, not 0 and 3");
     m01 = GetInnerRestMass(grid, 0);
     m02 = GetInnerRestMass(grid, 3);
     printf("     => m01=%.19g m02=%.19g\n", m01, m02);
@@ -975,6 +977,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
   pdb_bak  = make_empty_pdb(npdbmax);
 
   /* rest masses before adjusting q */
+errorexit("need other boxes, not 0 and 3");
   m01 = GetInnerRestMass(grid, 0);
   m02 = GetInnerRestMass(grid, 3);
   printf("adjust_C1_C2_q_keep_restmasses: in DNSdata_solve step %d: "
@@ -1014,6 +1017,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
         double *q_b2 = grid->box[2]->v[Ind("DNSdata_q")];
 
         DNS_compute_new_centered_q(grid);
+errorexit("need other boxes, not 0 and 3");
         m01 = GetInnerRestMass(grid, 0);
         m02 = GetInnerRestMass(grid, 3);
 
@@ -1113,6 +1117,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
   set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
 
   /* print new masses */
+errorexit("need other boxes, not 0 and 3");
   m01 = GetInnerRestMass(grid, 0);
   m02 = GetInnerRestMass(grid, 3);
   printf("     => m01=%.19g m02=%.19g\n", m01, m02);
@@ -1448,7 +1453,7 @@ int adjust_Omega_xCM_keep_xmax(tGrid *grid, int it, double tol)
   return 0;
 }
 
-/* for newton_linesrch_its: compute derivs of q in domain 0 and 3, or 4 and 5 */
+/* for newton_linesrch_its: compute derivs of q in two domains */
 /* if n=1 only DNSdata_Omega is adjusted
    if n=2 both DNSdata_Omega & DNSdata_x_CM are adjusted */
 void dqdx_at_Xmax1_2_VectorFunc(int n, double *vec, double *fvec)
@@ -1537,6 +1542,7 @@ int adjust_Omega_xCM_keep_dqdxmax_eq_0(tGrid *grid, int it, double tol)
   /* for now we assume that the max are in box0/3 at Y=B=0
      or in box4/5 at Y=0 */
   dqdx_at_Xmax1_2_VectorFunc__Ymax1 = 0.0;
+errorexit("need other boxes, not 0 and 3");
   blist[0]=0;  blist[1]=5;
   bi=b_X_of_x_forgiven_YZ_inboxlist(grid, blist, 2,
                                     &dqdx_at_Xmax1_2_VectorFunc__Xmax1,
@@ -1650,8 +1656,7 @@ int adjust_Omega_xCM_keep_dqdxmax_eq_0(tGrid *grid, int it, double tol)
 }
 
 
-/* for newton_linesrch_itsP: compute derivs of Func in domain 0 and 3,
-   or 4 and 5 */
+/* for newton_linesrch_itsP: compute derivs of Func in two domains */
 /* if n=1 only DNSdata_Omega is adjusted
    if n=2 both DNSdata_Omega & DNSdata_x_CM are adjusted */
 void dFuncdx_at_Xfm1_2_VectorFuncP(int n, double *vec, double *fvec, void *p)
@@ -1730,7 +1735,6 @@ int adjust_Omega_xCM_keep_dFuncdxfm_eq_0(tGrid *grid, int it, double tol)
          "  old Omega=%g x_CM=%g tol=%g\n", it, Omega, x_CM, tol);
 
   /* set Xfm1 and Xfm2, i.e. find max in Func = DNSdata_qcorot */
-  bi1=0;  bi2=3;
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_qcorot"), STAR1,
                                    &bi1, &Xfm1, &qfm1);
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_qcorot"), STAR2,
@@ -1921,7 +1925,6 @@ int adjust_Omega_xCM_forcebalance(tGrid *grid, int it, double tol)
          it, Omega, x_CM, tol, getTimeIn_s());
 
   /* set Xqm1 and Xqm2, i.e. find max in DNSdata_q */
-  bi1=0;  bi2=3;
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR1,
                                    &bi1, &Xqm1, &qqm1);
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR2,
@@ -2057,6 +2060,7 @@ void Py_ADM_of_xCM_VectorFuncP(int n, double *vec, double *fvec, void *p)
 
   /* compute ADM mom. Py_ADM */
   DNS_set_P_ADM_VolInt_integrand_Om_xcm(grid, itemp1,itemp2,itemp3, Omega,xcm);
+errorexit("need other boxes, not 0 and 3");
   Py_ADM1 = InnerVolumeIntegral(grid, 0, itemp2);
   Py_ADM2 = InnerVolumeIntegral(grid, 3, itemp2);
   Py_ADM = Py_ADM1 + Py_ADM2;
@@ -2074,7 +2078,7 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
   double xcmvec[2];
   double OmxCMvec[3];
   double Omega, x_CM, Om1,Om2;
-  double Xqm1,Yqm1, Xqm2,Yqm2;
+  double Xqm1,qm1, Xqm2,qm2;
   t_grid_bXYZ1_bXYZ2_struct pars[1];
 
   /* save old Omega, x_CM */
@@ -2107,9 +2111,9 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
   /* set Xqm1 and Xqm2, i.e. find max in DNSdata_q */
   bi1=0;  bi2=3;
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR1,
-                                   &bi1, &Xqm1, &Yqm1);
+                                   &bi1, &Xqm1, &qm1);
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR2,
-                                   &bi2, &Xqm2, &Yqm2);
+                                   &bi2, &Xqm2, &qm2);
 
   if(bi1<0 || bi2<0)
   {
@@ -2125,11 +2129,11 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
   pars->grid  = grid;
   pars->b1 = bi1;
   pars->X1 = Xqm1;
-  pars->Y1 = Yqm1;
+  pars->Y1 = 0.0;
   pars->Z1 = 0.0;
   pars->b2 = bi2;
   pars->X2 = Xqm2;
-  pars->Y2 = Yqm2;
+  pars->Y2 = 0.0;
   pars->Z2 = 0.0;
   printf("adjust_xCM_Omega_Py0_forcebalance:  box%d (Xm,Ym)=(%g,%g)\n",
          pars->b1,pars->X1,pars->Y1);
@@ -2149,11 +2153,11 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
   pars->grid  = grid;
   pars->b1 = bi2;
   pars->X1 = Xqm2;
-  pars->Y1 = Yqm2;
+  pars->Y1 = 0.0;
   pars->Z1 = 0.0;
   pars->b2 = bi1;
   pars->X2 = Xqm1;
-  pars->Y2 = Yqm1;
+  pars->Y2 = 0.0;
   pars->Z2 = 0.0;
   printf("adjust_xCM_Omega_Py0_forcebalance:  box%d (Xm,Ym)=(%g,%g)\n",
          pars->b1,pars->X1,pars->Y1);
@@ -2246,6 +2250,7 @@ double average_current_and_old(double weight, tGrid *grid,
   varadd(grid, Ind("DNSdata_Sigma"), weight,Ind("DNSdata_Sigma"), (1.0-weight),Ind("DNSdata_Sigmaold"));
 
   /* compute masses */
+errorexit("need other boxes, not 0 and 3");
   m01 = GetInnerRestMass(grid, 0);
   m02 = GetInnerRestMass(grid, 3);
   
@@ -2267,6 +2272,7 @@ double average_current_and_old(double weight, tGrid *grid,
   /* set temp1 = temp2 - qnocent = qnocent_new - qnocent_old */
   varadd(grid, Ind("DNSdata_temp1"),
                1,Ind("DNSdata_temp2"), -1,Ind("DNSdata_qnocent"));
+errorexit("need other boxes, not 0 and 3");
   L2qdiff = varBoxL2Norm(grid->box[0], Ind("DNSdata_temp1")) +
             varBoxL2Norm(grid->box[3], Ind("DNSdata_temp1")) +
             varBoxL2Norm(grid->box[4], Ind("DNSdata_temp1")) +
@@ -3008,7 +3014,6 @@ Yo(1);
   printf("ADM quantities: M_ADM = %.16g  J_ADM = %.16g\n", M_ADM, J_ADM);
 
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
   find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
   /* compute qmax1 and qmax2 */
@@ -3685,6 +3690,7 @@ void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
       
   Setd("DNSdata_C1", vec[1]);
   DNS_compute_new_centered_q(pars->grid);
+errorexit("need other boxes, not 0 and 3");
   m01 = GetInnerRestMass(pars->grid, 0);
   fvec[1] = m01 - pars->m01;
 }
@@ -3701,6 +3707,7 @@ void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
 
   Setd("DNSdata_C2", vec[1]);
   DNS_compute_new_centered_q(pars->grid);
+errorexit("need other boxes, not 0 and 3");
   m02 = GetInnerRestMass(pars->grid, 3);
   fvec[1] = m02 - pars->m02;
 }
@@ -3729,7 +3736,7 @@ void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
   grid2 = make_empty_grid(grid->nvariables, 0);
   copy_grid(grid, grid2, 0);
 
-  /* reset sigma such that q=0 is at A=0 for box0/1 and box3/2 */
+  /* reset sigma such that q=0 is at star surfaces */
   if(q_b1[Index(n1-1,n2-1,0)]<0.0)
     reset_Coordinates_CubedSphere_sigma01(grid, grid2, STAR1);
   if(q_b2[Index(n1-1,n2-1,0)]<0.0)
@@ -3762,6 +3769,7 @@ void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* compute rest mass error Delta_m01/2 */
   /***************************************/
   /* get rest masses */
+errorexit("need other boxes, not 0 and 3");
   m01 = GetInnerRestMass(grid, 0);
   m02 = GetInnerRestMass(grid, 3);
 
@@ -3853,6 +3861,7 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* compute rest mass error Delta_m01 */
   /*************************************/
   /* get rest mass */
+errorexit("need other boxes, not 0 and 3");
   m01 = GetInnerRestMass(grid, 0);
 
   printf("m01_error_VectorFuncP: C1=%.13g  m01=%.13g\n", vec[1], m01);
@@ -3882,6 +3891,7 @@ void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* compute rest mass error Delta_m01 */
   /*************************************/
   /* get rest mass */
+errorexit("need other boxes, not 0 and 3");
   m02 = GetInnerRestMass(grid, 3);
 
   printf("m02_error_VectorFuncP: C2=%.13g  m02=%.13g\n", vec[1], m02);
@@ -4017,6 +4027,7 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
   qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   /* compute Cartesian xmax1 */
+errorexit("need other boxes, not 0 and 3");
   if(bi1==0)
   {
     tBox *box = grid->box[bi1];
@@ -4073,6 +4084,7 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
   qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   /* compute Cartesian xmax1 */
+errorexit("need other boxes, not 0 and 3");
   if(bi1==0)
   {
     tBox *box = grid->box[bi1];
