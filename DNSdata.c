@@ -109,9 +109,10 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm1_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm2_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
-void find_Varmax_along_x_axis_usingDNSdata_temp123(tGrid *grid, int varind, 
-                                                int *bi, double *X, double *Y);
-void find_qmax1_along_x_axis(tGrid *grid, int *bi, double *X, double *Y);
+int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
+                                     int *bi, double *X, double *vmax);
+int find_qmax_along_x_axis(tGrid *grid, int star,
+                           int *bi, double *X, double *qmax);
 void central_q_errors_VectorFunc(int n, double *vec, double *fvec);
 void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec);
 double DNSdata_find_position_of_qmax(tGrid *grid, int star, int *bi,
@@ -874,21 +875,20 @@ void find_qmaxs_along_x_axis_and_reset_qmaxs_xmaxs_pars(tGrid *grid)
 {
   int bi1, bi2;
   double xmax1, qmax1, xmax2, qmax2;
-  double Xmax1,Ymax1, Xmax2,Ymax2;
+  double Xmax1, Xmax2;
 
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
   /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
   if(grid->box[bi1]->x_of_X[1] != NULL)
-    xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,Ymax1,0.0);
+    xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,0.,0.);
   else
     xmax1 = Xmax1;
   if(grid->box[bi2]->x_of_X[1] != NULL)
-    xmax2 = grid->box[bi2]->x_of_X[1]((void *) grid->box[bi2], -1, Xmax2,Ymax2,0.0);
+    xmax2 = grid->box[bi2]->x_of_X[1]((void *) grid->box[bi2], -1, Xmax2,0.,0.);
   else
     xmax2 = Xmax2;
   /* set qmax1/2 */
@@ -1129,7 +1129,7 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
   double Cvec[3];
   double qmerrorvec[3];
   double qm1, qm2, qm_error, dqm1, dqm2;
-  double Xmax1,Ymax1, Xmax2,Ymax2;
+  double Xmax1, Xmax2;
   int bi1, bi2;
   int check, stat, bi, i;
   tGrid *grid_bak;
@@ -1142,24 +1142,19 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
 
   /* max q before adjusting q */
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
-  /* compute qm1 and qm2 */
-  qm1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-  qm2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qm1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qm2);
   pars->bi1 = bi1;
   pars->Xmax1 = Xmax1;
-  pars->Ymax1 = Ymax1;
+  pars->Ymax1 = 0.;
   pars->bi2 = bi2;
   pars->Xmax2 = Xmax2;
-  pars->Ymax2 = Ymax2;
+  pars->Ymax2 = 0.;
   printf("adjust_C1_C2_q_keep_qmax: in DNSdata_solve step %d: "
          "WallTime=%gs\n", it, getTimeIn_s());
   printf(" max q in inner domains before computing new q:"
          " qm1=%g qm2=%g\n", qm1, qm2);
-  printf(" in box%d (X,Y)=(%g,%g), box%d (X,Y)=(%g,%g)\n",
-         bi1,Xmax1,Ymax1, bi2,Xmax2,Ymax2);
+  printf(" in box%d X=%g, box%d X=%g\n", bi1,Xmax1, bi2,Xmax2);
 
   /* compute error in max q */
   dqm1 = qm1 - Getd("DNSdata_qm1");
@@ -1231,12 +1226,8 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
 
   /* print new qm */
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
-  /* compute qm1 and qm2 */
-  qm1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-  qm2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qm1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qm2);
   printf("     => qm1=%.19g qm2=%.19g\n", qm1, qm2);
 
   /* free grid and pdb for backups */
@@ -1269,7 +1260,7 @@ int adjust_C1_C2_q_keep_m0_or_qmax(tGrid *grid, int it, double tol)
 void xmaxs_error_VectorFunc(int n, double *vec, double *fvec)
 {
   int bi1, bi2;
-  double Xmax1,Ymax1, Xmax2,Ymax2;
+  double Xmax1,qmax1, Xmax2,qmax2;
   double xmax1, xmax2;
   tGrid *grid = xmaxs_error_VectorFunc__grid;
 
@@ -1286,20 +1277,19 @@ void xmaxs_error_VectorFunc(int n, double *vec, double *fvec)
   DNS_compute_new_centered_q(grid);
 
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
   if(grid->box[bi1]->x_of_X[1] != NULL)
-    xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,Ymax1,0.0);
+    xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,0.,0.);
   else
     xmax1 = Xmax1;
   if(grid->box[bi2]->x_of_X[1] != NULL)
-    xmax2 = grid->box[bi2]->x_of_X[1]((void *) grid->box[bi2], -1, Xmax2,Ymax2,0.0);
+    xmax2 = grid->box[bi2]->x_of_X[1]((void *) grid->box[bi2], -1, Xmax2,0.,0.);
   else
     xmax2 = Xmax2;
 //  /* compute qmax1 and qmax2 */
-//  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-//  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+//  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+//  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   printf("xmaxs_error_VectorFunc: Omega=%g x_CM=%g xmax1=%g xmax2=%g\n",
          Getd("DNSdata_Omega"), Getd("DNSdata_x_CM"),
@@ -1725,7 +1715,7 @@ int adjust_Omega_xCM_keep_dFuncdxfm_eq_0(tGrid *grid, int it, double tol)
   double dqdx_0p[3];
   double Omega, x_CM;
   double dOmega, dx_CM;
-  double Xfm1,Yfm1, Xfm2,Yfm2;
+  double Xfm1,qfm1, Xfm2,qfm2;
   int do_lnsrch = Getv("DNSdata_adjust", "always");
   t_grid_bXYZ1_bXYZ2_struct pars[1];
 
@@ -1740,19 +1730,19 @@ int adjust_Omega_xCM_keep_dFuncdxfm_eq_0(tGrid *grid, int it, double tol)
 
   /* set Xfm1 and Xfm2, i.e. find max in Func = DNSdata_qcorot */
   bi1=0;  bi2=3;
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_qcorot"),
-                                                &bi1, &Xfm1, &Yfm1);
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_qcorot"),
-                                                &bi2, &Xfm2, &Yfm2);
+  find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_qcorot"), STAR1,
+                                   &bi1, &Xfm1, &qfm1);
+  find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_qcorot"), STAR2,
+                                   &bi2, &Xfm2, &qfm2);
   /* set global vars */
   pars->grid  = grid;
   pars->b1 = bi1;
   pars->X1 = Xfm1;
-  pars->Y1 = Yfm1;
+  pars->Y1 = 0.0;
   pars->Z1 = 0.0;
   pars->b2 = bi2;
   pars->X2 = Xfm2;
-  pars->Y2 = Yfm2;
+  pars->Y2 = 0.0;
   pars->Z2 = 0.0;
 
   if(pars->b1<0 || pars->b2<0)
@@ -1915,7 +1905,7 @@ int adjust_Omega_xCM_forcebalance(tGrid *grid, int it, double tol)
   double dIEdxx_0p[3];
   double Omega, x_CM;
   double dOmega, dx_CM;
-  double Xqm1,Yqm1, Xqm2,Yqm2;
+  double Xqm1,qqm1, Xqm2,qqm2;
   int do_lnsrch = Getv("DNSdata_adjust", "always");
   t_grid_bXYZ1_bXYZ2_struct pars[1];
 
@@ -1931,19 +1921,19 @@ int adjust_Omega_xCM_forcebalance(tGrid *grid, int it, double tol)
 
   /* set Xqm1 and Xqm2, i.e. find max in DNSdata_q */
   bi1=0;  bi2=3;
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_q"),
-                                                &bi1, &Xqm1, &Yqm1);
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_q"),
-                                                &bi2, &Xqm2, &Yqm2);
+  find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR1,
+                                   &bi1, &Xqm1, &qqm1);
+  find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR2,
+                                   &bi2, &Xqm2, &qqm2);
   /* set global vars */
   pars->grid  = grid;
   pars->b1 = bi1;
   pars->X1 = Xqm1;
-  pars->Y1 = Yqm1;
+  pars->Y1 = 0.0;
   pars->Z1 = 0.0;
   pars->b2 = bi2;
   pars->X2 = Xqm2;
-  pars->Y2 = Yqm2;
+  pars->Y2 = 0.0;
   pars->Z2 = 0.0;
 
   if(pars->b1<0 || pars->b2<0)
@@ -2115,10 +2105,10 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
 
   /* set Xqm1 and Xqm2, i.e. find max in DNSdata_q */
   bi1=0;  bi2=3;
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_q"),
-                                                &bi1, &Xqm1, &Yqm1);
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_q"),
-                                                &bi2, &Xqm2, &Yqm2);
+  find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR1,
+                                   &bi1, &Xqm1, &Yqm1);
+  find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR2,
+                                   &bi2, &Xqm2, &Yqm2);
 
   if(bi1<0 || bi2<0)
   {
@@ -2951,10 +2941,25 @@ int DNSdata_analyze(tGrid *grid)
   prTimeIn_s("WallTime: ");
 
   /* get inner and outer edges of both stars */
-  xout1= grid->box[0]->x_of_X[1]((void *) grid->box[0], -1, 0.0,0.0,0.0);
-  xin1 = grid->box[0]->x_of_X[1]((void *) grid->box[0], -1, 0.0,1.0,0.0);
-  xin2 = grid->box[3]->x_of_X[1]((void *) grid->box[3], -1, 0.0,1.0,0.0);
-  xout2= grid->box[33333]->x_of_X[1]((void *) grid->box[3], -1, 0.0,0.0,0.0);
+  {
+    int b;
+    forallboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      /* find boxes with matter and star surfaces for STAR1 */
+      if(box->MATTR==INSIDE && box->BOUND==SSURF && box->SIDE==STAR1)
+      {
+        if(box->CI->dom==0) xin1  = CubedSphere_sigma(box, 1, -1, 0.,0.);
+        if(box->CI->dom==1) xout1 = CubedSphere_sigma(box, 1, -1, 0.,0.);
+      }
+      /* find boxes with matter and star surfaces for STAR2 */
+      if(box->MATTR==INSIDE && box->BOUND==SSURF && box->SIDE==STAR2)
+      {
+        if(box->CI->dom==0) xout2 = CubedSphere_sigma(box, 1, -1, 0.,0.);
+        if(box->CI->dom==1) xin2  = CubedSphere_sigma(box, 1, -1, 0.,0.);
+      }
+    }
+  }
 
   /* compute rest masses m01, m02 */
   m01 = GetInnerRestMass(grid, 0);
@@ -3002,11 +3007,11 @@ int DNSdata_analyze(tGrid *grid)
 
   /* find max q locations xmax1/2 in NS1/2 */
   bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
   /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
   if(grid->box[bi1]->x_of_X[1] != NULL)
     xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,Ymax1,0.0);
   else
@@ -3958,136 +3963,26 @@ void dq_dx_along_x_axis_VectorFunc(int n, double *vec, double *fvec)
 //  printf("     at (bi=%d X=%g Y=%g) dq_dx=%g\n", bi, X,Y, fvec[1]);
 }
 
-/* find max q along x-axis */
-void find_Varmax_along_x_axis_usingDNSdata_temp123(tGrid *grid, int varind, 
-                                                int *bi, double *X, double *Y)
+/* find max q along x-axis, assume that on x-axis: Y=Z=0 */
+int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
+                                      int *bi, double *X, double *vmax)
 {
-  int b;
-  int bi_guess = *bi;
-  double Xvec[2];
-  int stat, check;
-  int i, ai, imax;
-  double *qa0, *qa1, *qa2;
-  int bq0, bq2;
-  tBox *box;
-  double *q, *dq, *c;
-  double *Xp, *c0;
-
-  /* get deriv dq of q in all boxes in DNSdata_temp1
-     and dq's coeffs c in DNSdata_temp2, plus q's coeffs c0 in DNSdata_temp3 */
+  int stat, b;
   forallboxes(grid, b)
   {
-    box = grid->box[b];
-    q = box->v[varind];
-    dq= box->v[Ind("DNSdata_temp1")];
-    c = box->v[Ind("DNSdata_temp2")];
-    c0= box->v[Ind("DNSdata_temp3")];
-    spec_Deriv1(box, 1, q, dq);
-    spec_Coeffs(box, dq, c);
-    spec_Coeffs(box,  q, c0);
+    tBox *box = grid->box[b];
+    /* find boxes with matter for star and dom=0 or 1 */
+    if(box->MATTR==INSIDE && box->SIDE==star && box->CI->dom<2)
+      stat = box_extremum_of_F_in_dir(box, varind, 1, 0.,0., X, vmax);
+    if(stat>=0) break;
   }
-
-  *bi = -1; /* boxindex with dq=0 not yet found */
-
-  /* look at NS1 */
-  if(bi_guess<=1 || bi_guess==5)
-  {
-    /* index of the 2 boxes where we look */
-    bq0 = 0;
-    bq2 = 5;
-  }
-  /* look at NS2 */
-  else if(bi_guess>=2 && bi_guess<=4)
-  {
-    /* index of the 2 boxes where we look */
-    bq0 = 3;
-    bq2 = 4;
-  }
-  else errorexit("bi_guess is wrong!!!");
-
-  /* make 3 arrays (qa0, qa1, qa2) with q values along x-axis 
-     in box0/3 at B=0 and B=1 and in box5/4 at y=z=0 */
-  qa0 = dmalloc(grid->box[bq0]->n1);
-  qa1 = dmalloc(grid->box[bq0]->n1);
-  for(i=0; i<grid->box[bq0]->n1; i++)
-  {
-    box = grid->box[bq0];
-    q = box->v[varind];
-    qa0[i] = q[Ind_n1n2(i, 0,         0, box->n1,box->n2)];
-    qa1[i] = q[Ind_n1n2(i, box->n2-1, 0, box->n1,box->n2)];
-  }
-  qa2 = dmalloc(grid->box[bq2]->n1);
-  for(i=0; i<grid->box[bq2]->n1; i++)
-  {
-    box = grid->box[bq2];
-    Xp = box->v[Ind("X")];
-    c0 = box->v[Ind("DNSdata_temp3")];
-    qa2[i] = spec_interpolate(box, c0, Xp[i],0,0);
-  }
-
-  /* find max in the 3 arrays */
-  max3_in_1d_array(qa0,grid->box[bq0]->n1, qa1,grid->box[bq0]->n1,
-                   qa2,grid->box[bq2]->n1, &ai, &imax);
-
-  /* initial guess for max location in q (we need *bi, *X, *Y) */
-  if(ai==0)  /* max at B=0 */
-  {
-    *bi = bq0;
-    box = grid->box[*bi];
-    Xp  = box->v[Ind("X")];
-    /* if we are at the box boundary move one point in */
-    if(imax==0)         imax++; 
-    if(imax==box->n1-1) imax--;
-    *X = Xp[Ind_n1n2(imax, 0, 0, box->n1,box->n2)]; 
-    *Y = 0.0; /* <--B=0 */
-  }
-  else if(ai==1) /* max at B=1 */
-  {
-    *bi = bq0;
-    box = grid->box[*bi];
-    Xp  = box->v[Ind("X")];
-    /* if we are at the box boundary move one point in */
-    if(imax==0)         imax++; 
-    if(imax==box->n1-1) imax--;
-    *X = Xp[Ind_n1n2(imax, box->n2-1, 0, box->n1,box->n2)]; 
-    *Y = 1.0; /* <--B=1 */
-  }
-  else if(ai==2) /* max in box5/4 */
-  {
-    *bi = bq2;
-    box = grid->box[*bi];
-    Xp  = box->v[Ind("X")];
-    /* if we are at the box boundary move one point in */
-    if(imax==0)         imax++; 
-    if(imax==box->n1-1) imax--;
-    *X = Xp[Ind_n1n2(imax, 0, 0, box->n1,box->n2)]; 
-    *Y = 0.0; /* <--y=0 */
-  }
-  else errorexit("could not find max of q along x-axis");
-
-  /* free 3 arrays (qa0, qa1, qa2) with q values along x-axis */
-  free(qa0);
-  free(qa1);
-  free(qa2);
-
-  /* save *bi, *X, *Y in DNSdata_temp3 */
-  grid->box[0]->v[Ind("DNSdata_temp3")][0] = *bi;
-  grid->box[0]->v[Ind("DNSdata_temp3")][1] = *X;
-  grid->box[0]->v[Ind("DNSdata_temp3")][2] = *Y;
-  
-  /* use newton_linesrch_its to find xmax1 */
-  central_q_errors_VectorFunc__grid = grid;
-  Xvec[1] = *X;
-  stat = newton_linesrch_its(Xvec, 1, &check,
-                             dq_dx_along_x_axis_VectorFunc, 1000, dequaleps);
-  if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
-  *X = Xvec[1];
+  return stat;
 }
-
-void find_qmax1_along_x_axis(tGrid *grid, int *bi, double *X, double *Y)
+int find_qmax_along_x_axis(tGrid *grid, int star,
+                            int *bi, double *X, double *qmax)
 {
-  find_Varmax_along_x_axis_usingDNSdata_temp123(grid, Ind("DNSdata_q"),
-                                                bi, X,Y);
+  return find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), star,
+                                          bi, X, qmax);
 }
 
 
@@ -4097,8 +3992,8 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
 {
   tGrid *grid = central_q_errors_VectorFunc__grid;
   int bi1, bi2;
-  double qmax1, Xmax1, Ymax1, xmax1;
-  double qmax2, Xmax2, Ymax2, xmax2;
+  double qmax1, Xmax1, xmax1;
+  double qmax2, Xmax2, xmax2;
 
   /* set constants */
   Setd("DNSdata_C1", vec[1]);
@@ -4112,19 +4007,18 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
   DNS_compute_new_centered_q(grid);
 
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
 
   /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   /* compute Cartesian xmax1 */
   if(bi1==0)
   {
     tBox *box = grid->box[bi1];
-    xmax1 = box->x_of_X[1]((void *) box, -1, Xmax1,Ymax1,0);
+    xmax1 = box->x_of_X[1]((void *) box, -1, Xmax1,0.,0.);
   }
   else xmax1 = Xmax1;
 
@@ -4132,7 +4026,7 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
   if(bi2==3)
   {
     tBox *box = grid->box[bi2];
-    xmax2 = box->x_of_X[1]((void *) box, -1, Xmax2,Ymax2,0);
+    xmax2 = box->x_of_X[1]((void *) box, -1, Xmax2,0.,0.);
   }
   else xmax2 = Xmax2;
 
@@ -4143,10 +4037,10 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
   fvec[4] = xmax2 - Getd("DNSdata_xmax2");
 
   /* print results */
-  printf(" qmax1=%.6g xmax1=%g (X=%.6g Y=%.6g) fvec[1]=%g fvec[2]=%g\n",
-         qmax1, xmax1, Xmax1, Ymax1, fvec[1], fvec[2]);
-  printf(" qmax2=%.6g xmax2=%g (X=%.6g Y=%.6g) fvec[3]=%g fvec[4]=%g\n",
-         qmax2, xmax2, Xmax2, Ymax2, fvec[3], fvec[4]);
+  printf(" qmax1=%.6g xmax1=%g X=%.6g  fvec[1]=%g fvec[2]=%g\n",
+         qmax1, xmax1, Xmax1, fvec[1], fvec[2]);
+  printf(" qmax2=%.6g xmax2=%g X=%.6g  fvec[3]=%g fvec[4]=%g\n",
+         qmax2, xmax2, Xmax2, fvec[3], fvec[4]);
   fflush(stdout);
 //grid->time=-100;
 //write_grid(grid);
@@ -4157,8 +4051,8 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
 {
   tGrid *grid = central_q_errors_VectorFunc__grid;
   int bi1, bi2;
-  double qmax1, Xmax1, Ymax1, xmax1;
-  double qmax2, Xmax2, Ymax2, xmax2;
+  double qmax1, Xmax1, xmax1;
+  double qmax2, Xmax2, xmax2;
 
   /* set constants */
   Setd("DNSdata_C1", vec[1]);
@@ -4169,19 +4063,18 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
   DNS_compute_new_centered_q(grid);
 
   /* find max q locations xmax1/2 in NS1/2 */
-  bi1=0;  bi2=3;
-  find_qmax1_along_x_axis(grid, &bi1, &Xmax1, &Ymax1);
-  find_qmax1_along_x_axis(grid, &bi2, &Xmax2, &Ymax2);
+  find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
+  find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
 
   /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,Ymax1,0);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,Ymax2,0);
+  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   /* compute Cartesian xmax1 */
   if(bi1==0)
   {
     tBox *box = grid->box[bi1];
-    xmax1 = box->x_of_X[1]((void *) box, -1, Xmax1,Ymax1,0);
+    xmax1 = box->x_of_X[1]((void *) box, -1, Xmax1,0.,0.);
   }
   else xmax1 = Xmax1;
 
@@ -4189,7 +4082,7 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
   if(bi2==3)
   {
     tBox *box = grid->box[bi2];
-    xmax2 = box->x_of_X[1]((void *) box, -1, Xmax2,Ymax2,0);
+    xmax2 = box->x_of_X[1]((void *) box, -1, Xmax2,0.,0.);
   }
   else xmax2 = Xmax2;
 
@@ -4198,10 +4091,10 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
   fvec[2] = qmax2 - Getd("DNSdata_qmax2");
 
   /* print results */
-  printf(" qmax1=%.6g xmax1=%g (X=%.6g Y=%.6g) fvec[1]=%g\n",
-         qmax1, xmax1, Xmax1, Ymax1, fvec[1]);
-  printf(" qmax2=%.6g xmax2=%g (X=%.6g Y=%.6g) fvec[2]=%g\n",
-         qmax2, xmax2, Xmax2, Ymax2, fvec[2]);
+  printf(" qmax1=%.6g xmax1=%g X=%.6g fvec[1]=%g\n",
+         qmax1, xmax1, Xmax1, fvec[1]);
+  printf(" qmax2=%.6g xmax2=%g X=%.6g fvec[2]=%g\n",
+         qmax2, xmax2, Xmax2, fvec[2]);
   fflush(stdout);
 //grid->time=-100;
 //write_grid(grid);
