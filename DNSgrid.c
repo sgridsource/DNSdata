@@ -679,7 +679,7 @@ double InnerVolumeIntegral(tGrid *grid, int star, int vind)
   {
     tBox *box = grid->box[b];
     if( (box->SIDE == star) && (box->MATTR == INSIDE) )
-      VolInt += VolumeIntegral_inDNSgridBox(grid, b, vind);
+      VolInt += VolumeIntegral_inBox(box, vind);
   }
   return VolInt;
 }
@@ -691,66 +691,9 @@ double GridVolumeIntegral(tGrid *grid, int vind)
   double VolInt = 0.0;
   int b;
   forallboxes(grid, b)
-    VolInt += VolumeIntegral_inDNSgridBox(grid, b, vind);
+    VolInt += VolumeIntegral_inBox(grid->box[b], vind);
   return VolInt;
 }
-
-/* compute volume integral of var with index vind in domain1 (if b=1)
-   or domain2 (if b=2), but it should also work in the other domains.
-   Here any Psi^6 needs to be already included in the var we integrate. */
-double VolumeIntegral_inDNSgridBox(tGrid *grid, int b, int vind)
-{
-  double *var;
-  double *Integ;
-  double *Temp3;
-  double *dXdx;
-  double *dXdy;
-  double *dXdz;
-  double *dYdx;
-  double *dYdy;
-  double *dYdz;
-  double *dZdx;
-  double *dZdy;
-  double *dZdz;
-  double VolInt;
-  int i;
-
-  var   = grid->box[b]->v[vind];
-  dXdx  = grid->box[b]->v[Ind("dXdx")];
-  dXdy  = grid->box[b]->v[Ind("dXdx")+1];
-  dXdz  = grid->box[b]->v[Ind("dXdx")+2];
-  dYdx  = grid->box[b]->v[Ind("dYdx")];
-  dYdy  = grid->box[b]->v[Ind("dYdx")+1];
-  dYdz  = grid->box[b]->v[Ind("dYdx")+2];
-  dZdx  = grid->box[b]->v[Ind("dZdx")];
-  dZdy  = grid->box[b]->v[Ind("dZdx")+1];
-  dZdz  = grid->box[b]->v[Ind("dZdx")+2];
-  Integ = grid->box[b]->v[Ind("DNSdata_temp2")];
-  Temp3 = grid->box[b]->v[Ind("DNSdata_temp3")];
-
-  /* set integrand in Integ */
-  forallpoints(grid->box[b], i)
-  {
-    double det = dXdx[i]*dYdy[i]*dZdz[i] + dXdy[i]*dYdz[i]*dZdx[i] +
-                 dXdz[i]*dYdx[i]*dZdy[i] - dXdz[i]*dYdy[i]*dZdx[i] -
-                 dXdy[i]*dYdx[i]*dZdz[i] - dXdx[i]*dYdz[i]*dZdy[i];
-    double jac;
-
-    if(det!=0.0) jac = 1.0/fabs(det);
-    /* if det=0 jac should really be infinite, but we hope that the
-       integrand goes to zero quickly enough that jac=0 makes difference! */
-    else jac = 0.0;
-
-    Integ[i] = var[i] * jac;
-  }
-
-  /* integrate */
-  VolInt = spec_3dIntegral(grid->box[b], Integ, Temp3);
-
-  return VolInt;
-}
-
-
 
 
 

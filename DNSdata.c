@@ -922,6 +922,7 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
 
   /* set VolAvSigma1/2 to sum of Sigmas */
   VolAvSigma1 = 0.0;
+errorexit("need other boxes, not 0 and 3");
   Sigma      = grid->box[0]->v[index_Sigma];
   forallpoints(grid->box[0], ijk) VolAvSigma1 += Sigma[ijk]; 
   VolAvSigma2 = 0.0;
@@ -931,8 +932,8 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
   /* use VolInt instead in some other cases */
   if (AddInnerVolIntToBC || InnerVolIntZero)
   {
-    VolAvSigma1 = VolumeIntegral_inDNSgridBox(grid, 0, index_Sigma); 
-    VolAvSigma2 = VolumeIntegral_inDNSgridBox(grid, 3, index_Sigma); 
+    VolAvSigma1 = VolumeIntegral_inBox(grid->box[0], index_Sigma);
+    VolAvSigma2 = VolumeIntegral_inBox(grid->box[3], index_Sigma);
   }
   Setd("DNSdata_desired_VolAvSigma1", VolAvSigma1);
   Setd("DNSdata_desired_VolAvSigma2", VolAvSigma2);
@@ -2962,8 +2963,9 @@ int DNSdata_analyze(tGrid *grid)
   }
 
   /* compute rest masses m01, m02 */
-  m01 = GetInnerRestMass(grid, 0);
-  m02 = GetInnerRestMass(grid, 3);
+Yo(1);
+  m01 = GetInnerRestMass(grid, STAR1);
+  m02 = GetInnerRestMass(grid, STAR2);
   /* set rest masses if we have fixed qm1/2 */
   if(Getd("DNSdata_qm1")>0.0) Setd("DNSdata_m01", m01);
   if(Getd("DNSdata_qm2")>0.0) Setd("DNSdata_m02", m02);
@@ -3041,7 +3043,7 @@ int DNSdata_analyze(tGrid *grid)
   }
 
   /* find global max of q in NS1/2 */
-  Zmax1=Zmax2=0.0;
+  Ymax1=Ymax2=Zmax1=Zmax2=0.0;
   global_qmax1 = DNSdata_find_position_of_qmax(grid, STAR1, &bi1, &Xmax1, &Ymax1, &Zmax1);
   global_qmax2 = DNSdata_find_position_of_qmax(grid, STAR2, &bi2, &Xmax2, &Ymax2, &Zmax2);
   if(grid->box[bi1]->x_of_X[1] != NULL)

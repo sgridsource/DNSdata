@@ -242,7 +242,7 @@ tocompute = {
       Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvSigma = 0.0;",
         Cinstruction == "if((bi%6)==1) VolAvSigma =
-                         VolumeIntegral_inDNSgridBox(grid, bi, index_Sigma);",
+                         VolumeIntegral_inBox(grid->box[bi], index_Sigma);",
       Cif == end,
 
       Cif == (AddInnerSumToBC || InnerSumZero),
@@ -357,7 +357,7 @@ tocompute = {
       Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvlSigma = 0.0;",
         Cinstruction == "if((bi%6)==1) VolAvlSigma =
-          VolumeIntegral_inDNSgridBox(grid, bi, index_lSigma);",
+          VolumeIntegral_inBox(grid->box[bi], index_lSigma);",
       Cif == end,
 
       Cif == (AddInnerSumToBC || InnerSumZero),
