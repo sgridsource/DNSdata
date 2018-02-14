@@ -2970,7 +2970,6 @@ int DNSdata_analyze(tGrid *grid)
   }
 
   /* compute rest masses m01, m02 */
-Yo(1);
   m01 = GetInnerRestMass(grid, STAR1);
   m02 = GetInnerRestMass(grid, STAR2);
   /* set rest masses if we have fixed qm1/2 */
