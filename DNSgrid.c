@@ -1044,6 +1044,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
     printf("Rescaling Coordinates_AnsorgNS_sigma_pm so that masses are correct:\n");
     /* star1 */
     pars->grid = grid;
+errorexit("need other boxes, not 0 and 3");
     pars->b = 0;
     facvec[1] = 1.0;
     stat = newton_linesrch_itsP(facvec, 1, &check, m0errOFsigmafac_VectorFuncP,
@@ -1057,6 +1058,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
 
     /* star2 */
     pars->grid = grid;
+errorexit("need other boxes, not 0 and 3");
     pars->b = 3;
     facvec[1] = 1.0;
     stat = newton_linesrch_itsP(facvec, 1, &check, m0errOFsigmafac_VectorFuncP,
