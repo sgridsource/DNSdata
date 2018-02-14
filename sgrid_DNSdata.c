@@ -175,6 +175,7 @@ int sgrid_DNSdata()
          "(i.e. InnerVolInt or InnerSum) in Sigma surface BC for star1");
   AddPar("DNSdata_desired_VolAvSigma2", "0", "desired value of VolAvSigma "
          "(i.e. InnerVolInt or InnerSum) in Sigma surface BC for star2");
+  AddPar("DNSdata_KeepInnerSigma", "no", "keep Sigma in inner boxes [no,yes]");
   AddPar("DNSdata_itmax", "10", "max. number of iterations in DNSdata_solve");
   AddPar("DNSdata_break_if_err_below_tol", "at_iterationend after_ell_solve",
          "which if clauses we use to break out of main iteration loop "
@@ -247,6 +248,10 @@ int sgrid_DNSdata()
   /* some par that contains values of variables controlling the 
      "main iteration loop", all variables are saved in this on par */
   AddPar("DNSdata_Main_Iteration_Loop_State","", "set by sgrid, not by user!");
+
+  /* Tim's chi indicators */
+  AddPar("DNSdata_mass_shedding1", "1", "mass shedding indicator chi for star 1");
+  AddPar("DNSdata_mass_shedding2", "1", "mass shedding indicator chi for star 2");
 
   /* par for ecc. and inspiral */
   AddPar("DNSdata_ecc", "0", "Eccentricity parameter e of orbits");
