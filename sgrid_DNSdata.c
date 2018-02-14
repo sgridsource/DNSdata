@@ -114,6 +114,8 @@ int sgrid_DNSdata()
   AddPar("DNSdata_actual_zmax2", "0", "z-pos. of actual global max of q in NS2");
   AddPar("DNSdata_q_derivs", "dq", "how we compute the derivs of q [dq,dqg]");
   AddPar("DNSdata_drho0_inBC", "dq", "what we use for drho0 in BC [dq,dA]");
+  AddPar("DNSdata_new_q", "FromFields", "how we compute the new q "
+         "[FromFields,Fromqgold]");
   AddPar("DNSdata_center_new_q", "no",
          "if and how we center new q on (DNSdata_xmax1/2,0,0) "
          "[no,center_yz,center_xyz,adjust_domainshapes,"

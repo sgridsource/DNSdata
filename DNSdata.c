@@ -2486,8 +2486,9 @@ int DNSdata_solve(tGrid *grid)
     if(Getv("DNSdata_center_new_q_timebin", "before_ell_solve"))
       DNSdata_center_q_if_desired(grid, it);
 
-    /* center fields around each star */
-    DNSdata_center_fields_if_desired(grid, it);
+Yo(42);
+//    /* center fields around each star */
+//    DNSdata_center_fields_if_desired(grid, it);
 
     /* save old values before ell. solve */
     varcopy(grid, Ind("DNSdata_Psiold"),    Ind("DNSdata_Psi"));
