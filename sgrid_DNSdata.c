@@ -213,6 +213,8 @@ int sgrid_DNSdata()
   AddPar("DNSdata_adjust_first_at", "0", 
          "first iteration when we use DNSdata_adjust. -1 means never");
   AddPar("DNSdata_adjust_mintol", "1e-10", "always use tol>=mintol in adjust");
+  AddPar("DNSdata_dOmega_fac", "0.1", "dOmega = Omega*dOmega_Fac");
+  AddPar("DNSdata_dx_CM_fac",  "0.1", "dx_CM = b*dx_CM_fac");
   AddPar("DNSdata_set_Surface_q", "no", "what to do with q at surface [no,zero]");
   AddPar("DNSdata_set_negative_q", "no", "what to do with q<0 [no,zero]");
   AddPar("DNSdata_EllSolver_method", "DNS_Eqn_Iterator",

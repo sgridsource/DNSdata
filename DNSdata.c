@@ -684,9 +684,8 @@ int DNSdata_center_fields_if_desired(tGrid *grid, int it)
     set_DNSdata_actual_xyzmax_pars(grid);
 
     /* print new masses */
-errorexit("need other boxes, not 0 and 3");
-    m01 = GetInnerRestMass(grid, 0);
-    m02 = GetInnerRestMass(grid, 3);
+    m01 = GetInnerRestMass(grid, STAR1);
+    m02 = GetInnerRestMass(grid, STAR2);
     printf("     => m01=%.19g m02=%.19g\n", m01, m02);
   }
   return 0;
@@ -863,9 +862,8 @@ int DNSdata_center_q_if_desired(tGrid *grid, int it)
       set_DNSdata_actual_xyzmax_pars(grid);
 
     /* print new masses */
-errorexit("need other boxes, not 0 and 3");
-    m01 = GetInnerRestMass(grid, 0);
-    m02 = GetInnerRestMass(grid, 3);
+    m01 = GetInnerRestMass(grid, STAR1);
+    m02 = GetInnerRestMass(grid, STAR2);
     printf("     => m01=%.19g m02=%.19g\n", m01, m02);
   }
   return 0;
@@ -977,9 +975,8 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
   pdb_bak  = make_empty_pdb(npdbmax);
 
   /* rest masses before adjusting q */
-errorexit("need other boxes, not 0 and 3");
-  m01 = GetInnerRestMass(grid, 0);
-  m02 = GetInnerRestMass(grid, 3);
+  m01 = GetInnerRestMass(grid, STAR1);
+  m02 = GetInnerRestMass(grid, STAR2);
   printf("adjust_C1_C2_q_keep_restmasses: in DNSdata_solve step %d: "
          "WallTime=%gs\n", it, getTimeIn_s());
   printf(" rest mass in inner domains before computing new q:"
@@ -1017,9 +1014,8 @@ errorexit("need other boxes, not 0 and 3");
         double *q_b2 = grid->box[2]->v[Ind("DNSdata_q")];
 
         DNS_compute_new_centered_q(grid);
-errorexit("need other boxes, not 0 and 3");
-        m01 = GetInnerRestMass(grid, 0);
-        m02 = GetInnerRestMass(grid, 3);
+        m01 = GetInnerRestMass(grid, STAR1);
+        m02 = GetInnerRestMass(grid, STAR2);
 
         check = 0;
 
@@ -1117,9 +1113,8 @@ errorexit("need other boxes, not 0 and 3");
   set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
 
   /* print new masses */
-errorexit("need other boxes, not 0 and 3");
-  m01 = GetInnerRestMass(grid, 0);
-  m02 = GetInnerRestMass(grid, 3);
+  m01 = GetInnerRestMass(grid, STAR1);
+  m02 = GetInnerRestMass(grid, STAR2);
   printf("     => m01=%.19g m02=%.19g\n", m01, m02);
 
   /* free grid and pdb for backups */
@@ -3715,6 +3710,7 @@ void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
   int n2 = grid->box[1]->n2;
   double *q_b1 = grid->box[1]->v[Ind("DNSdata_q")];
   double *q_b2 = grid->box[2]->v[Ind("DNSdata_q")];
+errorexit("need other boxes, not 1 and 2");
 
   /* set C1/2 */
   Setd("DNSdata_C1", vec[1]);
@@ -3760,9 +3756,8 @@ void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* compute rest mass error Delta_m01/2 */
   /***************************************/
   /* get rest masses */
-errorexit("need other boxes, not 0 and 3");
-  m01 = GetInnerRestMass(grid, 0);
-  m02 = GetInnerRestMass(grid, 3);
+  m01 = GetInnerRestMass(grid, STAR1);
+  m02 = GetInnerRestMass(grid, STAR2);
 
   printf("m0_errors_VectorFuncP: C1=%g C2=%g  m01=%g m02=%g\n",
          vec[1], vec[2], m01, m02);  fflush(stdout);
@@ -3852,8 +3847,7 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* compute rest mass error Delta_m01 */
   /*************************************/
   /* get rest mass */
-errorexit("need other boxes, not 0 and 3");
-  m01 = GetInnerRestMass(grid, 0);
+  m01 = GetInnerRestMass(grid, STAR1);
 
   printf("m01_error_VectorFuncP: C1=%.13g  m01=%.13g\n", vec[1], m01);
   fflush(stdout);
@@ -3882,8 +3876,7 @@ void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* compute rest mass error Delta_m01 */
   /*************************************/
   /* get rest mass */
-errorexit("need other boxes, not 0 and 3");
-  m02 = GetInnerRestMass(grid, 3);
+  m02 = GetInnerRestMass(grid, STAR2);
 
   printf("m02_error_VectorFuncP: C2=%.13g  m02=%.13g\n", vec[1], m02);
   fflush(stdout);
