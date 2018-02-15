@@ -923,6 +923,8 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
   /* set VolAvSigma1/2 to sum of Sigmas */
   VolAvSigma1 = 0.0;
 errorexit("need other boxes, not 0 and 3");
+errorexit("change evert 6th box, i.e. (bi%6) in set_DNSdata_Sigma_BCs.m");
+
   Sigma      = grid->box[0]->v[index_Sigma];
   forallpoints(grid->box[0], ijk) VolAvSigma1 += Sigma[ijk]; 
   VolAvSigma2 = 0.0;
@@ -3837,6 +3839,9 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* set C1 */
   Setd("DNSdata_C1", vec[1]);
 
+quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",1,1,0);
+quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
+
   /* adjust grid so that new q=0 is at A=0 */
   //compute_new_q_and_adjust_domainshapes(grid, STAR1);
   compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid0, STAR1);
@@ -3851,6 +3856,9 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   fflush(stdout);
 //grid->time=-100;
 //write_grid(grid);
+quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",11,11,0);
+quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,1);
+//8888888
 
   fvec[1] = m01 - pars->m01;
 }

@@ -301,6 +301,11 @@ int DNSdata_setup_boxes(tGrid *grid)
   double dc = Getd("DNSdata_b");
   double xc[4];
 
+  /* enable the vars for sigma01, so they get used in CI set below */
+  enablevar(grid, Ind("Coordinates_CubedSphere_sigma01"));
+  enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dA"));
+  enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dB"));
+
   /* set cubed spheres, for now we disregard the par DNSdata_grid */
   switch(grid->nboxes)
   {
@@ -369,6 +374,8 @@ int set_DNS_box_attribs(tGrid *grid)
       else         box->SIDE = STAR2;
       /* if Cartesian it must be inside a star */
       box->MATTR = INSIDE;
+      /* remove sigma01 in this box */
+      disable_and_reset_CI_iSurf_vars(box);
     }
     if( Getv(str, "outerCubedSphere") )
     {
@@ -385,7 +392,11 @@ int set_DNS_box_attribs(tGrid *grid)
         box->MATTR = INSIDE;
       }
       else
+      {
         box->MATTR = AWAY;
+        /* remove sigma01 in this box */
+        disable_and_reset_CI_iSurf_vars(box);
+      }
     }
     if( Getv(str, "innerCubedSphere") )
     { 
@@ -403,17 +414,25 @@ int set_DNS_box_attribs(tGrid *grid)
         box->MATTR = TOUCH;
       }
       else
+      {
         box->MATTR = AWAY;
+        /* remove sigma01 in this box */
+        disable_and_reset_CI_iSurf_vars(box);
+      }
     }
     if( Getv(str, "PyramidFrustum") || Getv(str, "CubedShell") )
     { 
       box->COORD = CUBSPH;
       box->MATTR = AWAY;
+      /* remove sigma01 in this box */
+      disable_and_reset_CI_iSurf_vars(box);
     }
     if( Getv(str, "stretchedCubedShell") )
     { 
       box->COORD = SCUBSH;
       box->MATTR = AWAY;
+      /* remove sigma01 in this box */
+      disable_and_reset_CI_iSurf_vars(box);
     }
   }
   return 0;
