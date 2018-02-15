@@ -357,8 +357,8 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("DNSdata_alphaPold"));
   enablevar(grid, Ind("DNSdata_Sigmaold"));
   enablevar(grid, Ind("DNSdata_qgold"));
+  enablevar(grid, Ind("DNSdata_qnocent"));
   //enablevar(grid, Ind("DNSdata_qcorot"));
-  //enablevar(grid, Ind("DNSdata_qnocent"));
   //enablevar(grid, Ind("DNSdata_surface_sigma_pm"));
 
   /* enable some lapse and shift of ADMvars */
@@ -2232,6 +2232,7 @@ double average_current_and_old(double weight, tGrid *grid,
   double tm02 = Getd("DNSdata_m02");
   double m01, m02;
   double normresnonlin, L2qdiff, dm01, dm02, m0err, error;
+  int b;
 
   /* if we iterate over the rest masses the true mass goals are different */
   if(Getv("DNSdata_iterate_m0", "yes"))
@@ -2250,9 +2251,8 @@ double average_current_and_old(double weight, tGrid *grid,
   varadd(grid, Ind("DNSdata_Sigma"), weight,Ind("DNSdata_Sigma"), (1.0-weight),Ind("DNSdata_Sigmaold"));
 
   /* compute masses */
-errorexit("need other boxes, not 0 and 3");
-  m01 = GetInnerRestMass(grid, 0);
-  m02 = GetInnerRestMass(grid, 3);
+  m01 = GetInnerRestMass(grid, STAR1);
+  m02 = GetInnerRestMass(grid, STAR2);
   
   /* compute error in masses */
   dm01 = (m01 - tm01)/(tm01+tm02);
@@ -2272,12 +2272,14 @@ errorexit("need other boxes, not 0 and 3");
   /* set temp1 = temp2 - qnocent = qnocent_new - qnocent_old */
   varadd(grid, Ind("DNSdata_temp1"),
                1,Ind("DNSdata_temp2"), -1,Ind("DNSdata_qnocent"));
-errorexit("need other boxes, not 0 and 3");
-  L2qdiff = varBoxL2Norm(grid->box[0], Ind("DNSdata_temp1")) +
-            varBoxL2Norm(grid->box[3], Ind("DNSdata_temp1")) +
-            varBoxL2Norm(grid->box[4], Ind("DNSdata_temp1")) +
-            varBoxL2Norm(grid->box[5], Ind("DNSdata_temp1"));
-  
+  L2qdiff =0.;
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    if(box->MATTR == INSIDE)
+      L2qdiff += varBoxL2Norm(box, Ind("DNSdata_temp1"));
+  }
+
   /* compute total error */
   error = normresnonlin + L2qdiff + m0err;
   printf(" => residual=%.4e L2qdiff=%.4e m0err=%.3e => error=%.4e\n",

@@ -59,6 +59,7 @@ int sgrid_DNSdata()
   AddVar("DNSdata_alphaPold", "",  "old alphaP");
   AddVar("DNSdata_Sigmaold",  "",  "old Sigma");
   AddVar("DNSdata_qgold",     "",  "old qg");
+  AddVar("DNSdata_qnocent",   "",  "q we get without centering");
 
   AddVar("DNSdata_temp1", "", "temporary variable(e.g. to store derivs)");
   AddVar("DNSdata_temp2", "", "temporary variable(e.g. to store derivs)");
