@@ -4134,7 +4134,7 @@ double DNSdata_find_position_of_qmax(tGrid *grid, int star, int *bi,
     if(box->COORD == CART) break;
   }
   *bi = b;
-  box_extremum_of_F(box, Ind("DNSdata_Psi"), X,Y,Z, &qmax);
+  box_extremum_of_F(box, Ind("DNSdata_q"), X,Y,Z, &qmax);
 
   return qmax;
 }
@@ -4163,7 +4163,6 @@ void set_DNSdata_actual_xyzmax_pars(tGrid *grid)
   y1 = y2 = z1 = z2 = 0.0;
   qmax1 = DNSdata_find_xyz_of_qmax(grid, STAR1, &bi1, &x1,&y1,&z1);
   qmax2 = DNSdata_find_xyz_of_qmax(grid, STAR2, &bi2, &x2,&y2,&z2);
-
   Setd("DNSdata_actual_xmax1", x1);
   Setd("DNSdata_actual_ymax1", y1);
   Setd("DNSdata_actual_zmax1", z1);
