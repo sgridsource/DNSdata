@@ -3676,8 +3676,7 @@ void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
       
   Setd("DNSdata_C1", vec[1]);
   DNS_compute_new_centered_q(pars->grid);
-errorexit("need other boxes, not 0 and 3");
-  m01 = GetInnerRestMass(pars->grid, 0);
+  m01 = GetInnerRestMass(pars->grid, STAR1);
   fvec[1] = m01 - pars->m01;
 }
 
@@ -3693,8 +3692,7 @@ void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
 
   Setd("DNSdata_C2", vec[1]);
   DNS_compute_new_centered_q(pars->grid);
-errorexit("need other boxes, not 0 and 3");
-  m02 = GetInnerRestMass(pars->grid, 3);
+  m02 = GetInnerRestMass(pars->grid, STAR2);
   fvec[1] = m02 - pars->m02;
 }
 
