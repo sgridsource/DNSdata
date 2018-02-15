@@ -375,7 +375,7 @@ int set_DNS_box_attribs(tGrid *grid)
       /* if Cartesian it must be inside a star */
       box->MATTR = INSIDE;
       /* remove sigma01 in this box */
-      disable_and_reset_CI_iSurf_vars(box);
+      disable_Coordinates_CubedSphere_sigma01(box);
     }
     if( Getv(str, "outerCubedSphere") )
     {
@@ -395,7 +395,7 @@ int set_DNS_box_attribs(tGrid *grid)
       {
         box->MATTR = AWAY;
         /* remove sigma01 in this box */
-        disable_and_reset_CI_iSurf_vars(box);
+        disable_Coordinates_CubedSphere_sigma01(box);
       }
     }
     if( Getv(str, "innerCubedSphere") )
@@ -417,7 +417,7 @@ int set_DNS_box_attribs(tGrid *grid)
       {
         box->MATTR = AWAY;
         /* remove sigma01 in this box */
-        disable_and_reset_CI_iSurf_vars(box);
+        disable_Coordinates_CubedSphere_sigma01(box);
       }
     }
     if( Getv(str, "PyramidFrustum") || Getv(str, "CubedShell") )
@@ -425,14 +425,14 @@ int set_DNS_box_attribs(tGrid *grid)
       box->COORD = CUBSPH;
       box->MATTR = AWAY;
       /* remove sigma01 in this box */
-      disable_and_reset_CI_iSurf_vars(box);
+      disable_Coordinates_CubedSphere_sigma01(box);
     }
     if( Getv(str, "stretchedCubedShell") )
     { 
       box->COORD = SCUBSH;
       box->MATTR = AWAY;
       /* remove sigma01 in this box */
-      disable_and_reset_CI_iSurf_vars(box);
+      disable_Coordinates_CubedSphere_sigma01(box);
     }
   }
   return 0;
