@@ -4116,35 +4116,44 @@ errorexit("need other boxes, not 0 and 3");
 }
 
 
+/* find max of Var in star, return Varmax */
+double DNSdata_find_position_of_Varmax(tGrid *grid, int vi, int star, int *bi,
+                                       double *X, double *Y, double *Z)
+{
+  double vmax=0;
+  int b;
+  tBox *box;
+
+  /* first find max on x-axis, to determine box where we search*/
+  find_Varmax_along_x_axis_in_star(grid, vi, star, bi, X, &vmax);
+  box = grid->box[*bi];
+
+  /* now look anywhere in this box */
+  *Y = *Z = 0.;
+  box_extremum_of_F(box, vi, X,Y,Z, &vmax);
+
+  return vmax;
+}
+
 /* find max q in star, return qmax */
 double DNSdata_find_position_of_qmax(tGrid *grid, int star, int *bi,
                                      double *X, double *Y, double *Z)
 {
-  double qmax=0;
-  int b;
-  tBox *box;
-
-  /* find box and box index where Cart star box is */
-  forallboxes(grid, b)
-  {
-    box = grid->box[b];
-    if(box->SIDE != star) continue;
-    if(box->MATTR != INSIDE) continue;
-    /* for now we assume max is in Cart. box */
-    if(box->COORD == CART) break;
-  }
-  *bi = b;
-  box_extremum_of_F(box, Ind("DNSdata_q"), X,Y,Z, &qmax);
-
-  return qmax;
+  return DNSdata_find_position_of_Varmax(grid, Ind("DNSdata_q"),
+                                         star, bi, X,Y,Z);
 }
 
 /* find cart coords of max of q */
 double DNSdata_find_xyz_of_qmax(tGrid *grid, int star, int *bi, 
                                 double *x, double *y, double *z)
 {
+  double qmax;
+
   /* for now we assume max is in Cart. box anyway */
-  return DNSdata_find_position_of_qmax(grid, star, bi, x,y,z);
+  qmax = DNSdata_find_position_of_qmax(grid, star, bi, x,y,z);
+  if(grid->box[*bi]->COORD != CART)
+    errorexit("qmax should be in a Cartesian box");
+  return qmax;
 }
 
 /* set DNSdata_actual_x/y/z/max1/2 pars */
