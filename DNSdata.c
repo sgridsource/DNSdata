@@ -2209,17 +2209,6 @@ void adjust_DNSdata_m01_m02(void)
          Getd("DNSdata_m0change"), mCh1, mCh2);
   printf(" => DNSdata_m01=%.13g DNSdata_m02=%.13g\n", cm01, cm02);
   printf("    DNSdata_desired_m01=%.13g DNSdata_desired_m02=%.13g\n", tm01, tm02);
-  /* kappa adjustment ? */
-  if(Getv("DNSdata_adjustkappa", "kappa^(-n/2)*m0_EQ_desired_kappa^(-n/2)*m0"))
-  {
-    double DNSdata_n = Getd("DNSdata_n");
-    double kappa;
-    kappa = Getd("DNSdata_desired_kappa") *
-            pow((tm01+tm02)/(cm01+cm02), -2/DNSdata_n);
-    Setd("DNSdata_kappa", kappa);
-    printf("    DNSdata_kappa = %g\n", kappa);
-    printf("    DNSdata_desired_kappa = %g\n", Getd("DNSdata_desired_kappa"));
-  }
 }
 
 /* compute weighted average of current and old values,
