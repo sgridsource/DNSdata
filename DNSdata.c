@@ -4123,7 +4123,7 @@ double DNSdata_find_position_of_Varmax(tGrid *grid, int vi, int star, int *bi,
 
   /* first find max on x-axis, to determine box where we search*/
   find_Varmax_along_x_axis_in_star(grid, vi, star, bi, X, &vmax);
-  if(bi<0) errorexit("bi<0: couldn't find max along x-axis");
+  if(*bi<0) errorexit("bi<0: couldn't find max along x-axis");
   box = grid->box[*bi];
 
   /* now look anywhere in this box */
