@@ -911,31 +911,38 @@ void find_qmaxs_along_x_axis_and_reset_qmaxs_xmaxs_pars(tGrid *grid)
 /* set the pars DNSdata_desired_VolAvSigma12 to values that min BC violation */
 void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
 {
-  int ijk;
+  int b, ijk;
   int AddInnerVolIntToBC=Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
   int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs", "InnerVolIntZero");
   double *Sigma;
-  double VolAvSigma1, VolAvSigma2;
+  double VolAvSigma1=0., VolAvSigma2=0.;
 
   /* do nothing? */
   if(Getv("DNSdata_set_desired_VolAvSigmas", "no")) return;
 
-  /* set VolAvSigma1/2 to sum of Sigmas */
-  VolAvSigma1 = 0.0;
-errorexit("need other boxes, not 0 and 3");
-errorexit("change evert 6th box, i.e. (bi%6) in set_DNSdata_Sigma_BCs.m");
-
-  Sigma      = grid->box[0]->v[index_Sigma];
-  forallpoints(grid->box[0], ijk) VolAvSigma1 += Sigma[ijk]; 
-  VolAvSigma2 = 0.0;
-  Sigma      = grid->box[3]->v[index_Sigma];
-  forallpoints(grid->box[3], ijk) VolAvSigma2 += Sigma[ijk]; 
-
-  /* use VolInt instead in some other cases */
-  if (AddInnerVolIntToBC || InnerVolIntZero)
+  /* set VolAvSigma1/2 */
+  forallboxes(grid, b)
   {
-    VolAvSigma1 = VolumeIntegral_inBox(grid->box[0], index_Sigma);
-    VolAvSigma2 = VolumeIntegral_inBox(grid->box[3], index_Sigma);
+    tBox *box = grid->box[b];
+    int MATTRinside = (box->MATTR== INSIDE);
+    int hasSSURF    = (box->BOUND== SSURF);
+    int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+    int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
+
+    if(isVolAvBox)
+    {
+      double VolAvSigma = 0.;
+
+      Sigma = box->v[index_Sigma];
+      /* use VolInt in some cases */
+      if (AddInnerVolIntToBC || InnerVolIntZero)
+        VolAvSigma = VolumeIntegral_inBox(box, index_Sigma);
+      else /* otherwise sum */
+        forallpoints(grid->box[3], ijk) VolAvSigma2 += Sigma[ijk];
+      /* set VolAvSigma1/2 */
+      if(box->SIDE==STAR1) VolAvSigma1 = VolAvSigma;
+      else                 VolAvSigma2 = VolAvSigma;
+    }
   }
   Setd("DNSdata_desired_VolAvSigma1", VolAvSigma1);
   Setd("DNSdata_desired_VolAvSigma2", VolAvSigma2);
@@ -3857,7 +3864,7 @@ quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
 //grid->time=-100;
 //write_grid(grid);
 quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",11,11,0);
-quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,1);
+quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,0);
 //8888888
 
   fvec[1] = m01 - pars->m01;

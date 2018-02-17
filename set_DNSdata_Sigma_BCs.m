@@ -241,20 +241,20 @@ tocompute = {
       (* we only impose InnerVolIntZero, ... in every sixth box *)
       Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvSigma = 0.0;",
-        Cinstruction == "if((bi%6)==1) VolAvSigma =
+        Cinstruction == "if(isVolAvBox) VolAvSigma =
                          VolumeIntegral_inBox(grid->box[bi], index_Sigma);",
       Cif == end,
 
       Cif == (AddInnerSumToBC || InnerSumZero),
         Cinstruction == "VolAvSigma = 0.0;",
-        Cinstruction == "if((bi%6)==1) forallpoints(box, ijk) {",
+        Cinstruction == "if(isVolAvBox) forallpoints(box, ijk) {",
         Cinstruction == "VolAvSigma += Sigma[ijk];",
         Cinstruction == "} /* endfor */",
       Cif == end,
 
       (* modify VolAvSigma so that we later impose 
          VolAvSigma=VolAvSigma1/2 *)
-      Cif == ( bi==0),
+      Cif == (isVolAvBox),
         Cinstruction == "VolAvSigma = VolAvSigma - VolAvSigma1;",
       Cif == else,
         Cinstruction == "VolAvSigma = VolAvSigma - VolAvSigma2;",
@@ -334,7 +334,7 @@ tocompute = {
       Cinstruction == "} /* end forplane1 */",
 
       (* impose extra condition in every 6th box *)
-      Cinstruction == "if((bi%6)==1) {",
+      Cinstruction == "if(isVolAvBox) {",
         (* set Sigma to zero at ijk=Index(n1-1,0,0) *)
         Cif == SigmaZeroAtPoint,
           Cinstruction == "ijk=Index(n1-1,0,0);",
@@ -347,7 +347,7 @@ tocompute = {
           Cinstruction == "ijk=Index(n1-1,0,0);",
           FSigma == VolAvSigma,
         Cif == end,
-      Cinstruction == "} /* end if((bi%6)==1) */",
+      Cinstruction == "} /* end if(isVolAvBox) */",
 
 
     (* linear case: *)
@@ -356,13 +356,13 @@ tocompute = {
 
       Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvlSigma = 0.0;",
-        Cinstruction == "if((bi%6)==1) VolAvlSigma =
+        Cinstruction == "if(isVolAvBox) VolAvlSigma =
           VolumeIntegral_inBox(grid->box[bi], index_lSigma);",
       Cif == end,
 
       Cif == (AddInnerSumToBC || InnerSumZero),
         Cinstruction == "VolAvlSigma = 0.0;",
-        Cinstruction == "if((bi%6)==1) forallpoints(box, ijk) {",
+        Cinstruction == "if(isVolAvBox) forallpoints(box, ijk) {",
         Cinstruction == "VolAvlSigma += lSigma[ijk];",
         Cinstruction == "} /* endfor */",
       Cif == end,
@@ -471,7 +471,7 @@ tocompute = {
       Cinstruction == "} /* end forplane1 */",
 
       (* impose extra condition in every 6th box *)
-      Cinstruction == "if((bi%6)==1) {",
+      Cinstruction == "if(isVolAvBox) {",
         (* set Sigma to zero at ijk=Index(n1-1,0,0) *)
         Cif == SigmaZeroAtPoint,
           Cinstruction == "ijk=Index(n1-1,0,0);",
@@ -483,7 +483,7 @@ tocompute = {
           Cinstruction == "ijk=Index(n1-1,0,0);",
           FlSigma == VolAvlSigma,
         Cif == end,
-      Cinstruction == "} /* end if((bi%6)==1) */",
+      Cinstruction == "} /* end if(isVolAvBox) */",
 
 
     Cif == end, (* end of nonlin/linear case *)
@@ -639,6 +639,8 @@ BeginCFunction[] := Module[{},
   pr["int MATTRtouch  = (box->MATTR== TOUCH);\n\n"];
   pr["int MATTRaway   = (box->MATTR== AWAY);\n\n"];
   pr["int hasSSURF    = (box->BOUND== SSURF);\n\n"];
+  pr["int isXinDom    = (box->CI->dom == box->SIDE - STAR1);\n\n"];
+  pr["int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);\n\n"];
 
   pr["\n"];
   pr["\n"];
