@@ -32,6 +32,10 @@ int DNS_compute_chi(tGrid *grid)
 
      /* do nothing if DNSdata_Interpolate_pointsfile exists */
      if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
+
+printf("DNS_compute_chi needs to be updated to not use box0/3 and AnsorgNS!!!");
+printf("*** Skipping DNS_compute_chi ***\n");
+return 77;
  
      forallboxes(grid,bi) {
          
@@ -60,7 +64,7 @@ int DNS_compute_chi(tGrid *grid)
 
     /* Computation of chi*/
     /* for box 3*/
-printf("DNS_compute_chi should not be done in box3");
+errorexit("DNS_compute_chi should not be done in box3");
      chieq   = grid-> box[3]->v[index_DNSdata_temp2 + 0];
      chipole = grid-> box[3]->v[index_DNSdata_temp3 + 0];
      temp4   = grid-> box[3]->v[index_DNSdata_temp4 + 0];
@@ -86,7 +90,7 @@ printf("DNS_compute_chi should not be done in box3");
      Setd("DNSdata_mass_shedding1",chi);
   
      /*for box 0*/
-printf("DNS_compute_chi should not be done in box0");
+errorexit("DNS_compute_chi should not be done in box0");
 printf("  WARNING: DNS_compute_chi results are WRONG!!!");
       chieq   = grid-> box[0]->v[index_DNSdata_temp2 + 0];
       chipole = grid-> box[0]->v[index_DNSdata_temp3 + 0];
