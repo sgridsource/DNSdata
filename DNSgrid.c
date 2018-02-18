@@ -372,7 +372,7 @@ int set_DNS_box_attribs(tGrid *grid)
       /* remove sigma01 in this box */
       disable_Coordinates_CubedSphere_sigma01(box);
     }
-    if( Getv(str, "outerCubedSphere") )
+    if( Getv(str, "CubedSphere") && box->CI->type==outerCubedSphere )
     {
       double y, z, r, rs;
       box->COORD = CUBSPH;
@@ -393,7 +393,7 @@ int set_DNS_box_attribs(tGrid *grid)
         disable_Coordinates_CubedSphere_sigma01(box);
       }
     }
-    if( Getv(str, "innerCubedSphere") )
+    if( Getv(str, "CubedSphere") && box->CI->type==innerCubedSphere )
     { 
       double y, z, r, rs;
       box->COORD = CUBSPH;
@@ -415,14 +415,15 @@ int set_DNS_box_attribs(tGrid *grid)
         disable_Coordinates_CubedSphere_sigma01(box);
       }
     }
-    if( Getv(str, "PyramidFrustum") || Getv(str, "CubedShell") )
+    if( Getv(str, "CubedSphere") &&
+        (box->CI->type==PyramidFrustum || box->CI->type==CubedShell) )
     { 
       box->COORD = CUBSPH;
       box->MATTR = AWAY;
       /* remove sigma01 in this box */
       disable_Coordinates_CubedSphere_sigma01(box);
     }
-    if( Getv(str, "stretchedCubedShell") )
+    if( Getv(str, "stretchedCubedSphere") )
     { 
       box->COORD = SCUBSH;
       box->MATTR = AWAY;
@@ -674,6 +675,7 @@ double InnerVolumeIntegral(tGrid *grid, int star, int vind)
 {
   double VolInt = 0.0;
   int b;
+  //pr_DNS_box_attribs(grid);
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
