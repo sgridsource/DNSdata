@@ -22,11 +22,6 @@ double rf_surf1; /* radius of star1 */
 double rf_surf2; /* radius of star2 */
 double P_core1;  /* core pressure of star1 */
 double P_core2;  /* core pressure of star2 */
-/* global vars in this file for root finding */
-tBox *DNSdata_q_VectorFunc_box;      /* box for BNdata_q_VectorFunc */
-double *DNSdata_q_VectorFunc_coeffs; /* coeffs for BNdata_q_VectorFunc */
-double DNSdata_q_VectorFunc_A;       /* A for DNSdata_q_VectorFunc */
-double DNSdata_q_VectorFunc_B;       /* B for DNSdata_q_VectorFunc */
 
 /* funs in this file */
 void m01_VectorFunc(int n, double *vec, double *fvec);
@@ -525,21 +520,6 @@ void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val)
 /*************************************/
 /* functions to adjust star surfaces */
 /*************************************/
-
-/* get q at lam by direct computation along a (A,B)=(const1,const2) line */
-void DNSdata_q_VectorFunc(int n, double *vec, double *fvec)
-{
-  tBox *box = DNSdata_q_VectorFunc_box;
-  tGrid *grid = box->grid;
-  int b = box->b;
-  double A = DNSdata_q_VectorFunc_A;
-  double B = DNSdata_q_VectorFunc_B;
-  double lam = vec[1];  
-
-  /* compute q */
-  fvec[1] = DNS_compute_new_centered_q_atXYZ(grid,b, lam,A,B);
-}
-
 
 /* WE NEED to find sigma at A,B such that q(sigma; lam=0or1, A,B) = 0 */
 /* q as a func of lam for a given  A, B */
