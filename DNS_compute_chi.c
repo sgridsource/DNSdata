@@ -33,7 +33,7 @@ int DNS_compute_chi(tGrid *grid)
      /* do nothing if DNSdata_Interpolate_pointsfile exists */
      if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
 
-printf("DNS_compute_chi needs to be updated to not use box0/3 and AnsorgNS!!!");
+printf("DNS_compute_chi needs to be updated to not use box0/3 and AnsorgNS!!!\n");
 printf("*** Skipping DNS_compute_chi ***\n");
 return 77;
  
