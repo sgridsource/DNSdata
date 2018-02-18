@@ -678,22 +678,10 @@ double InnerVolumeIntegral(tGrid *grid, int star, int vind)
   {
     tBox *box = grid->box[b];
     if( (box->SIDE == star) && (box->MATTR == INSIDE) )
-      VolInt += VolumeIntegral_inBox(box, vind);
+      VolInt += BoxVolumeIntegral(box, vind);
   }
   return VolInt;
 }
-
-/* compute volume integral of var with index vind over entire grid
-   Here any Psi^6 needs to be already included in the var we integrate. */
-double GridVolumeIntegral(tGrid *grid, int vind)
-{
-  double VolInt = 0.0;
-  int b;
-  forallboxes(grid, b)
-    VolInt += VolumeIntegral_inBox(grid->box[b], vind);
-  return VolInt;
-}
-
 
 
 

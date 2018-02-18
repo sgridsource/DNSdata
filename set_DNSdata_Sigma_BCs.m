@@ -242,7 +242,7 @@ tocompute = {
       Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvSigma = 0.0;",
         Cinstruction == "if(isVolAvBox) VolAvSigma =
-                         VolumeIntegral_inBox(grid->box[bi], index_Sigma);",
+                         BoxVolumeIntegral(grid->box[bi], index_Sigma);",
       Cif == end,
 
       Cif == (AddInnerSumToBC || InnerSumZero),
@@ -357,7 +357,7 @@ tocompute = {
       Cif == (AddInnerVolIntToBC || InnerVolIntZero),
         Cinstruction == "VolAvlSigma = 0.0;",
         Cinstruction == "if(isVolAvBox) VolAvlSigma =
-          VolumeIntegral_inBox(grid->box[bi], index_lSigma);",
+          BoxVolumeIntegral(grid->box[bi], index_lSigma);",
       Cif == end,
 
       Cif == (AddInnerSumToBC || InnerSumZero),
