@@ -64,8 +64,6 @@ tVarList *vldu, *vlJdu, *vlduDerivs;
 
 
 /* functions in this file */
-void compute_ABphi_from_xyz(tBox *box, double *A, double *B, double *phi,
-                            double x, double y, double z);
 void make_vl_vlDeriv_vlF_vld_vldDerivs_vlJd_forComponent(tGrid *grid,
      tVarList **vlw,  tVarList **vlwDerivs,  tVarList **vlFw, 
      tVarList **vldw, tVarList **vldwDerivs, tVarList **vlJdw, char *Name);
@@ -97,7 +95,6 @@ int DNS_Eqn_Iterator(tGrid *grid, int itmax, double tol, double *normres,
 	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
 	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
   int pr);
-double GetInnerRestMass(tGrid *grid, int bi);
 void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p);

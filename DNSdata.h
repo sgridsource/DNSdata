@@ -48,7 +48,7 @@ void setADMvars(tGrid *grid);
 
 
 /* more from  DNSdata.c */
-double GetInnerRestMass(tGrid *grid, int bi);
+double GetInnerRestMass(tGrid *grid, int star);
 
 
 /* funtions from mathematica */
