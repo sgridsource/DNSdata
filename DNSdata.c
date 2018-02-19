@@ -3799,6 +3799,9 @@ quick_Var_output(grid->box[2], "DNSdata_q",2,2);
 
   /* reset sigma such that q=0 at A=0 */
   reset_Coordinates_CubedSphere_sigma01(grid, grid2, star);
+
+  /* make sure coords on new grid are initialized */
+  DNSgrid_init_Coords_for_star(grid2, star);
 quick_Var_output(grid->box[2], "Coordinates_CubedSphere_sigma01",3,3);
 quick_Var_output(grid2->box[2], "Coordinates_CubedSphere_sigma01",4,4);
 

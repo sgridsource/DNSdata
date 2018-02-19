@@ -762,7 +762,7 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
   intList *bl1 = alloc_intList(); /* list that contains boxes to look in */
   int b,i;
 
-  /* save coeffs of vind on grid1 in cind = Ind("Temp1") */
+  /* save coeffs of vind on grid1 in cind = Ind("temp1") */
   forallboxes(grid1, b)
   {
     tBox *box = grid1->box[b];
@@ -787,6 +787,13 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
 
     /* do nothing if we are on wrong side of grid or not near star surface */
     if(box->SIDE!=star || box->BOUND!=SSURF) continue;
+
+//printCI(box);
+printCI(box);
+printf("sigma=%g\n", box->v[37][7]);
+printf("sigma=%g\n", CubedSphere_sigma(box, 1, 7, -1., -1.));
+printf("sigma=%g\n", CubedSphere_sigma(box, 1, -1, -1., -1.));
+
 
     /* here we can use SGRID_LEVEL6_Pragma(omp parallel) */
 #undef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
@@ -815,6 +822,8 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
         int b1;
 
         /* get b1, X,Y,Z on grid1_p */
+printf("b=%d i=%d x=%g y=%g z=%g  guess X=%g Y=%g Z=%g\n",
+box->b, i ,x,y,z, X,Y,Z);
         b1 = DNSgrid_Get_BoxAndCoords_of_xyz(grid1_p, &X,&Y,&Z, bl1, x,y,z);
         if(b1>=0)
         {
@@ -832,9 +841,10 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
         {
           errorexit("could not find point");
         }
-printf("b=%d i=%d x=%g y=%g z=%g v=%g  b1=%d X=%g Y=%g Z=%g  pv[i]=%g\n",
-box->b, i ,x,y,z, box->v[vind][i], b1, X,Y,Z, pv[i]);
-if(i>40) exit(88);
+printf("  b1=%d X=%g Y=%g Z=%g  pv[i]=%g\n", b1, X,Y,Z, pv[i]);
+//printf("  box=%p grid1->box[b1]=%p grid1_p->box[b1=%p\n",
+//box, grid1->box[b1], grid1_p->box[b1]);
+//if(i>40) exit(88);
 
       } /* end forallpoints loop */
 #ifdef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
@@ -1119,10 +1129,6 @@ void DNSgrid_init_Coords_for_star(tGrid *grid, int star)
 
   /* initialize coords on grid, reset x,y,z, dXdx and such */
   init_CoordTransform_And_Derivs(grid);
-
-  /* set values of A,B,phi in box4/5 */
-  errorexit("do something like set_BNSdata_ABphi(grid); ... "
-            "but maybe inside init_CoordTransform_And_Derivs ???");
 
   /* put back original Coordinates_verbose */
   if(Coordinates_verbose) Sets("Coordinates_verbose", "yes");
