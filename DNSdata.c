@@ -3786,8 +3786,12 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
     errorexit("compute_new_q_and_adjust_domainshapes_InterpFromGrid0: "
               "star is not STAR1 or STAR2");
 
+//quick_Var_output(grid->box[2], "Coordinates_CubedSphere_sigma01",1,1);
+quick_Var_output(grid->box[2], "DNSdata_q",1,1);
+
   /* compute new q */
   DNS_compute_new_centered_q(grid);
+quick_Var_output(grid->box[2], "DNSdata_q",2,2);
 
   /* make new grid2, which is an exact copy of grid */
   grid2 = make_empty_grid(grid->nvariables, 0);
@@ -3795,7 +3799,8 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 
   /* reset sigma such that q=0 at A=0 */
   reset_Coordinates_CubedSphere_sigma01(grid, grid2, star);
-  /* NOTE: coords of grid2 are initialized in if clause below. */
+quick_Var_output(grid->box[2], "Coordinates_CubedSphere_sigma01",3,3);
+quick_Var_output(grid2->box[2], "Coordinates_CubedSphere_sigma01",4,4);
 
   /* interpolate q (and maybe some other vars) from grid onto new grid2 */
   //  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_qg"),star);
@@ -3815,8 +3820,13 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   }
   if(interp_qgold)
     Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_qgold"),star);
+quick_Var_output(grid->box[2], "DNSdata_Psi",3,3);
+quick_Var_output(grid2->box[2],"DNSdata_Psi",4,4);
 
   DNS_compute_new_centered_q(grid2);
+quick_Var_output(grid->box[2], "DNSdata_q",5,5);
+quick_Var_output(grid2->box[2],"DNSdata_q",6,6);
+exit(99);
 
 //  /* set q to zero if q<0 or in region 1 and 2 */
 //  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
@@ -3843,8 +3853,8 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* set C1 */
   Setd("DNSdata_C1", vec[1]);
 
-quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",1,1,0);
-quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
+//quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",1,1,0);
+//quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
 
   /* adjust grid so that new q=0 is at A=0 */
   //compute_new_q_and_adjust_domainshapes(grid, STAR1);
@@ -3860,8 +3870,8 @@ quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
   fflush(stdout);
 //grid->time=-100;
 //write_grid(grid);
-quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",11,11,0);
-quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,0);
+//quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",11,11,0);
+//quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,0);
 //8888888
 
   fvec[1] = m01 - pars->m01;

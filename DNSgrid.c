@@ -531,7 +531,10 @@ double q_of_lam_forgiven_AB_ZP(double lam, void *p)
   int b       = pars->b;
   double A    = pars->A;
   double B    = pars->B;
-  return DNS_compute_new_centered_q_atXYZ(grid,b, lam, A,B);
+  double q    = DNS_compute_new_centered_q_atXYZ(grid,b, lam, A,B);
+
+printf("b=%d lam=%g A=%g B=%g q=%g\n", b, lam, A,B, q);
+  return q;
 }
 /* reset sigma such that the zeros in DNSdata_q are at A=0 */
 void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
@@ -597,7 +600,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       int indin = Ind_n1n2(n1in-1,j,k, n1in,n2in);
       double A = box->v[iY][ind];
       double B = box->v[iZ][ind];
-      double x, y, z, sig01_AB;
+      double x, y, z, xc, sig01_AB;
       int dom, stat;
 
       /* find indices where q_in and q_out switch sign */
@@ -630,6 +633,11 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       lam1 = boxq0->v[iX][Index(i1,j,k)];
       lam2 = boxq0->v[iX][Index(i2,j,k)];
 
+printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
+               "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
+printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
+printf("dom=%d i1=%d i2=%d lam1=%g lam2=%g\n", dom, i1,i2, lam1,lam2);
+
       /* use Brent's method to find lam0 where q=0 */
       if(zbrac_P(q_of_lam_forgiven_AB_ZP, &lam1,&lam2, (void *) pars)<0)
         errorexit("cannot find bracket for q_of_lam_forgiven_AB_ZP");
@@ -640,9 +648,11 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       x = boxq0->x_of_X[1]((void *)boxq0, -1, lam0, A,B);
       y = boxq0->x_of_X[2]((void *)boxq0, -1, lam0, A,B);
       z = boxq0->x_of_X[3]((void *)boxq0, -1, lam0, A,B);
+      xc = boxq0->CI->xc[1];
 
       /* from x,y,z we now get the new sigma in box outerdom and innerdom */
-      sig01_AB = sqrt(x*x + y*y + z*z);
+      sig01_AB = sqrt((x-xc)*(x-xc) + y*y + z*z);
+printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
 
       /* set sigma = sig01_AB in both domains */
       for(i=0; i<n1; i++)
@@ -720,10 +730,13 @@ int DNSgrid_set_bfaces(tGrid *grid, int set_fpts, int pr)
    point on the other grid */
 int DNSgrid_Get_BoxAndCoords_of_xyz(tGrid *grid1,
                                     double *X1, double *Y1, double *Z1,
-                                    tBox *box, int ind, double x, double y, double z)
+                                    intList *bl1, double x, double y, double z)
 {
   int b1;
-  b1 = b_XYZ_of_xyz(grid1, X1,Y1,Z1, x,y,z);
+  if( bl1==NULL || bl1->n==0 )
+    b1 = b_XYZ_of_xyz(grid1, X1,Y1,Z1, x,y,z);
+  else
+    b1 = b_XYZ_of_xyz_inboxlist(grid1, bl1->e,bl1->n, X1,Y1,Z1, x,y,z);
   return b1;
 }
 
@@ -746,6 +759,7 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
   int xind = Ind("x");
   int yind = Ind("y");
   int zind = Ind("z");
+  intList *bl1 = alloc_intList(); /* list that contains boxes to look in */
   int b,i;
 
   /* save coeffs of vind on grid1 in cind = Ind("Temp1") */
@@ -756,6 +770,7 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
     if(box->SIDE!=star || box->BOUND!=SSURF) continue;
 
     spec_Coeffs(box, box->v[vind], box->v[cind]);
+    push_intList(bl1, box->b); /* look in box->b */
   }
 
   /* loop over grid2 */
@@ -775,6 +790,7 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
 
     /* here we can use SGRID_LEVEL6_Pragma(omp parallel) */
 #undef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
+#define SERIAL_Interp_Var_From_Grid1_To_Grid2_star 1
 #ifndef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
     SGRID_LEVEL6_Pragma(omp parallel)
     {
@@ -796,20 +812,29 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
         double x = px[i];
         double y = py[i];
         double z = pz[i];
-        double r = sqrt(x*x + y*y + z*z);
         int b1;
 
         /* get b1, X,Y,Z on grid1_p */
-        b1 = DNSgrid_Get_BoxAndCoords_of_xyz(grid1_p, &X,&Y,&Z, box,i, x,y,z);
+        b1 = DNSgrid_Get_BoxAndCoords_of_xyz(grid1_p, &X,&Y,&Z, bl1, x,y,z);
         if(b1>=0)
         {
           /* get var at point X,Y,Z by interpolation */
-          pv[i] = spec_interpolate(grid1_p->box[b1], grid1_p->box[b1]->v[cind], X,Y,Z);
+          pv[i] = spec_interpolate(grid1_p->box[b1],
+                                   grid1_p->box[b1]->v[cind], X,Y,Z);
+          if(!finite(pv[i]))
+          {
+            printf("box->b=%d x=%g y=%g z=%g  b1=%d X=%.18g Y=%.18g Z=%.18g\n",
+                    box->b, x,y,z, b1, X,Y,Z);
+            errorexit("!finite(pv[i])");
+          }
         }
-        else /* point px[i],py[i],pz[i] may be beyond outer boundary */
+        else /* point x,y,z may be beyond outer boundary */
         {
           errorexit("could not find point");
         }
+printf("b=%d i=%d x=%g y=%g z=%g v=%g  b1=%d X=%g Y=%g Z=%g  pv[i]=%g\n",
+box->b, i ,x,y,z, box->v[vind][i], b1, X,Y,Z, pv[i]);
+if(i>40) exit(88);
 
       } /* end forallpoints loop */
 #ifdef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
@@ -820,6 +845,7 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
     }
 #endif
   } /* end forallboxes(grid2,b) */
+  free_intList(bl1);
 }
 
 /* copy variable at i=n1-1 from Box1 to i=0 in Box2 */

@@ -153,6 +153,7 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
         else       star=STAR2;
         clear_intList(bl);
         bladd_ifAttrib(grid, iSIDE, star, bl);
+        errorexit("bl is missing boxes that do not belong to just one star");
         nearest_b_XYZ_of_xyz_inboxlist(grid, bl->e,bl->n,
                                        &b, &ind, &X,&Y,&Z, x,y,z);
         if(grid->box[b]->COORD==CART)
@@ -165,7 +166,7 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
 
         /* get X,Y,Z, b of x,y,z */
         b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z,
-                                          grid->box[b],ind, x,y,z);
+                                          NULL, x,y,z);
         if(pr) printf("actual: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
         if(b<0)
         {

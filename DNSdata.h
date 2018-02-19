@@ -102,7 +102,7 @@ double GridVolumeIntegral(tGrid *grid, int vind);
 tGrid *make_grid_with_sigma_pm(tGrid *grid, int nAB, int nphi, int nxyz);
 int DNSgrid_Get_BoxAndCoords_of_xyz(tGrid *grid1,
                                     double *X1, double *Y1, double *Z1,
-                                    tBox *box, int ind, double x, double y, double z);
+                                    intList *bl1, double x, double y, double z);
 int DNSgrid_set_bfaces(tGrid *grid, int set_fpts, int pr);
 void Interpolate_Var_From_Grid1_To_Grid2(tGrid *grid1, tGrid *grid2, int vind);
 void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
