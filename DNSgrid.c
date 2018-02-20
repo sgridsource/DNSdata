@@ -661,17 +661,44 @@ printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
         boxnewin->v[isigma1][indin] = sig01_AB;
       }
     } /* end forplane1 */
-
-
-    /* compute derivs of sigma in both domains */
-    spec_Deriv1(boxnew, 2, boxnew->v[isigma0], boxnew->v[isigma0_dA]); // optimize to deriv on plane0
-    spec_Deriv1(boxnew, 3, boxnew->v[isigma0], boxnew->v[isigma0_dB]);
-    spec_Deriv1(boxnewin, 2, boxnewin->v[isigma1], boxnewin->v[isigma1_dA]);
-    spec_Deriv1(boxnewin, 3, boxnewin->v[isigma1], boxnewin->v[isigma1_dB]);
   }
+  /* compute sigma derives on gridnew */
+  compute_sigma01_derivs(gridnew, star);
 }
 
+/* compute sigma_dA, sigma_dB for all boxes with star surface */
+void compute_sigma01_derivs(tGrid *grid, int star)
+{
+  int b;
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    int isigma, isigma_dA, isigma_dB;
 
+    /* do nothing for other star and all boxes that do not touch surface */
+    if(box->SIDE != star || box->BOUND != SSURF) continue;
+
+    /* find index of sigma in this box */
+    if(box->CI->type==innerCubedSphere)
+    {
+      isigma    = box->CI->iSurf[0];
+      isigma_dA = box->CI->idSurfdX[0][2];
+      isigma_dB = box->CI->idSurfdX[0][3];
+    }
+    else if(box->CI->type==outerCubedSphere)
+    {
+      isigma    = box->CI->iSurf[1];
+      isigma_dA = box->CI->idSurfdX[1][2];
+      isigma_dB = box->CI->idSurfdX[1][3];
+    }
+    else
+      errorexit("there should only be outer or inner Cubed Spheres");
+
+    /* compute derivs of sigma in both domains */
+    spec_Deriv1(box, 2, box->v[isigma], box->v[isigma_dA]); // optimize to deriv on plane0
+    spec_Deriv1(box, 3, box->v[isigma], box->v[isigma_dB]);
+  }
+}
 
 
 
