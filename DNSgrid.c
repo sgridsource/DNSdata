@@ -1270,15 +1270,16 @@ void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star)
         int j = jOfInd_n1n2_k(ijk,n1,n2,k);
         int i = iOfInd_n1n2_jk(ijk,n1,n2,j,k);
 
+        /* go to next point if it is not in curved inner or outer face */
         if(box->CI->type==outerCubedSphere && i<n1-1) continue;
         if(box->CI->type==innerCubedSphere && i>0)    continue;
+
         if(j==0 || j==n2-1 || k==0 || k==n3-1)
         {
           int oijk = obface->fpts->point[ob][pi];
-printf("b=%d i=%d j=%d k=%d ijk=%d s=%g  "
-"ob=%d oijk=%d os=%g : ", b,i,j,k,ijk, sigma[ijk], ob,oijk, osigma[oijk]);
+          
+          /* propagate this sigma to all other boxes */
           osigma[oijk] = sigma[ijk];
-printf("s=%g os=%g\n", sigma[ijk], osigma[oijk]);
         }
       }
     } /* end forallbfaces */
