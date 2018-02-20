@@ -662,6 +662,9 @@ printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
       }
     } /* end forplane1 */
   }
+  /* ensure that sigma is continuous between boxes on gridnew */
+  DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
+
   /* compute sigma derives on gridnew */
   compute_sigma01_derivs(gridnew, star);
 }
