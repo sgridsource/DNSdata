@@ -1159,7 +1159,7 @@ void DNSgrid_scale_Coordinates_CubSph_sigma(tGrid *grid, double fac, int star)
     int isigma0,isigma0_dA,isigma0_dB, isigma1,isigma1_dA,isigma1_dB;
     double *sigma, *sigma_dA, *sigma_dB;
 
-    if(box->SIDE!=star || box->BOUND!=SSURF) continue;
+    if(box->SIDE!=star || box->MATTR!=TOUCH) continue;
 
     innerdom = b-6; /* works only for my CubSph arrangement */
     boxin = grid->box[innerdom];
@@ -1199,5 +1199,133 @@ void DNSgrid_scale_Coordinates_CubSph_sigma(tGrid *grid, double fac, int star)
       sigma_dA[ind] *= fac;
       sigma_dB[ind] *= fac;
     }
+  }
+}
+
+/* scale Coordinates_AnsorgNS_sigma and its deriv on one side
+   by a factor fac. */
+void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star)
+{
+  int b;
+
+  if(star<STAR1 || star>STAR2)
+    errorexit("must have STAR1<=star<=STAR2");
+
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    tBox *boxin;
+    int innerdom;
+    int i,j,k, n1,n2,n3;
+    int isigma,isigma_dA,isigma_dB, iosigma,iosigma_dA,iosigma_dB;
+    double *sigma, *sigma_dA, *sigma_dB;
+    int fi;
+
+    /* do nothing except for cubed sph. at surface of this star */
+    if(box->SIDE!=star || box->BOUND!=SSURF) continue;
+printf("b=%d\n",b);
+    /* find index of sigma in this box */
+    if(box->CI->type==innerCubedSphere)
+    {
+      isigma    = box->CI->iSurf[0];
+      isigma_dA = box->CI->idSurfdX[0][2];
+      isigma_dB = box->CI->idSurfdX[0][3];
+    }
+    else if(box->CI->type==outerCubedSphere)
+    {
+      isigma    = box->CI->iSurf[1];
+      isigma_dA = box->CI->idSurfdX[1][2];
+      isigma_dB = box->CI->idSurfdX[1][3];
+    }
+    else
+      errorexit("there should only be outer or inner Cubed Spheres");
+
+    /* get sigma pointers */
+    sigma    = box->v[isigma];
+    sigma_dA = box->v[isigma_dA];
+    sigma_dB = box->v[isigma_dB];
+    n1=box->n1;
+    n2=box->n2;
+    n3=box->n3;
+
+    forallbfaces(box, fi)
+    {
+      tBface *bface = box->bface[fi];
+      double *osigma;
+      double *osigma_dA;
+      double *osigma_dB;
+      int pi, ijk;
+      tBface *obface;
+      tBox *obox;
+      int ob  = bface->ob;
+      int ofi = bface->ofi;
+
+      if(ob<0 || ofi<0) continue;
+      obox = grid->box[ob];
+      obface = obox->bface[ofi];
+      if(obface->fpts==NULL)  continue;
+      if(bface->same_fpts==0) continue;
+
+      /* find index and poiters of sigma in other box */
+      if(obox->CI->type==innerCubedSphere)
+      {
+        iosigma    = obox->CI->iSurf[0];
+        iosigma_dA = obox->CI->idSurfdX[0][2];
+        iosigma_dB = obox->CI->idSurfdX[0][3];
+      }
+      else if(obox->CI->type==outerCubedSphere)
+      {
+        iosigma    = obox->CI->iSurf[1];
+        iosigma_dA = obox->CI->idSurfdX[1][2];
+        iosigma_dB = obox->CI->idSurfdX[1][3];
+      }
+      else
+        continue;
+      osigma    = obox->v[iosigma];
+      osigma_dA = obox->v[iosigma_dA];
+      osigma_dB = obox->v[iosigma_dB];
+
+      /* go over point pairs */
+      forPointList_inbox(bface->fpts, box, pi, ijk)
+      {
+        int k = kOfInd_n1n2(ijk,n1,n2);
+        int j = jOfInd_n1n2_k(ijk,n1,n2,k);
+        int i = iOfInd_n1n2_jk(ijk,n1,n2,j,k);
+
+        if(box->CI->type==outerCubedSphere && i<n1-1) continue;
+        if(box->CI->type==innerCubedSphere && i>0)    continue;
+        if(j==0 || j==n2-1 || k==0 || k==n3-1)
+        {
+          int oijk = obface->fpts->point[ob][pi];
+          double av;
+double A=box->v[Ind("Y")][ijk];
+double B=box->v[Ind("Z")][ijk];
+double oA=obox->v[Ind("Y")][oijk];
+double oB=obox->v[Ind("Z")][oijk];
+//printf("b=%d i=%d j=%d k=%d ijk=%d A=%g B=%g  "
+//"ob=%d oijk=%d oA=%g oB=%g\n", b,i,j,k,ijk, A,B, ob,oijk, oA,oB);
+double x=box->v[Ind("x")][ijk];
+double y=box->v[Ind("y")][ijk];
+double z=box->v[Ind("z")][ijk];
+double ox=obox->v[Ind("x")][oijk];
+double oy=obox->v[Ind("y")][oijk];
+double oz=obox->v[Ind("z")][oijk];
+//printf("b=%d i=%d j=%d k=%d ijk=%d x=%g y=%g z=%g  "
+//"ob=%d oijk=%d ox=%g oy=%g oz=%g\n", b,i,j,k,ijk, x,y,z, ob,oijk, ox,oy,oz);
+printf("b=%d i=%d j=%d k=%d ijk=%d s=%g  "
+"ob=%d oijk=%d os=%g : ", b,i,j,k,ijk, sigma[ijk], ob,oijk, osigma[oijk]);
+//printf("%d %p %d %p  \n",isigma,sigma, iosigma,osigma);
+          //av = 0.5*(sigma[ijk]+osigma[oijk]);
+          osigma[oijk] = sigma[ijk];// = av;
+printf("s=%g os=%g\n", sigma[ijk], osigma[oijk]);
+
+          //av = 0.5*(sigma_dA[ijk]+osigma_dA[oijk]);
+          osigma_dA[oijk] = sigma_dA[ijk];// = av;
+
+          //av = 0.5*(sigma_dB[ijk]+osigma_dB[oijk]);
+          osigma_dB[oijk] = sigma_dB[ijk];// = av;
+        }
+      }
+    } /* end forallbfaces */
   }
 }
