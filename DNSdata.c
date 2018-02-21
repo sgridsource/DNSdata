@@ -2371,7 +2371,7 @@ int DNSdata_solve(tGrid *grid)
   double linSolver_tolFac = Getd("DNSdata_linSolver_tolFac");
   double linSolver_tol    = Getd("DNSdata_linSolver_tol");
   double normresnonlin;
-  double realnormres = 1e300;
+  double realnormres = 1e10;
   double realnormres_old;
   double realSigmares, restres;
   int    itsSinceExtraSigma = 0;
