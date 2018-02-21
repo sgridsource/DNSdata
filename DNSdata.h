@@ -37,7 +37,8 @@ enum
 /* main functions */
 int DNSdata_setup_boxsizes(tGrid *grid);
 int DNSdata_startup(tGrid *grid);
-void   DNS_compute_new_centered_q(tGrid *grid);
+void DNS_compute_new_q(tGrid *grid, int iq);
+void DNS_compute_new_centered_q(tGrid *grid, int star);
 double DNS_compute_new_centered_q_atXYZ(tGrid *grid, int bi,
                                         double X, double Y, double Z);
 int DNSdata_verify_solution(tGrid *grid);
@@ -54,7 +55,7 @@ double GetInnerRestMass(tGrid *grid, int star);
 /* funtions from mathematica */
 void DNS_CTS(tVarList *vlFu, tVarList *vlu, tVarList *vlJdu, 
              tVarList *vldu, tVarList *vlduDerivs, int nonlin);
-void DNS_compute_new_q(tGrid *grid, int iq);
+void DNS_compute_new_q_instar(tGrid *grid, int star, int iq);
 double DNS_compute_new_q_atXYZ(tGrid *grid, int bi,
                                double X, double Y, double Z);
 void DNS_set_restmassintegrand(tGrid *grid, int iInteg);

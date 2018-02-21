@@ -2,7 +2,7 @@
 
 NAME := DNSdata
 OBJS := sgrid_$(NAME).o DNSdata.o DNS_CTS.o setADMvars.o TOVstar.o \
-	DNSgrid.o DNS_compute_new_q.o DNS_compute_new_q_atXYZ.o \
+	DNSgrid.o DNS_compute_new_q_instar.o DNS_compute_new_q_atXYZ.o \
  	DNS_set_restmassintegrand.o DNS_set_J_ADM_VolInt_integrand.o \
 	DNS_set_M_ADM_VolInt_integrand.o DNS_set_P_ADM_VolInt_integrand.o \
 	DNS_Interpolate_ADMvars.o \
@@ -17,8 +17,8 @@ DNS_CTS.c: DNS_CTS.m
 setADMvars.c: setADMvars.m
 	math < setADMvars.m > /dev/null
 
-DNS_compute_new_q.c: DNS_compute_new_q.m
-	math < DNS_compute_new_q.m > /dev/null
+DNS_compute_new_q_instar.c: DNS_compute_new_q_instar.m
+	math < DNS_compute_new_q_instar.m > /dev/null
 
 DNS_compute_new_q_atXYZ.c: DNS_compute_new_q_atXYZ.m
 	math < DNS_compute_new_q_atXYZ.m > /dev/null
