@@ -3986,22 +3986,38 @@ void qm2_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   fvec[1] = qm2 - pars->qm2;
 }
 
-
-/* find value fvec[1] of dq on x-axis at X=vec[1] by interpolation */
-/* Note: before we can use this, we have to set
-   grid->box[0]->v[Ind("DNSdata_temp3")][0] = bi;
-   grid->box[0]->v[Ind("DNSdata_temp3")][2] = Y; */
-void dq_dx_along_x_axis_VectorFunc(int n, double *vec, double *fvec)
+/* m01_error_ZP, m02_error_ZP, qm1_error_ZP, qm2_error_ZP are wrappers around
+   m01_error_VectorFuncP, m02_error_VectorFuncP, qm1_error_VectorFuncP,
+   qm2_error_VectorFuncP , so that we can use zbrent_itsP */
+double m01_error_ZP(double C, void *p)
 {
-  tGrid *grid = central_q_errors_VectorFunc__grid;
-  int bi = grid->box[0]->v[Ind("DNSdata_temp3")][0]; /* I abused DNSdata_temp3 to store bi,Y */
-  tBox *box = grid->box[bi];
-  double *c = box->v[Ind("DNSdata_temp2")]; /* coeffs of dq_dx */
-  double X = vec[1];
-  double Y = grid->box[0]->v[Ind("DNSdata_temp3")][2];
-  fvec[1] = spec_interpolate(box, c, X,Y,0);
-//  printf("     at (bi=%d X=%g Y=%g) dq_dx=%g\n", bi, X,Y, fvec[1]);
+  double vec[2], fvec[2];
+  vec[1] = C;
+  m01_error_VectorFuncP(1, vec, fvec, p);
+  return fvec[1];
 }
+double m02_error_ZP(double C, void *p)
+{
+  double vec[2], fvec[2];
+  vec[1] = C;
+  m02_error_VectorFuncP(1, vec, fvec, p);
+  return fvec[1];
+}
+double qm1_error_ZP(double C, void *p)
+{
+  double vec[2], fvec[2];
+  vec[1] = C;
+  qm1_error_VectorFuncP(1, vec, fvec, p);
+  return fvec[1];
+}
+double qm2_error_ZP(double C, void *p)
+{
+  double vec[2], fvec[2];
+  vec[1] = C;
+  qm2_error_VectorFuncP(1, vec, fvec, p);
+  return fvec[1];
+}
+
 
 /* find max q along x-axis, assume that on x-axis: Y=Z=0 */
 int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
