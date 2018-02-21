@@ -95,16 +95,18 @@ int DNS_Eqn_Iterator(tGrid *grid, int itmax, double tol, double *normres,
 	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
 	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
   int pr);
-void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
-void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid, 
                                                            tGrid *grid0, 
                                                            int star);
 void compute_new_q_and_adjust_domainshapes(tGrid *grid, int star);
+void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
+void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm1_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm2_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
+double m01_guesserror_ZP(double C, void *p);
+double m02_guesserror_ZP(double C, void *p);
 double m01_error_ZP(double C, void *p);
 double m02_error_ZP(double C, void *p);
 double qm1_error_ZP(double C, void *p);
@@ -3693,37 +3695,6 @@ double GetInnerRestMass(tGrid *grid, int star)
   return InnerVolumeIntegral(grid, star, iInteg);
 }
 
-/* guess error in m01 from inner Volume int., but without adjusting
-   surfaces */
-void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
-{
-  double m01;
-  t_grid_grid0_m01_m02_struct *pars;
-  
-  /* get pars */
-  pars = (t_grid_grid0_m01_m02_struct *) p;
-      
-  Setd("DNSdata_C1", vec[1]);
-  DNS_compute_new_centered_q(pars->grid);
-  m01 = GetInnerRestMass(pars->grid, STAR1);
-  fvec[1] = m01 - pars->m01;
-}
-
-/* guess error in m02 from inner Volume int., but without adjusting
-   surfaces */
-void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
-{
-  double m02;
-  t_grid_grid0_m01_m02_struct *pars;
-
-  /* get pars */
-  pars = (t_grid_grid0_m01_m02_struct *) p;
-
-  Setd("DNSdata_C2", vec[1]);
-  DNS_compute_new_centered_q(pars->grid);
-  m02 = GetInnerRestMass(pars->grid, STAR2);
-  fvec[1] = m02 - pars->m02;
-}
 
 
 /* compute the new q and adjust the shape of the boundary between domain0/1
@@ -3800,6 +3771,39 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 void compute_new_q_and_adjust_domainshapes(tGrid *grid, int star)
 {
   compute_new_q_and_adjust_domainshapes_InterpFromGrid0(grid, grid, star);
+}
+
+
+/* guess error in m01 from inner Volume int., but without adjusting
+   surfaces */
+void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
+{
+  double m01;
+  t_grid_grid0_m01_m02_struct *pars;
+
+  /* get pars */
+  pars = (t_grid_grid0_m01_m02_struct *) p;
+
+  Setd("DNSdata_C1", vec[1]);
+  DNS_compute_new_centered_q(pars->grid);
+  m01 = GetInnerRestMass(pars->grid, STAR1);
+  fvec[1] = m01 - pars->m01;
+}
+
+/* guess error in m02 from inner Volume int., but without adjusting
+   surfaces */
+void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
+{
+  double m02;
+  t_grid_grid0_m01_m02_struct *pars;
+
+  /* get pars */
+  pars = (t_grid_grid0_m01_m02_struct *) p;
+
+  Setd("DNSdata_C2", vec[1]);
+  DNS_compute_new_centered_q(pars->grid);
+  m02 = GetInnerRestMass(pars->grid, STAR2);
+  fvec[1] = m02 - pars->m02;
 }
 
 /* compute difference m01 - DNSdata_m01 */
@@ -3921,9 +3925,27 @@ void qm2_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   fvec[1] = qm2 - pars->qm2;
 }
 
-/* m01_error_ZP, m02_error_ZP, qm1_error_ZP, qm2_error_ZP are wrappers around
+/* m01_guesserror_ZP, m02_guesserror_ZP, m01_error_ZP, m02_error_ZP,
+   qm1_error_ZP, qm2_error_ZP
+   are wrappers around
+   m01_guesserror_VectorFuncP, m02_guesserror_VectorFuncP,
    m01_error_VectorFuncP, m02_error_VectorFuncP, qm1_error_VectorFuncP,
-   qm2_error_VectorFuncP , so that we can use zbrent_itsP */
+   qm2_error_VectorFuncP
+   so that we can also use zbrent_itsP */
+double m01_guesserror_ZP(double C, void *p)
+{
+  double vec[2], fvec[2];
+  vec[1] = C;
+  m01_guesserror_VectorFuncP(1, vec, fvec, p);
+  return fvec[1];
+}
+double m02_guesserror_ZP(double C, void *p)
+{
+  double vec[2], fvec[2];
+  vec[1] = C;
+  m02_guesserror_VectorFuncP(1, vec, fvec, p);
+  return fvec[1];
+}
 double m01_error_ZP(double C, void *p)
 {
   double vec[2], fvec[2];
