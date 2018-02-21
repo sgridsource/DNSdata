@@ -1075,7 +1075,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     Cvec[1] = Getd("DNSdata_C1");
     stat = newton_linesrch_itsP(Cvec, 1, &check, m01_error_VectorFuncP,
                                 (void *) pars, 1000, tol*0.01);
-    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);  
+    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
     //Cvec[0] = Getd("DNSdata_C1"); /* initial guess */
     //Cvec[1] = Cvec[0]*1.01;       /* lower bracket bound (note C<0) */
     //Cvec[2] = Cvec[0]*0.99;       /* upper bracket bound (note C<0) */
@@ -1093,6 +1093,11 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* adjust C2 and thus m02 */
+    Cvec[1] = Getd("DNSdata_C2");
+    if(Getd("DNSdata_m02")>0)
+      stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
+                                  (void *) pars, 1000, tol*0.01);
+    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
     //Cvec[0] = Getd("DNSdata_C2"); /* initial guess */
     //Cvec[1] = Cvec[0]*1.01;       /* lower bracket bound (note C<0) */
     //Cvec[2] = Cvec[0]*0.99;       /* upper bracket bound (note C<0) */
@@ -1101,11 +1106,6 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     //stat = zbrent_itsP(Cvec, m02_error_ZP, Cvec[1], Cvec[2],
     //                   (void *) pars, 1000, tol*0.01);
     //if(stat<0) printf("  --> stat=%d\n", stat);
-    Cvec[1] = Getd("DNSdata_C2");
-    if(Getd("DNSdata_m02")>0)
-      stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
-                                  (void *) pars, 1000, tol*0.01);
-    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);  
     Setd("DNSdata_C2", Cvec[1]);
 
 
