@@ -290,7 +290,7 @@ int set_DNS_boxsizes(tGrid *grid)
 }
 
 
-/* set attributes in boxes */
+/* setup the cubed sphere boxes */
 int DNSdata_setup_boxes(tGrid *grid)
 {
   double dc = Getd("DNSdata_b");
