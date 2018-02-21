@@ -1021,9 +1021,6 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
       /* choose C1/2 such that rest masses are not too big or too small */
       for(i=0; i<1000; i++)
       {
-        double *q_b1 = grid->box[1]->v[Ind("DNSdata_q")];
-        double *q_b2 = grid->box[2]->v[Ind("DNSdata_q")];
-
         DNS_compute_new_centered_q(grid);
         m01 = GetInnerRestMass(grid, STAR1);
         m02 = GetInnerRestMass(grid, STAR2);
@@ -1065,6 +1062,9 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     /***********************************************************************/
     /* do newton_linesrch_itsP iterations of Cvec until m0errorvec is zero */
     /***********************************************************************/
+    //or /***************************************************************/
+    //   /* do zbrent_itsP iterations of Cvec until m01/2 error is zero */
+    //   /***************************************************************/
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
     pars->grid = grid;
@@ -1076,6 +1076,14 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     stat = newton_linesrch_itsP(Cvec, 1, &check, m01_error_VectorFuncP,
                                 (void *) pars, 1000, tol*0.01);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);  
+    //Cvec[0] = Getd("DNSdata_C1"); /* initial guess */
+    //Cvec[1] = Cvec[0]*1.01;       /* lower bracket bound (note C<0) */
+    //Cvec[2] = Cvec[0]*0.99;       /* upper bracket bound (note C<0) */
+    //stat = zbrac_P(m01_error_ZP, Cvec+1, Cvec+2, (void *) pars);
+    //if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
+    //stat = zbrent_itsP(Cvec, m01_error_ZP, Cvec[1], Cvec[2],
+    //                   (void *) pars, 1000, tol*0.01);
+    //if(stat<0) printf("  --> stat=%d\n", stat);
     Setd("DNSdata_C1", Cvec[1]);
 
     /* backup grid,pdb */
@@ -1085,6 +1093,14 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* adjust C2 and thus m02 */
+    //Cvec[0] = Getd("DNSdata_C2"); /* initial guess */
+    //Cvec[1] = Cvec[0]*1.01;       /* lower bracket bound (note C<0) */
+    //Cvec[2] = Cvec[0]*0.99;       /* upper bracket bound (note C<0) */
+    //stat = zbrac_P(m02_error_ZP, Cvec+1, Cvec+2, (void *) pars);
+    //if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
+    //stat = zbrent_itsP(Cvec, m02_error_ZP, Cvec[1], Cvec[2],
+    //                   (void *) pars, 1000, tol*0.01);
+    //if(stat<0) printf("  --> stat=%d\n", stat);
     Cvec[1] = Getd("DNSdata_C2");
     if(Getd("DNSdata_m02")>0)
       stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
