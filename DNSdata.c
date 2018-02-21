@@ -676,7 +676,10 @@ int DNSdata_center_fields_if_desired(tGrid *grid, int it)
         compute_new_q_and_adjust_domainshapes(grid, STAR2);
       }
       else
-        DNS_compute_new_centered_q(grid);
+      {
+        DNS_compute_new_centered_q(grid, STAR1);
+        DNS_compute_new_centered_q(grid, STAR2);
+      }
 
       /* set q to zero if q<0 or in region 1 and 2 */
       set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
@@ -694,39 +697,56 @@ int DNSdata_center_fields_if_desired(tGrid *grid, int it)
 }
 
 
+/* compute new q on both sides of the grid */
+void DNS_compute_new_q(tGrid *grid, int iq)
+{
+  DNS_compute_new_q_instar(grid, STAR1, iq);
+  DNS_compute_new_q_instar(grid, STAR2, iq);
+}
+
 /* functions to compute new q from fields, and to also shift them so
    that the max in q is centered where we want it on the x-axis */
-void DNS_compute_new_centered_q(tGrid *grid)
+void DNS_compute_new_centered_q(tGrid *grid, int star)
 {
   int iq = Ind("DNSdata_q");
   int iqg= Ind("DNSdata_qg");
 
-  DNS_compute_new_q(grid, iq);
+  DNS_compute_new_q_instar(grid, star, iq);
   if(Getv("DNSdata_center_new_q_flag", "yes"))
   {
     int iqx= Ind("DNSdata_qx");
     int b, i;
     int bi1, bi2;
-    double dx,dy,dz, x1,y1,z1, x2,y2,z2;
+    double dx,dy,dz, xm,ym,zm;
     double fac = Getd("DNSdata_center_new_q_fac");
     double maxdx = Getd("DNSdata_center_new_q_maxdx");
     double maxdy = Getd("DNSdata_center_new_q_maxdy");
     double maxdz = Getd("DNSdata_center_new_q_maxdz");
-    double xmax1 = Getd("DNSdata_xmax1");
-    double xmax2 = Getd("DNSdata_xmax2");
+    double xmax;
     int xon=1;
     int yon=1;
     int zon=1;
     if(Getv("DNSdata_center_new_q", "center_yz"))  xon=0;
 
-    /* get global max of q in NS1/2 */
-    x1 = Getd("DNSdata_actual_xmax1");
-    y1 = Getd("DNSdata_actual_ymax1"); 
-    z1 = Getd("DNSdata_actual_zmax1");
-    x2 = Getd("DNSdata_actual_xmax2");
-    y2 = Getd("DNSdata_actual_ymax2");
-    z2 = Getd("DNSdata_actual_zmax2");
-           
+    if(star==STAR1)
+    {
+      xmax = Getd("DNSdata_xmax1");
+      /* get global max of q in NS1/2 */
+      xm = Getd("DNSdata_actual_xmax1");
+      ym = Getd("DNSdata_actual_ymax1");
+      zm = Getd("DNSdata_actual_zmax1");
+    }
+    else if(star==STAR2)
+    {
+      xmax = Getd("DNSdata_xmax2");
+      /* get global max of q in NS1/2 */
+      xm = Getd("DNSdata_actual_xmax2");
+      ym = Getd("DNSdata_actual_ymax2");
+      zm = Getd("DNSdata_actual_zmax2");
+    }
+    else
+      errorexit("star has to be STAR1 or STAR2");
+
     forallboxes(grid, b)
     {
       tBox *box = grid->box[b];
@@ -735,9 +755,10 @@ void DNS_compute_new_centered_q(tGrid *grid)
       double *dqdy = box->v[iqx+1];
       double *dqdz = box->v[iqx+2];
 
+      if(box->SIDE != star || box->MATTR == AWAY) continue;
+
       /* q_centered(x) = q(x+dx) ~ q(x) + [dq(x)/dx] dx */
-      if(box->SIDE==STAR1) { dx = x1-xmax1; dy = y1; dz = z1; }
-      else                 { dx = x2-xmax2; dy = y2; dz = z2; }
+      dx = xm-xmax; dy = ym; dz = zm;
       dx = dx*xon*(fabs(dx)>maxdx);  /* <-- switch centering on/off */
       dy = dy*yon*(fabs(dy)>maxdy);
       dz = dz*zon*(fabs(dz)>maxdz);
@@ -853,7 +874,8 @@ int DNSdata_center_q_if_desired(tGrid *grid, int it)
     }
     else 
     {
-      DNS_compute_new_centered_q(grid);
+      DNS_compute_new_centered_q(grid, STAR1);
+      DNS_compute_new_centered_q(grid, STAR2);
     }
     Sets("DNSdata_center_new_q_flag", "no");  /* deactivate centering of q */
     /* set q to zero if q<0 or in region 1 and 2 */
@@ -1021,7 +1043,8 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
       /* choose C1/2 such that rest masses are not too big or too small */
       for(i=0; i<1000; i++)
       {
-        DNS_compute_new_centered_q(grid);
+        DNS_compute_new_centered_q(grid, STAR1);
+        DNS_compute_new_centered_q(grid, STAR2);
         m01 = GetInnerRestMass(grid, STAR1);
         m02 = GetInnerRestMass(grid, STAR2);
 
@@ -1045,14 +1068,16 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
       Cvec[1] = Getd("DNSdata_C1");
       stat = newton_linesrch_itsP(Cvec, 1, &check, m01_guesserror_VectorFuncP,
                                   (void *) pars, 30, max2(m0_error*0.1, tol*0.1));
-      if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
+      if(check || stat<0)
+        printf("  --> C1 guess: check=%d stat=%d\n", check, stat);
       Setd("DNSdata_C1", Cvec[1]);
 
       Cvec[1] = Getd("DNSdata_C2");
       if(Getd("DNSdata_m02")>0)
         stat = newton_linesrch_itsP(Cvec, 1, &check, m02_guesserror_VectorFuncP,
                                     (void *) pars, 30, max2(m0_error*0.1, tol*0.1));
-      if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
+      if(check || stat<0)
+        printf("  --> C2 guess: check=%d stat=%d\n", check, stat);
       Setd("DNSdata_C2", Cvec[1]);
 
       /* print guess for C1/2 */                                        
@@ -1072,19 +1097,23 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* adjust C1 and thus m01 */
+/*
     Cvec[1] = Getd("DNSdata_C1");
     stat = newton_linesrch_itsP(Cvec, 1, &check, m01_error_VectorFuncP,
                                 (void *) pars, 1000, tol*0.01);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
-    //Cvec[0] = Getd("DNSdata_C1"); /* initial guess */
-    //Cvec[1] = Cvec[0]*1.01;       /* lower bracket bound (note C<0) */
-    //Cvec[2] = Cvec[0]*0.99;       /* upper bracket bound (note C<0) */
-    //stat = zbrac_P(m01_error_ZP, Cvec+1, Cvec+2, (void *) pars);
-    //if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
-    //stat = zbrent_itsP(Cvec, m01_error_ZP, Cvec[1], Cvec[2],
-    //                   (void *) pars, 1000, tol*0.01);
-    //if(stat<0) printf("  --> stat=%d\n", stat);
     Setd("DNSdata_C1", Cvec[1]);
+*/
+    Cvec[1] = Getd("DNSdata_C1"); /* initial guess */
+    Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
+    Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+    stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
+    if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
+    stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
+                       (void *) pars, 1000, tol*0.01);
+    if(stat<0) printf("  --> stat=%d\n", stat);
+    Setd("DNSdata_C1", Cvec[1]);
+    compute_new_q_and_adjust_domainshapes(grid, STAR1);
 
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
@@ -1093,20 +1122,24 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* adjust C2 and thus m02 */
+/*
     Cvec[1] = Getd("DNSdata_C2");
     if(Getd("DNSdata_m02")>0)
       stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
                                   (void *) pars, 1000, tol*0.01);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
-    //Cvec[0] = Getd("DNSdata_C2"); /* initial guess */
-    //Cvec[1] = Cvec[0]*1.01;       /* lower bracket bound (note C<0) */
-    //Cvec[2] = Cvec[0]*0.99;       /* upper bracket bound (note C<0) */
-    //stat = zbrac_P(m02_error_ZP, Cvec+1, Cvec+2, (void *) pars);
-    //if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
-    //stat = zbrent_itsP(Cvec, m02_error_ZP, Cvec[1], Cvec[2],
-    //                   (void *) pars, 1000, tol*0.01);
-    //if(stat<0) printf("  --> stat=%d\n", stat);
     Setd("DNSdata_C2", Cvec[1]);
+*/
+    Cvec[1] = Getd("DNSdata_C2"); /* initial guess */
+    Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
+    Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+    stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
+    if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
+    stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
+                       (void *) pars, 1000, tol*0.01);
+    if(stat<0) printf("  --> stat=%d\n", stat);
+    Setd("DNSdata_C2", Cvec[1]);
+    compute_new_q_and_adjust_domainshapes(grid, STAR2);
 
 
     printf("adjust_C1_C2_q_keep_restmasses:\n");
@@ -1302,7 +1335,8 @@ void xmaxs_error_VectorFunc(int n, double *vec, double *fvec)
          Getd("DNSdata_Omega"), Getd("DNSdata_x_CM"));
 
   /* compute new q */
-  DNS_compute_new_centered_q(grid);
+  DNS_compute_new_centered_q(grid, STAR1);
+  DNS_compute_new_centered_q(grid, STAR2);
 
   /* find max q locations xmax1/2 in NS1/2 */
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
@@ -1497,7 +1531,8 @@ void dqdx_at_Xmax1_2_VectorFunc(int n, double *vec, double *fvec)
   if(n>=2) Setd("DNSdata_x_CM",  vec[2]);
 
   /* compute new q */
-  DNS_compute_new_centered_q(grid);
+  DNS_compute_new_centered_q(grid, STAR1);
+  DNS_compute_new_centered_q(grid, STAR2);
 
   /* get deriv dq of q in box bi1 and bi2 in DNSdata_temp1
      and dq's coeffs c in DNSdata_temp2 */
@@ -3731,7 +3766,7 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 //quick_Var_output(grid->box[2], "DNSdata_q",1,1);
 
   /* compute new q */
-  DNS_compute_new_centered_q(grid);
+  DNS_compute_new_centered_q(grid, star);
 //quick_Var_output(grid->box[2], "DNSdata_q",2,2);
 
   /* make new grid2, which is an exact copy of grid */
@@ -3767,7 +3802,7 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 //quick_Var_output(grid->box[2], "DNSdata_Psi",3,3);
 //quick_Var_output(grid2->box[2],"DNSdata_Psi",4,4);
 
-  DNS_compute_new_centered_q(grid2);
+  DNS_compute_new_centered_q(grid2, star);
 //quick_Var_output(grid->box[2], "DNSdata_q",5,5);
 //quick_Var_output(grid2->box[2],"DNSdata_q",6,6);
 //quick_Var_output(grid->box[2], "Coordinates_CubedSphere_dsigma01_dA",7,7);
@@ -3801,7 +3836,7 @@ void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
   pars = (t_grid_grid0_m01_m02_struct *) p;
 
   Setd("DNSdata_C1", vec[1]);
-  DNS_compute_new_centered_q(pars->grid);
+  DNS_compute_new_centered_q(pars->grid, STAR1);
   m01 = GetInnerRestMass(pars->grid, STAR1);
   fvec[1] = m01 - pars->m01;
 }
@@ -3817,7 +3852,7 @@ void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
   pars = (t_grid_grid0_m01_m02_struct *) p;
 
   Setd("DNSdata_C2", vec[1]);
-  DNS_compute_new_centered_q(pars->grid);
+  DNS_compute_new_centered_q(pars->grid, STAR2);
   m02 = GetInnerRestMass(pars->grid, STAR2);
   fvec[1] = m02 - pars->m02;
 }
@@ -4034,7 +4069,8 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
          vec[1], vec[2], vec[3], vec[4]);
 
   /* compute new q */
-  DNS_compute_new_centered_q(grid);
+  DNS_compute_new_centered_q(grid, STAR1);
+  DNS_compute_new_centered_q(grid, STAR2);
 
   /* find max q locations xmax1/2 in NS1/2 */
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
@@ -4091,7 +4127,8 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
   printf("estimate_q_errors_VectorFunc: C1=%.6g C2=%.6g\n", vec[1], vec[2]);
 
   /* compute new q */
-  DNS_compute_new_centered_q(grid);
+  DNS_compute_new_centered_q(grid, STAR1);
+  DNS_compute_new_centered_q(grid, STAR2);
 
   /* find max q locations xmax1/2 in NS1/2 */
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
