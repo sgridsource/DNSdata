@@ -5,7 +5,8 @@ is in a state that can compile
 
 broken:
 --
--we try to enforce a continous sigma1/0 across the inner/outer domains
+-should we try to enforce a continous sigma1/0 across the inner/outer
+ domains?
  -does DNSgrid_Coordinates_CubSph_sigma_continuity call in reset work???
 -maybe also set_DNSdata_actual_xyzmax_pars
 -we need to ensure that sigma1 is that at lam=1 where 2 SSURF boxes touch
