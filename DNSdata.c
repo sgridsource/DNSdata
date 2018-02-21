@@ -201,10 +201,10 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
         // double u0;
         double vx,vy,vz;
         double Att1, wBfac;
-        double A = pX[i];
+        double lam = pX[i];
 
-        if(box->MATTR==INSIDE) Att1=1.0;
-        else                   Att1=1.0-Attenuation01((A-0.1)/0.8, 2.0, 0.5);
+        if(box->MATTR==AWAY) Att1=0.0; //1.0-Attenuation01((lam-0.1)/0.8, 2.0, 0.5);
+        else                 Att1=1.0;
 
         /* omega cross r-rc */
         vx = ( omegay* (z-zc) - omegaz* (y-yc) )*Att1;
@@ -496,18 +496,18 @@ int DNSdata_startup(tGrid *grid)
         if( (box->SIDE==STAR1) && (rot1) )
         {
           double Att;
-          double A = pX[i];
-          if(box->MATTR!=INSIDE) Att=1.0-Attenuation01((A-0.1)/0.8, 2.0, 0.5);
-          else                   Att=1.0;
+          double lam = pX[i];
+          if(box->MATTR==AWAY) Att=0.0; //1.0-Attenuation01((lam-0.1)/0.8, 2.0, 0.5);
+          else                 Att=1.0;
 
           DNSdata_Sigma[i] = Omega*(xc1-xCM) * y * Att;
         }
         if( (box->SIDE==STAR2) && (rot2) )
         {
           double Att;
-          double A = pX[i];
-          if(box->MATTR!=INSIDE) Att=1.0-Attenuation01((A-0.1)/0.8, 2.0, 0.5);
-          else                   Att=1.0;
+          double lam = pX[i];
+          if(box->MATTR==AWAY) Att=0.0; //1.0-Attenuation01((lam-0.1)/0.8, 2.0, 0.5);
+          else                 Att=1.0;
 
           DNSdata_Sigma[i] = Omega*(xc2-xCM) * y * Att;
         }
