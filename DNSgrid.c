@@ -532,8 +532,7 @@ double q_of_lam_forgiven_AB_ZP(double lam, void *p)
   double A    = pars->A;
   double B    = pars->B;
   double q    = DNS_compute_new_centered_q_atXYZ(grid,b, lam, A,B);
-
-printf("b=%d lam=%g A=%g B=%g q=%g\n", b, lam, A,B, q);
+  //printf("b=%d lam=%g A=%g B=%g q=%g\n", b, lam, A,B, q);
   return q;
 }
 /* reset sigma such that the zeros in DNSdata_q are at A=0 */
@@ -633,10 +632,10 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       lam1 = boxq0->v[iX][Index(i1,j,k)];
       lam2 = boxq0->v[iX][Index(i2,j,k)];
 
-printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
-               "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
-printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
-printf("dom=%d i1=%d i2=%d lam1=%g lam2=%g\n", dom, i1,i2, lam1,lam2);
+      //printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
+      //       "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
+      //printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
+      //printf("dom=%d i1=%d i2=%d lam1=%g lam2=%g\n", dom, i1,i2, lam1,lam2);
 
       /* use Brent's method to find lam0 where q=0 */
       if(zbrac_P(q_of_lam_forgiven_AB_ZP, &lam1,&lam2, (void *) pars)<0)
@@ -652,7 +651,7 @@ printf("dom=%d i1=%d i2=%d lam1=%g lam2=%g\n", dom, i1,i2, lam1,lam2);
 
       /* from x,y,z we now get the new sigma in box outerdom and innerdom */
       sig01_AB = sqrt((x-xc)*(x-xc) + y*y + z*z);
-printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
+      //printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
 
       /* set sigma = sig01_AB in both domains */
       for(i=0; i<n1; i++)
@@ -662,8 +661,9 @@ printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
       }
     } /* end forplane1 */
   }
-  /* ensure that sigma is continuous between boxes on gridnew */
-  DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
+  //FIXME: Not sure if we need this???
+  // /* ensure that sigma is continuous between boxes on gridnew */
+  // DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
 
   /* compute sigma derives on gridnew */
   compute_sigma01_derivs(gridnew, star);
@@ -818,16 +818,14 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
     /* do nothing if we are on wrong side of grid or not near star surface */
     if(box->SIDE!=star || box->BOUND!=SSURF) continue;
 
-//printCI(box);
-printCI(box);
-printf("sigma=%g\n", box->v[37][7]);
-printf("sigma=%g\n", CubedSphere_sigma(box, 1, 7, -1., -1.));
-printf("sigma=%g\n", CubedSphere_sigma(box, 1, -1, -1., -1.));
-
+    //printCI(box);
+    //printf("sigma=%g\n", box->v[37][7]);
+    //printf("sigma=%g\n", CubedSphere_sigma(box, 1, 7, -1., -1.));
+    //printf("sigma=%g\n", CubedSphere_sigma(box, 1, -1, -1., -1.));
 
     /* here we can use SGRID_LEVEL6_Pragma(omp parallel) */
 #undef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
-#define SERIAL_Interp_Var_From_Grid1_To_Grid2_star 1
+    //define SERIAL_Interp_Var_From_Grid1_To_Grid2_star 1
 #ifndef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
     SGRID_LEVEL6_Pragma(omp parallel)
     {
@@ -852,8 +850,8 @@ printf("sigma=%g\n", CubedSphere_sigma(box, 1, -1, -1., -1.));
         int b1;
 
         /* get b1, X,Y,Z on grid1_p */
-printf("b=%d i=%d x=%g y=%g z=%g  guess X=%g Y=%g Z=%g\n",
-box->b, i ,x,y,z, X,Y,Z);
+        //printf("b=%d i=%d x=%g y=%g z=%g  guess X=%g Y=%g Z=%g\n",
+        //box->b, i ,x,y,z, X,Y,Z);
         b1 = DNSgrid_Get_BoxAndCoords_of_xyz(grid1_p, &X,&Y,&Z, bl1, x,y,z);
         if(b1>=0)
         {
@@ -871,10 +869,10 @@ box->b, i ,x,y,z, X,Y,Z);
         {
           errorexit("could not find point");
         }
-printf("  b1=%d X=%g Y=%g Z=%g  pv[i]=%g\n", b1, X,Y,Z, pv[i]);
-//printf("  box=%p grid1->box[b1]=%p grid1_p->box[b1=%p\n",
-//box, grid1->box[b1], grid1_p->box[b1]);
-//if(i>40) exit(88);
+        //printf("  b1=%d X=%g Y=%g Z=%g  pv[i]=%g\n", b1, X,Y,Z, pv[i]);
+        //printf("  box=%p grid1->box[b1]=%p grid1_p->box[b1=%p\n",
+        //       box, grid1->box[b1], grid1_p->box[b1]);
+        //if(i>40) exit(88);
 
       } /* end forallpoints loop */
 #ifdef SERIAL_Interp_Var_From_Grid1_To_Grid2_star
@@ -1232,8 +1230,10 @@ void DNSgrid_scale_Coordinates_CubSph_sigma(tGrid *grid, double fac, int star)
   }
 }
 
-/* scale Coordinates_AnsorgNS_sigma and its deriv on one side
-   by a factor fac. */
+/* ensure that sigma is continuous between boxes on gridnew */
+/* right now we copy values between bfaces, because averaging does not
+   work when a edge or corner point in a bface is not paired with some
+   bfaces that contain points from other boxes at the same x,y,z */
 void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star)
 {
   int b;
