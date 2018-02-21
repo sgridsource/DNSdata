@@ -97,7 +97,6 @@ int DNS_Eqn_Iterator(tGrid *grid, int itmax, double tol, double *normres,
   int pr);
 void m01_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p);
-void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid, 
                                                            tGrid *grid0, 
                                                            int star);
@@ -106,6 +105,10 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void m02_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm1_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
 void qm2_error_VectorFuncP(int n, double *vec, double *fvec, void *p);
+double m01_error_ZP(double C, void *p);
+double m02_error_ZP(double C, void *p);
+double qm1_error_ZP(double C, void *p);
+double qm2_error_ZP(double C, void *p);
 int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
                                      int *bi, double *X, double *vmax);
 int find_qmax_along_x_axis(tGrid *grid, int star,
@@ -3722,74 +3725,6 @@ void m02_guesserror_VectorFuncP(int n, double *vec, double *fvec, void *p)
   fvec[1] = m02 - pars->m02;
 }
 
-/* compute differences m01/2 - DNSdata_m01/2 */
-void m0_errors_VectorFuncP(int n, double *vec, double *fvec, void *p)
-{
-  t_grid_grid0_m01_m02_struct *pars = (t_grid_grid0_m01_m02_struct *) p; /* get pars */
-  tGrid *grid = pars->grid;
-  tGrid *grid2;
-  double m01, m02;
-  int b, i;
-  int n1 = grid->box[1]->n1;
-  int n2 = grid->box[1]->n2;
-  double *q_b1 = grid->box[1]->v[Ind("DNSdata_q")];
-  double *q_b2 = grid->box[2]->v[Ind("DNSdata_q")];
-errorexit("need other boxes, not 1 and 2");
-
-  /* set C1/2 */
-  Setd("DNSdata_C1", vec[1]);
-  Setd("DNSdata_C2", vec[2]);
-
-  /* compute new q */
-  DNS_compute_new_centered_q(grid);
-
-  /* make new grid2, which is an exact copy of grid */
-  grid2 = make_empty_grid(grid->nvariables, 0);
-  copy_grid(grid, grid2, 0);
-
-  /* reset sigma such that q=0 is at star surfaces */
-  if(q_b1[Index(n1-1,n2-1,0)]<0.0)
-    reset_Coordinates_CubedSphere_sigma01(grid, grid2, STAR1);
-  if(q_b2[Index(n1-1,n2-1,0)]<0.0)
-    reset_Coordinates_CubedSphere_sigma01(grid, grid2, STAR2);
-
-  /* initialize coords on grid2 */
-  DNSgrid_init_Coords(grid2);
-
-  /* interpolate q (and maybe some other vars) from grid onto new grid2 */
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_qg"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_Psi"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_alphaP"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_Bx"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_By"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_Bz"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_Sigma"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_wBx"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_wBy"));
-  Interpolate_Var_From_Grid1_To_Grid2(grid, grid2, Ind("DNSdata_wBz"));
-  varcopy(grid2, Ind("DNSdata_q"), Ind("DNSdata_qg"));
-
-//  /* set q to zero if q<0 or in region 1 and 2 */
-//  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
-
-  /* copy grid2 back into grid, and free grid2 */
-  copy_grid(grid2, grid, 0);
-  free_grid(grid2);
-
-  /***************************************/
-  /* compute rest mass error Delta_m01/2 */
-  /***************************************/
-  /* get rest masses */
-  m01 = GetInnerRestMass(grid, STAR1);
-  m02 = GetInnerRestMass(grid, STAR2);
-
-  printf("m0_errors_VectorFuncP: C1=%g C2=%g  m01=%g m02=%g\n",
-         vec[1], vec[2], m01, m02);  fflush(stdout);
-//write_grid(grid);
-
-  fvec[1] = m01 - pars->m01;
-  fvec[2] = m02 - pars->m02;
-}
 
 /* compute the new q and adjust the shape of the boundary between domain0/1
    or domain3/2 accordingly. This func modifies grid. It always
