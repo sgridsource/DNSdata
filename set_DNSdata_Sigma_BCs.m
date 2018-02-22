@@ -589,7 +589,6 @@ BeginCFunction[] := Module[{},
   pr["int SigmaZeroInOuterBoxes = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroInOuterBoxes\");\n"];
   pr["int noBCs = Getv(\"DNSdata_Sigma_surface_BCs\",\"none\");\n"];
   pr["int KeepInnerSigma = Getv(\"DNSdata_KeepInnerSigma\",\"yes\");\n"];
-  pr["int UniqueSigmaAtPoles = 0; //Getv(\"DNSdata_Sigma_surface_BCs\",\"UniqueSigmaAtPoles\");\n"];
   pr["int ImposeActualBC = !Getv(\"DNSdata_Sigma_surface_BCs\",\"EllEqn\");\n"];
   pr["double Omega = Getd(\"DNSdata_Omega\");\n"];
   pr["double xCM = Getd(\"DNSdata_x_CM\");\n"];
