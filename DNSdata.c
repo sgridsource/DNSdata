@@ -1097,23 +1097,21 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* adjust C1 and thus m01 */
-/*
     Cvec[1] = Getd("DNSdata_C1");
     stat = newton_linesrch_itsP(Cvec, 1, &check, m01_error_VectorFuncP,
                                 (void *) pars, 1000, tol*0.01);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
     Setd("DNSdata_C1", Cvec[1]);
-*/
-    Cvec[1] = Getd("DNSdata_C1"); /* initial guess */
-    Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
-    Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
-    stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
-    if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
-    stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
-                       (void *) pars, 1000, tol*0.01);
-    if(stat<0) printf("  --> stat=%d\n", stat);
-    Setd("DNSdata_C1", Cvec[1]);
-    compute_new_q_and_adjust_domainshapes(grid, STAR1);
+    //Cvec[1] = Getd("DNSdata_C1"); /* initial guess */
+    //Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
+    //Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+    //stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
+    //if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
+    //stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
+    //                   (void *) pars, 1000, tol*0.01);
+    //if(stat<0) printf("  --> stat=%d\n", stat);
+    //Setd("DNSdata_C1", Cvec[1]);
+    //compute_new_q_and_adjust_domainshapes(grid, STAR1);
 
     /* backup grid,pdb */
     backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
@@ -1122,24 +1120,22 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
     else  pars->grid0 = grid;
 
     /* adjust C2 and thus m02 */
-/*
     Cvec[1] = Getd("DNSdata_C2");
     if(Getd("DNSdata_m02")>0)
       stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
                                   (void *) pars, 1000, tol*0.01);
     if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
     Setd("DNSdata_C2", Cvec[1]);
-*/
-    Cvec[1] = Getd("DNSdata_C2"); /* initial guess */
-    Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
-    Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
-    stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
-    if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
-    stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
-                       (void *) pars, 1000, tol*0.01);
-    if(stat<0) printf("  --> stat=%d\n", stat);
-    Setd("DNSdata_C2", Cvec[1]);
-    compute_new_q_and_adjust_domainshapes(grid, STAR2);
+    //Cvec[1] = Getd("DNSdata_C2"); /* initial guess */
+    //Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
+    //Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+    //stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
+    //if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
+    //stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
+    //                   (void *) pars, 1000, tol*0.01);
+    //if(stat<0) printf("  --> stat=%d\n", stat);
+    //Setd("DNSdata_C2", Cvec[1]);
+    //compute_new_q_and_adjust_domainshapes(grid, STAR2);
 
 
     printf("adjust_C1_C2_q_keep_restmasses:\n");
@@ -2599,16 +2595,10 @@ exit(99);
       Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
 
       /* solve the ell. eqn for Sigma alone */
-quick_VarList_output(grid->box[0], vlu, 1,1);
-quick_VarList_output(grid->box[0], vldu, 1,1);
       DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
              &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
-quick_VarList_output(grid->box[0], vlu, 2,2);
-quick_VarList_output(grid->box[0], vldu, 2,2);
       totalerr1 = average_current_and_old(Sigma_esw, 
                                           grid,vlFu,vlu,vluDerivs, vlJdu);
-quick_VarList_output(grid->box[0], vlu, 3,3);
-quick_VarList_output(grid->box[0], vldu, 3,3);
       if(Sigma_esw<1.0 && it>=allow_Sigma_esw1_it && allow_Sigma_esw1_it>=0)
       {
         /* complete step */
