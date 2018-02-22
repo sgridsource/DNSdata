@@ -9,8 +9,8 @@ broken:
  domains?
  -does DNSgrid_Coordinates_CubSph_sigma_continuity call in reset work???
 -maybe also set_DNSdata_actual_xyzmax_pars
--we need to ensure that sigma1 is that at lam=1 where 2 SSURF boxes touch
-
+-the lin. Eqn for Sigma cannot be solved,
+ ->there is a bug in the BCs or the  PDE
 
 started to change:
 ---
@@ -42,3 +42,10 @@ in DNS_CTS.m , ...
 in
 Setting DNSdata_Sigma outside the stars only...
   are we solving a linear eqn? If so, why is res not 1e-15 after solve???
+
+in
+set_DNSdata_Sigma_BCs.m
+  we set certain things again (in forallpoints loops), is this needed?
+
+when we solve for one var only, we may be able to use the block info
+mechanism to not compute some stuff for the other vars in the PDEs or BCs
