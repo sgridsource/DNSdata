@@ -337,13 +337,6 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
   int vindDerivs=0;
   tVarBoxSubboxIndices *blkinfo = (tVarBoxSubboxIndices*) vlu->vlPars;
 
-  if( grid->box[0]->n1 != grid->box[1]->n1 ||
-      grid->box[3]->n1 != grid->box[2]->n1 ||
-      grid->box[1]->n1 != grid->box[2]->n1 )
-    errorexit("all n1 in boxes0-3 must be the same because we currently use "
-              "lines like:\n"
-              "FPsi[Index(i,j,k)] = Psi[Index(i,j,k)] - P[Index(i,j,k)];\n"
-              "where Psi = grid->box[0]->v[vi], P = grid->box[1]->v[vi]");
   for(vind=0; vind<vlu->n; vind++)
   {
     int b;
