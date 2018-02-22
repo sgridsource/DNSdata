@@ -2599,10 +2599,16 @@ exit(99);
       Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
 
       /* solve the ell. eqn for Sigma alone */
+quick_VarList_output(grid->box[0], vlu, 1,1);
+quick_VarList_output(grid->box[0], vldu, 1,1);
       DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
              &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
+quick_VarList_output(grid->box[0], vlu, 2,2);
+quick_VarList_output(grid->box[0], vldu, 2,2);
       totalerr1 = average_current_and_old(Sigma_esw, 
                                           grid,vlFu,vlu,vluDerivs, vlJdu);
+quick_VarList_output(grid->box[0], vlu, 3,3);
+quick_VarList_output(grid->box[0], vldu, 3,3);
       if(Sigma_esw<1.0 && it>=allow_Sigma_esw1_it && allow_Sigma_esw1_it>=0)
       {
         /* complete step */

@@ -366,7 +366,7 @@ tocompute = {
         Cinstruction == "VolAvlSigma += lSigma[ijk];",
         Cinstruction == "} /* endfor */",
       Cif == end,
-      Cinstruction == "//printf(\"VolAvlSigma=%g\\n\",VolAvlSigma);",
+      Cinstruction == "//if(VolAvlSigma!=0.0) printf(\"box->b=%d VolAvlSigma=%g\\n\",box->b,VolAvlSigma);",
 
       (* which star are we considering? *)
       Cif == (isSTAR1),
@@ -411,6 +411,8 @@ tocompute = {
         Psim5 == Psim6*Psi,
         Psim7 == Psim5*Psim2,
         Psim9 == Psim7*Psim2,
+        alpha == alphaP/Psi,
+        alpha2 == alpha alpha,
         (* non-linear terms needed *)
         h == q + 1,
         h2 == h h,
@@ -422,8 +424,6 @@ tocompute = {
         L2 == h2 + (wDown[c] + dSigma[c]) (w[c] + DSigmaUp[c]),
         uzerosqr == L2/(alpha2 h2),
         uzero == sqrt[uzerosqr],
-        alpha == alphaP/Psi,
-        alpha2 == alpha alpha,
 
         (* linearized terms *)
         lq     == 0,

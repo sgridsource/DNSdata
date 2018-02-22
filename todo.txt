@@ -12,6 +12,24 @@ broken:
 -the lin. Eqn for Sigma cannot be solved,
  ->there is a bug in the BCs or the  PDE
 
+oh no!!!
+we have:
+        h == q + 1,
+        h2 == h h,
+        DSigmaUp[a] == Psim4 dSigma[a],
+        dSigmaUp[a] == dSigma[a],
+        w[a] == Psim6 wB[a],
+        wBDown[a] == wB[a],
+        wDown[a] == Psim2 wBDown[a],
+        L2 == h2 + (wDown[c] + dSigma[c]) (w[c] + DSigmaUp[c]),
+        uzerosqr == L2/(alpha2 h2),
+        uzero == sqrt[uzerosqr],
+        alpha == alphaP/Psi,
+        alpha2 == alpha alpha,
+so we calc. alpha2 after uzerosqr !!!
+
+
+
 started to change:
 ---
 sgrid_DNSdata.c
