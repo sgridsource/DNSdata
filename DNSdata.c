@@ -2623,7 +2623,6 @@ exit(99);
       varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
 
       /* make sure we do not enter this block in the next iteration */
-      realnormres = 1e300;
       itsSinceExtraSigma = 0;
     }
 
