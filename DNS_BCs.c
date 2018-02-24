@@ -386,7 +386,6 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
         if(box->MATTR == AWAY) continue;
 
         /* we need BCs for Sigma in touching box at lam=0, but not elsewhere */
-        /* impose BC only at A=1 for boxes that touch star */
         if(box->MATTR == TOUCH)
         {
           int f;
@@ -418,4 +417,81 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
                      int nonlin)
 {
     general_DNSdata_BCs(vlFu, vlu, vluDerivs, nonlin);
+}
+
+
+/* impose: DNSdata_Sigma[i] = Omega*(xc1-xCM) * y
+   or:     DNSdata_Sigma[i] = Omega*(xc2-xCM) * y
+   on outside (lam=1) of TOUCH boxes */
+void set_Sigma_Omega_r_y_BCs(tVarList *vlFu, tVarList *vlu,
+                             tVarList *vluDerivs, int nonlin)
+{
+  double Omega = Getd("DNSdata_Omega");
+  double xCM = Getd("DNSdata_x_CM");
+  double xmax1 = Getd("DNSdata_actual_xmax1");
+  double xmax2 = Getd("DNSdata_actual_xmax2");
+  tGrid *grid = vlu->grid;
+  int vind;
+  int vindDerivs=0;
+  tVarBoxSubboxIndices *blkinfo = (tVarBoxSubboxIndices*) vlu->vlPars;
+
+  for(vind=0; vind<vlu->n; vind++)
+  {
+    int b;
+    int ix = Ind("x");
+    int iX = Ind("X");
+    int iFSigma = vlFu->index[vind];
+    int iSigma  = vlu->index[vind];
+    int ncomp = VarNComponents(iSigma);
+    char *varname = VarName(vlu->index[vind]);
+
+    /* do nothing and goto end of loop if var with vind is not the one
+       of the current block */
+    if(blkinfo!=NULL) if(vlu->index[vind] != blkinfo->vari)
+                        goto Incr_vindDerivs2;
+
+    /* do nothing if var is not Sigma */
+    if(!strstr(varname, "DNSdata_Sigma")) continue;
+
+    /* box loop */
+    forallboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      int n1 = box->n1;
+      int n2 = box->n2;
+      int n3 = box->n3;
+      int i,j,k;
+      double *FSigma = box->v[iFSigma];
+      double *Sigma  = box->v[iSigma];
+      double *y = box->v[ix+1];
+      double Omega_r, xc;
+
+      /* do nothing and continue if current block is not in box b */
+      if(blkinfo!=NULL) if(b!=blkinfo->bi) continue;
+
+      /* do nothing else for DNSdata_Sigma inside and away from stars */
+      if(box->MATTR == AWAY || box->MATTR == INSIDE) continue;
+
+      if(box->x_of_X[1]==NULL) /* if Cartesian box */
+        y = box->v[iX+1];
+
+      /* figure out xc and Omega_r */
+      if (box->SIDE==STAR1) xc = xmax1;
+      else                  xc = xmax2;
+      Omega_r = Omega*(xc-xCM);
+
+      /* we need BCs for Sigma in touching box at lam=1, but not elsewhere */
+      forplane1(i,j,k, n1,n2,n3, n1-1)
+      {
+        int ijk=Index(i,j,k);
+        /* FSigma[ijk] = Sigma[ijk] - (Omega*(xc1-xCM) * y[ijk]) * nonlin; */
+        FSigma[ijk] = Sigma[ijk] - (Omega_r * y[ijk]) * nonlin;
+      }
+    } /* end forallboxes */
+
+    Incr_vindDerivs2:
+      /* increase index for derivs */
+      vindDerivs += 3;
+      if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
+  } /* end loop over vars */
 }

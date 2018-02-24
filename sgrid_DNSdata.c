@@ -167,7 +167,7 @@ int sgrid_DNSdata()
   }
   AddPar("DNSdata_Sigma_surface_BCs", "AddInnerVolIntToBC",
          "BCs for Sigma on star surfaces "
-         "[AddInnerVolIntToBC,AddInnerSumToBC,"
+         "[AddInnerVolIntToBC,AddInnerSumToBC,FakeMatterOutside,"
          "ZeroAtPoint,InnerVolIntZero,InnerSumZero,"
          "none,ZeroInOuterBoxes,EllEqn]");
   AddPar("DNSdata_InnerToOuterSigmaTransition", "C2", 

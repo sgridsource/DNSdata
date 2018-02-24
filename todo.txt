@@ -67,3 +67,15 @@ set_DNSdata_Sigma_BCs.m
 
 when we solve for one var only, we may be able to use the block info
 mechanism to not compute some stuff for the other vars in the PDEs or BCs
+
+Idea:
+---
++change DNS_CTS.m s.t. we solve for Sigma in TOUCH boxes using the same
+ PDE but with EoS that has:
+ h=1, rho_0=-lam
++change set_DNSdata_Sigma_BCs.m s.t. we have BC
+ DNSdata_Sigma[i] = Omega*(xc1-xCM) * y
+ or
+ DNSdata_Sigma[i] = Omega*(xc2-xCM) * y
+ on outside of TOUCH boxes
+
