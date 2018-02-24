@@ -242,8 +242,6 @@ int sgrid_DNSdata()
          "max2((*normres)*linSolv_tolFac, linSolv_tol)");
 
   /* pick root finders and their options */
-  AddPar("DNSdata_sigp_Bphi_FINDER_reset_Coordinates_AnsorgNS_sigma_pm",
-         "newton_linesrch_itsP", "[newton_linesrch_itsP,zbrent_itsP]");
   AddPar("DNSdata_m0_error_VectorFuncP_grid0", "grid",
          "grid from which we interpolate vars when domains change "
          "[grid,grid_bak]");
