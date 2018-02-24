@@ -128,9 +128,6 @@ int DNS_Interpolate_ADMvars(tGrid *grid);
 void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs, int nonlin);
 void set_Sigma_Omega_r_y_BCs(tVarList *vlFu, tVarList *vlu,
                              tVarList *vluDerivs, int nonlin);
-void set_DNS_BC_for_Sigma(tVarList *vlFu, tVarList *vlu,
-                          tVarList *vlJdu, tVarList *vldu,
-                          tVarList *vlduDerivs, int nonlin);
 
 /* DNS_compute_chi */
 int DNS_compute_chi(tGrid *grid);

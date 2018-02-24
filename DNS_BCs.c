@@ -496,14 +496,3 @@ void set_Sigma_Omega_r_y_BCs(tVarList *vlFu, tVarList *vlu,
       if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
   } /* end loop over vars */
 }
-
-
-/* select which BC we use for DNSdata_Sigma */
-void set_DNS_BC_for_Sigma(tVarList *vlFu, tVarList *vlu,
-                          tVarList *vlJdu, tVarList *vldu,
-                          tVarList *vlduDerivs, int nonlin)
-{
-
-  set_DNSdata_Sigma_BC(vlFu, vlu, vlJdu, vldu, vlduDerivs, nonlin);
-
-}

@@ -3266,7 +3266,11 @@ void F_DNSdata(tVarList *vlFu, tVarList *vlu,
                    /* ^----^----^--------not used by DNS_CTS if nonlin=1 */
   /* BCs */
   set_DNSdata_BCs(vlFu, vlu, vluDerivs, 1);
-  set_DNS_BC_for_Sigma(vlFu,vlu,  vlc2,vlc2,vluDerivs, 1);
+
+  if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
+    set_Sigma_Omega_r_y_BCs(vlFu, vlu, vluDerivs, 1);
+  else
+    set_DNSdata_Sigma_BC(vlFu,vlu,  vlc2,vlc2,vluDerivs, 1);
 }
 
 /* evaluate linearized DNSdata eqns */
@@ -3277,7 +3281,11 @@ void J_DNSdata(tVarList *vlJdu, tVarList *vldu,
         /* ^--not used by DNS_CTS if nonlin=0 */
   /* BCs */
   set_DNSdata_BCs(vlJdu, vldu, vlduDerivs, 0);
-  set_DNS_BC_for_Sigma(vlJdu,vlu,  vlJdu,vldu,vlduDerivs, 0);
+
+  if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
+    set_Sigma_Omega_r_y_BCs(vlJdu, vldu, vlduDerivs, 0);
+  else
+    set_DNSdata_Sigma_BC(vlJdu,vlu,  vlJdu,vldu,vlduDerivs, 0);
 }
 
 
@@ -3302,7 +3310,11 @@ void F_oneComp(tVarList *vlFw, tVarList *vlw,
                     /* ^------^-----^--------not used by DNS_CTS if nonlin=1 */
   /* BCs */
   set_DNSdata_BCs(vlFw, vlw, vlwDerivs, 1);
-  set_DNS_BC_for_Sigma(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 1);
+
+  if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
+    set_Sigma_Omega_r_y_BCs(vlFw, vlw, vlwDerivs, 1);
+  else
+    set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 1);
   
   /* free local varlists */
   vlfree(lvlFu);
@@ -3334,7 +3346,11 @@ void J_oneComp(tVarList *vlJdw, tVarList *vldw,
         /* ^--not used by DNS_CTS if nonlin=0 */
   /* BCs */
   set_DNSdata_BCs(vlJdw, vldw, vldwDerivs, 0);
-  set_DNS_BC_for_Sigma(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 0);
+
+  if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
+    set_Sigma_Omega_r_y_BCs(vlJdw, vldw, vldwDerivs, 0);
+  else
+    set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 0);
 
   /* free local varlists */
   vlfree(lvlFu);
