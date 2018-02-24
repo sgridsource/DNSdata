@@ -981,8 +981,8 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
 void backup_grid_pdb(tGrid *grid, tParameter *pdb,
                      tGrid *grid_bak, tParameter *pdb_bak)
 {
-  /* do nothing if we tolerate large differences */ 
-  if(Getd("DNSdata_domainshape_diff_tol")>=1e30) return;
+  ///* do nothing if we tolerate large differences */
+  //if(Getd("DNSdata_domainshape_diff_tol")>=1e30) return;
 
   /* make exact copies of grid and pdb */
   copy_grid(grid, grid_bak, 0);
@@ -2523,7 +2523,7 @@ int DNSdata_solve(tGrid *grid)
     /* what to do with q at A=0 and q<0 */
     if(Getv("DNSdata_set_negative_q", "zero"))
       set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
-    if(Getv("DNSdata_set_q_atA0", "zero"))
+    if(Getv("DNSdata_set_Surface_q", "zero"))
       set_Var_to_Val_atSurface(grid, Ind("DNSdata_q"), 0.0);
 
     /* center q first, then solve and adjust C1/2, Omega, xCM. */
