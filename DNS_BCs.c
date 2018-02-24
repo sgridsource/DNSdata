@@ -424,8 +424,8 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
 /* impose: DNSdata_Sigma[i] = Omega*(xc1-xCM) * y
    or:     DNSdata_Sigma[i] = Omega*(xc2-xCM) * y
    on outside (lam=1) of TOUCH boxes */
-void set_Sigma_Omega_r_y_BCs(tVarList *vlFu, tVarList *vlu,
-                             tVarList *vluDerivs, int nonlin)
+void set_Sigma_Omega_r_y_BC(tVarList *vlFu, tVarList *vlu,
+                            tVarList *vluDerivs, int nonlin)
 {
   double Omega = Getd("DNSdata_Omega");
   double xCM = Getd("DNSdata_x_CM");

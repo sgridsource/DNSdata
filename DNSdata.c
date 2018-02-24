@@ -3268,7 +3268,7 @@ void F_DNSdata(tVarList *vlFu, tVarList *vlu,
   set_DNSdata_BCs(vlFu, vlu, vluDerivs, 1);
 
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
-    set_Sigma_Omega_r_y_BCs(vlFu, vlu, vluDerivs, 1);
+    set_Sigma_Omega_r_y_BC(vlFu, vlu, vluDerivs, 1);
   else
     set_DNSdata_Sigma_BC(vlFu,vlu,  vlc2,vlc2,vluDerivs, 1);
 }
@@ -3283,7 +3283,7 @@ void J_DNSdata(tVarList *vlJdu, tVarList *vldu,
   set_DNSdata_BCs(vlJdu, vldu, vlduDerivs, 0);
 
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
-    set_Sigma_Omega_r_y_BCs(vlJdu, vldu, vlduDerivs, 0);
+    set_Sigma_Omega_r_y_BC(vlJdu, vldu, vlduDerivs, 0);
   else
     set_DNSdata_Sigma_BC(vlJdu,vlu,  vlJdu,vldu,vlduDerivs, 0);
 }
@@ -3312,7 +3312,7 @@ void F_oneComp(tVarList *vlFw, tVarList *vlw,
   set_DNSdata_BCs(vlFw, vlw, vlwDerivs, 1);
 
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
-    set_Sigma_Omega_r_y_BCs(vlFw, vlw, vlwDerivs, 1);
+    set_Sigma_Omega_r_y_BC(vlFw, vlw, vlwDerivs, 1);
   else
     set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 1);
   
@@ -3348,7 +3348,7 @@ void J_oneComp(tVarList *vlJdw, tVarList *vldw,
   set_DNSdata_BCs(vlJdw, vldw, vldwDerivs, 0);
 
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
-    set_Sigma_Omega_r_y_BCs(vlJdw, vldw, vldwDerivs, 0);
+    set_Sigma_Omega_r_y_BC(vlJdw, vldw, vldwDerivs, 0);
   else
     set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 0);
 
