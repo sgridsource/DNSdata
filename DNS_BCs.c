@@ -332,6 +332,7 @@ void set_interbox_and_FarLimit_BCs(tBox *box, int iFPsi, int iPsi,
 void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
                          int nonlin)
 {
+  int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
   tGrid *grid = vlu->grid;
   int vind;
   int vindDerivs=0;
@@ -386,7 +387,7 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
         if(box->MATTR == AWAY) continue;
 
         /* we need BCs for Sigma in touching box at lam=0, but not elsewhere */
-        if(box->MATTR == TOUCH)
+        if( (box->MATTR == TOUCH) && (!FakeMatterOutside) )
         {
           int f;
           /* make a list of faces to omit */
@@ -494,4 +495,15 @@ void set_Sigma_Omega_r_y_BCs(tVarList *vlFu, tVarList *vlu,
       vindDerivs += 3;
       if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
   } /* end loop over vars */
+}
+
+
+/* select which BC we use for DNSdata_Sigma */
+void set_DNS_BC_for_Sigma(tVarList *vlFu, tVarList *vlu,
+                          tVarList *vlJdu, tVarList *vldu,
+                          tVarList *vlduDerivs, int nonlin)
+{
+
+  set_DNSdata_Sigma_BC(vlFu, vlu, vlJdu, vldu, vlduDerivs, nonlin);
+
 }
