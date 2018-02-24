@@ -92,8 +92,9 @@ void DNS_set_interbox_and_outer_BCs(tBox *box, int iFPsi, int iPsi,
 
 
 /* new main BC routine, replaces set_interbox_and_FarLimit_BCs */
-void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
-                         int nonlin)
+/* standard BCs for all fields */
+void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
+                     int nonlin)
 {
   int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
   tGrid *grid = vlu->grid;
@@ -173,14 +174,6 @@ void general_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
       vindDerivs += 3;
       if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
   } /* end loop over vars */
-}
-
-/* standard BCs for all fields */
-/* set BCs for a varlist */
-void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
-                     int nonlin)
-{
-    general_DNSdata_BCs(vlFu, vlu, vluDerivs, nonlin);
 }
 
 
