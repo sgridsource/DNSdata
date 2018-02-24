@@ -2844,7 +2844,7 @@ exit(99);
     normresnonlin = GridL2Norm(vlFu);
     printf("DNSdata_solve step %d: residual = %e\n", it, normresnonlin);
     totalerr1 = normresnonlin_without_DNSdata_Sigma_outside(grid);
-    printf(" with Sigma_Err=0 in box1/2: real residual = %e\n", totalerr1);
+    printf(" with Sigma_Err=0 outside stars: real residual = %e\n", totalerr1);
     prdivider(1);  fflush(stdout);
     if((normresnonlin<tol || totalerr1<tol) && 
        Getv("DNSdata_break_if_err_below_tol","at_iterationend")) break;
@@ -2886,7 +2886,7 @@ exit(99);
     normresnonlin = GridL2Norm(vlFu);
     printf("After final elliptic solve: vlu residual = %e\n", normresnonlin);
     totalerr1 = normresnonlin_without_DNSdata_Sigma_outside(grid);
-    printf(" with Sigma_Err=0 in box1/2: real residual = %e\n", totalerr1);
+    printf(" with Sigma_Err=0 outside stars: real residual = %e\n", totalerr1);
     prdivider(1);  fflush(stdout);
     grid->time = time; /* restore grid->time */
   }
