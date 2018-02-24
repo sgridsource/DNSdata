@@ -2579,21 +2579,23 @@ exit(99);
     if( (realnormres_old <= realnormres*Getd("DNSdata_extraSigmaSolve_fac")) &&
         (itsSinceExtraSigma >= Geti("DNSdata_extraSigmaSolve_every")) )
     {
-      /* solve DNSdata_Sigma completely in outer boxes */
-      printf("Setting DNSdata_Sigma outside the stars only...\n");
-      Sets("DNSdata_KeepInnerSigma", "yes");
-      DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
+      if(!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
+      {
+        /* solve DNSdata_Sigma completely in outer boxes */
+        printf("Setting DNSdata_Sigma outside the stars only...\n");
+        Sets("DNSdata_KeepInnerSigma", "yes");
+        DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol,
              &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
-      Sets("DNSdata_KeepInnerSigma", "no");
-      totalerr1 = average_current_and_old(1, grid,vlFu,vlu,vluDerivs, vlJdu);
-      /* reset Sigmaold to take into account new Sigma in outer boxes */
-      varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
+        Sets("DNSdata_KeepInnerSigma", "no");
+        totalerr1 = average_current_and_old(1, grid,vlFu,vlu,vluDerivs, vlJdu);
+        /* reset Sigmaold to take into account new Sigma in outer boxes */
+        varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
 
-      /* reset Newton_tol, use only other vars */
-      normresnonlin = GridL2Norm_of_vars_in_string(grid, 
+        /* reset Newton_tol, use only other vars */
+        normresnonlin = GridL2Norm_of_vars_in_string(grid, 
                                       Gets("DNSdata_CTS_Eqs_Iteration_order"));
-      Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
-
+        Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
+      }
       /* solve the ell. eqn for Sigma alone */
       DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
              &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
@@ -2626,7 +2628,8 @@ exit(99);
     if(Getv("DNSdata_EllSolver_method", "allatonce"))
     { 
       /* solve DNSdata_Sigma completely in outer boxes at first iteration */
-      if(grid->time == 1.0-itmax)
+      if( (grid->time == 1.0-itmax) &&
+          (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
       {
         printf("Setting DNSdata_Sigma outside the stars only (using UMFPACK)...\n");
         /* do not touch Sigma in inner boxes, but solve in outer */
@@ -2657,7 +2660,8 @@ exit(99);
       // Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
 
       /* solve completely in outer boxes at first iteration */
-      if(grid->time == 1.0-itmax)
+      if( (grid->time == 1.0-itmax) &&
+          (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
       {
         printf("Setting DNSdata_Sigma outside the stars only...\n");
         /* do not touch Sigma in inner boxes, but solve in outer */
@@ -2711,7 +2715,8 @@ exit(99);
     else if(Getv("DNSdata_EllSolver_method", "DNS_ordered_Var_Eqn_Iterator"))
     {
       /* solve completely in outer boxes at first iteration */
-      if(grid->time == 1.0-itmax)
+      if( (grid->time == 1.0-itmax) &&
+          (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
       {
         printf("Setting DNSdata_Sigma outside the stars only...\n");
         /* do not touch Sigma in inner boxes, but solve in outer */
