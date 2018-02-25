@@ -2336,7 +2336,19 @@ double normresnonlin_without_DNSdata_Sigma_outside(tGrid *grid)
   int b;
   int iSig = Ind("DNSdata_Sigma_Err");
 
-  F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
+  /* should we switch off all special Sigma BCs when computing vlFu? */
+  if(Getv("DNSdata_Sigma_surface_BCs","OutputSurfaceBCres"))
+  {
+    char *BCsav;
+    BCsav = strdup(Gets("DNSdata_Sigma_surface_BCs"));
+    Sets("DNSdata_Sigma_surface_BCs", "");
+    F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
+    Sets("DNSdata_Sigma_surface_BCs", BCsav);
+    free(BCsav);
+  }
+  else
+    F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
+
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];

@@ -167,9 +167,9 @@ int sgrid_DNSdata()
   }
   AddPar("DNSdata_Sigma_surface_BCs", "FakeMatterOutside",
          "BCs for Sigma on star surfaces "
-         "[AddInnerVolIntToBC,AddInnerSumToBC,FakeMatterOutside,"
-         "ZeroAtPoint,InnerVolIntZero,InnerSumZero,"
-         "none,ZeroInOuterBoxes,EllEqn]");
+         "[FakeMatterOutside,OutputSurfaceBCres,EllEqn,"
+         "AddInnerVolIntToBC,AddInnerSumToBC,InnerVolIntZero,InnerSumZero,"
+         "ZeroAtPoint,none,ZeroInOuterBoxes]");
   AddPar("DNSdata_InnerToOuterSigmaTransition", "C1",
          "smoothness (at A=0) as we go from inner to outer box [C2,C1,C0]");
   AddPar("DNSdata_set_desired_VolAvSigmas", "no",
