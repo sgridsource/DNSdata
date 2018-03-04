@@ -742,14 +742,6 @@ int DNSgrid_set_bfaces(tGrid *grid, int set_fpts, int pr)
     set_bits_in_all_bfaces(grid);
     if(pr) forallboxes(grid, b) printbfaces(grid->box[b]);
   }
-  else
-  {
-    /* set bface structures that contain info about box boundaries */
-    Coordinates_set_bfaces(grid);
-    /* set ofi and bit fields */
-    set_ofi_in_all_bfaces(grid);
-    set_bits_in_all_bfaces(grid);
-  }
   return 0;
 }
 
