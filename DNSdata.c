@@ -4060,7 +4060,7 @@ int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
                                       int *bi, double *X, double *vmax)
 {
   int stat, b;
-  *bi=-1;
+  *bi=stat=-1;
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
