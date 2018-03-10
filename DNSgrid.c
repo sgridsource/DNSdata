@@ -732,7 +732,7 @@ int DNSgrid_set_bfaces(tGrid *grid, int set_fpts, int pr)
 {
   int b;
 
-  if(Getv("DNSdata_grid","2starcubes") || 1)
+  if(Getv("DNSdata_grid","2starcubes"))
   {
     /* set bface structures */
     set_touching_bfaces_of_boxes_with_same_facepoints(grid, 0, grid->nboxes);
