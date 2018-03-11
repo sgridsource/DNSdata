@@ -151,11 +151,12 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
         if(box->MATTR == AWAY) continue;
 
         /* we need BCs for Sigma in touching box at lam=0, but not elsewhere */
-        if( (box->MATTR == TOUCH) && (!FakeMatterOutside) )
+        if(box->MATTR == TOUCH)
         {
           int f;
           /* make a list of faces to omit */
-          for(f=1; f<6; f++) push_intList(skip_f, f);
+          push_intList(skip_f, 1);
+          if(!FakeMatterOutside) for(f=2; f<6; f++) push_intList(skip_f, f);
         }
       }
 
