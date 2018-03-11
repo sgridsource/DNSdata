@@ -202,8 +202,13 @@ tocompute = {
 	Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
           (* use h=1, rho0 = -lam as fake matter *)
           hf == 1,       (* fake h *)
-          rhof == -lam,  (* fake rho0 *)
-          drhof[a] == -dlam[a],
+          Cif == FakeT0,
+            rhof == -lam,  (* fake rho0=-lam *)
+            drhof[a] == -dlam[a],
+          Cif == else,
+            rhof == -1,    (* fake rho0=-1 *)
+            drhof[a] == 0,
+          Cif == end,
           (* same terms as above but with dLnh = 0 *)
           dLnalphaPsi2[a] == dLnalphaP[a] + dLnPsi[a],
           dLnalpha[a]     == dLnalphaP[a] - dLnPsi[a],
@@ -473,8 +478,13 @@ FlSigma == rho0 delta[b,c] ddlSigma[b,c] +
 	Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
           (* use h=1, rho0 = -lam as fake matter *)
           hf == 1,       (* fake h *)
-          rhof == -lam,  (* fake rho0 *)
-          drhof[a] == -dlam[a],
+          Cif == FakeT0,
+            rhof == -lam,  (* fake rho0=-lam *)
+            drhof[a] == -dlam[a],
+          Cif == else,
+            rhof == -1,    (* fake rho0=-1 *)
+            drhof[a] == 0,
+          Cif == end,
           (* same terms as above but with dLnh = 0 *)
           dLnalphaPsi2[a] == dLnalphaP[a] + dLnPsi[a],
           dLnalpha[a]     == dLnalphaP[a] - dLnPsi[a],
@@ -595,6 +605,7 @@ BeginCFunction[] := Module[{},
   pr["double omegay2 = Getd(\"DNSdata_omegay2\");\n"];
   pr["double omegaz2 = Getd(\"DNSdata_omegaz2\");\n"];
   pr["int FakeMatterOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"FakeMatterOutside\");\n"];
+  pr["int FakeT0 = Getv(\"DNSdata_FakeMatterType\",\"rhoEQ-lam\");\n"];
   pr["\n"];
 
   pr["tGrid *grid = vlu->grid;\n"];

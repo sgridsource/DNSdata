@@ -1,5 +1,5 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 24.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 11.3.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -37,6 +37,7 @@ double omegax2 = Getd("DNSdata_omegax2");
 double omegay2 = Getd("DNSdata_omegay2");
 double omegaz2 = Getd("DNSdata_omegaz2");
 int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
+int FakeT0 = Getv("DNSdata_FakeMatterType","rhoEQ-lam");
 
 tGrid *grid = vlu->grid;
 int bi;
@@ -1544,6 +1545,11 @@ hf
 1.
 ;
 
+
+
+/* conditional */
+if (FakeT0) {
+
 rhof
 =
 -lam[ijk]
@@ -1563,6 +1569,33 @@ drhof3
 =
 -dlam3[ijk]
 ;
+
+
+} else { /* if (!FakeT0) */
+
+rhof
+=
+-1.
+;
+
+drhof1
+=
+0
+;
+
+drhof2
+=
+0
+;
+
+drhof3
+=
+0
+;
+
+}
+/* if (FakeT0) */
+
 
 dLnalphaPsi21
 =
@@ -1691,7 +1724,7 @@ Sigma[ijk]
 } 
 
 }
-/* if (corot) */
+/* if (FakeT0) */
 
 
 FPsi[ijk]
@@ -1725,7 +1758,7 @@ CoordFac[ijk]*FSigma[ijk]
 ;
 
 
-} else { /* if (!corot) */
+} else { /* if (!FakeT0) */
 
 alphaP2
 =
@@ -2638,6 +2671,11 @@ hf
 1.
 ;
 
+
+
+/* conditional */
+if (FakeT0) {
+
 rhof
 =
 -lam[ijk]
@@ -2657,6 +2695,33 @@ drhof3
 =
 -dlam3[ijk]
 ;
+
+
+} else { /* if (!FakeT0) */
+
+rhof
+=
+-1.
+;
+
+drhof1
+=
+0
+;
+
+drhof2
+=
+0
+;
+
+drhof3
+=
+0
+;
+
+}
+/* if (FakeT0) */
+
 
 dLnalphaPsi21
 =
@@ -2944,7 +3009,7 @@ lSigma[ijk]
 } 
 
 }
-/* if (corot) */
+/* if (FakeT0) */
 
 
 FlPsi[ijk]
@@ -2978,7 +3043,7 @@ CoordFac[ijk]*FlSigma[ijk]
 ;
 
 }
-/* if (corot) */
+/* if (FakeT0) */
 
 
 
@@ -2990,4 +3055,4 @@ CoordFac[ijk]*FlSigma[ijk]
 }  /* end of function */
 
 /* DNS_CTS.c */
-/* nvars = 181, n* = 1442,  n/ = 207,  n+ = 1181, n = 2830, O = 1 */
+/* nvars = 181, n* = 1454,  n/ = 219,  n+ = 1184, n = 2857, O = 1 */
