@@ -638,8 +638,9 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       //printf("dom=%d i1=%d i2=%d lam1=%g lam2=%g\n", dom, i1,i2, lam1,lam2);
 
       /* use Brent's method to find lam0 where q=0 */
-      if(zbrac_P(q_of_lam_forgiven_AB_ZP, &lam1,&lam2, (void *) pars)<0)
-        errorexit("cannot find bracket for q_of_lam_forgiven_AB_ZP");
+      /* zbrac_P may not be needed as lam1/2 should already bracket lam0 */
+      //if(zbrac_P(q_of_lam_forgiven_AB_ZP, &lam1,&lam2, (void *) pars)<0)
+      //  errorexit("cannot find bracket for q_of_lam_forgiven_AB_ZP");
       stat=zbrent_itsP(&lam0, q_of_lam_forgiven_AB_ZP,  lam1,lam2,
                        (void *) pars, itmax, tol);
 
