@@ -252,3 +252,71 @@ void set_Sigma_Omega_r_y_BC(tVarList *vlFu, tVarList *vlu,
       if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
   } /* end loop over vars */
 }
+
+/* impose: DNSdata_Sigma[i] = 0 for each star
+   at ONE point on outside (lam=1,A=B=0) of one TOUCH box,
+   set this BC at the point with index (i,j,k) = (n1-1, n2/2, n3/2) */
+void set_Sigma_0_ATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
+                               tVarList *vluDerivs, int nonlin)
+{
+  tGrid *grid = vlu->grid;
+  int vind;
+  int vindDerivs=0;
+  tVarBoxSubboxIndices *blkinfo = (tVarBoxSubboxIndices*) vlu->vlPars;
+
+  for(vind=0; vind<vlu->n; vind++)
+  {
+    int b;
+    int iFSigma = vlFu->index[vind];
+    int iSigma  = vlu->index[vind];
+    int ncomp = VarNComponents(iSigma);
+    char *varname = VarName(vlu->index[vind]);
+
+    /* do nothing and goto end of loop if var with vind is not the one
+       of the current block */
+    if(blkinfo!=NULL) if(vlu->index[vind] != blkinfo->vari)
+                        goto Incr_vindDerivs2;
+
+    /* do nothing if var is not Sigma */
+    if(!strstr(varname, "DNSdata_Sigma")) continue;
+
+    /* box loop */
+    forallboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      int n1 = box->n1;
+      int n2 = box->n2;
+      int n3 = box->n3;
+      int ijk;
+      double *FSigma = box->v[iFSigma];
+      double *Sigma  = box->v[iSigma];
+      double *co;
+      double Sig_100;
+      int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+
+      /* do nothing and continue if current block is not in box b */
+      if(blkinfo!=NULL) if(b!=blkinfo->bi) continue;
+
+      /* do nothing else for DNSdata_Sigma inside and away from stars */
+      if(box->MATTR == AWAY || box->MATTR == INSIDE) continue;
+
+      /* do nothing if we are not in dom0 for STAR1 or dom1 for STAR2 */
+      if(!isXinDom) continue;
+
+      /* find Sigma at (lam,A,B)=(1,0,0) by 2D interpolation */
+      co = dmalloc(box->nnodes); /* get mem for coeffs in co */
+      spec_Coeffs_inplaneN(box, 1,n1-1, Sigma, co);
+      Sig_100 = spec_interpolate_inplaneN(box, 1,n1-1, co, 0.,0.);
+      free(co);
+
+      /* we need BCs for Sigma in touching box at lam=1, A=B=0 */
+      ijk = Index(n1-1, n2/2, n3/2);
+      FSigma[ijk] = Sig_100; // - 0. * nonlin;
+    } /* end forallboxes */
+
+    Incr_vindDerivs2:
+      /* increase index for derivs */
+      vindDerivs += 3;
+      if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
+  } /* end loop over vars */
+}
