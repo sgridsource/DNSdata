@@ -1020,7 +1020,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
   vlpush(varlist, Ind("DNSdata_alphaP"));
   vlpush(varlist, Ind("DNSdata_Sigma"));
   vlpush(varlist, Ind("DNSdata_q"));
-  vlpush(varlist, Ind("Coordinates_AnsorgNS_sigma_pm"));
+  vlpush(varlist, Ind("Coordinates_CubedSphere_sigma01"));
 
 //printVarList(varlist);
 
@@ -1038,8 +1038,6 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
 
   if(strcmp(DNSdata_b_sav, Gets("DNSdata_b"))==0)
   {
-    errorexit("set vars ioX bfaces need for interbox BCs with interpolation");
-
     /* set wB */
     DNS_set_wB(grid, STAR1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
     DNS_set_wB(grid, STAR2, Getd("DNSdata_actual_xmax2"),0.0,0.0);
@@ -1090,8 +1088,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
     printf("Rescaling Coordinates_AnsorgNS_sigma_pm so that masses are correct:\n");
     /* star1 */
     pars->grid = grid;
-errorexit("need other boxes, not 0 and 3");
-    pars->b = 0;
+    pars->star = STAR1;
     facvec[1] = 1.0;
     stat = newton_linesrch_itsP(facvec, 1, &check, m0errOFsigmafac_VectorFuncP,
                                (void *) pars, 100, 0.01*m01);
@@ -1104,8 +1101,7 @@ errorexit("need other boxes, not 0 and 3");
 
     /* star2 */
     pars->grid = grid;
-errorexit("need other boxes, not 0 and 3");
-    pars->b = 3;
+    pars->star = STAR2;
     facvec[1] = 1.0;
     stat = newton_linesrch_itsP(facvec, 1, &check, m0errOFsigmafac_VectorFuncP,
                                (void *) pars, 100, 0.01*m02);
