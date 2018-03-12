@@ -257,8 +257,8 @@ void set_Sigma_Omega_r_y_BC(tVarList *vlFu, tVarList *vlu,
 /* impose: DNSdata_Sigma[i] = 0 for each star
    at ONE point on outside (lam=1,A=B=0) of one TOUCH box,
    set this BC at the point with index (i,j,k) = (n1-1, n2/2, n3/2) */
-void set_Sigma_0_ATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
-                               tVarList *vluDerivs, int nonlin)
+void set_Sigma_0_in1TOUCHATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
+                                       tVarList *vluDerivs, int nonlin)
 {
   tGrid *grid = vlu->grid;
   int vind;

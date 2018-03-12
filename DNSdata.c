@@ -3287,7 +3287,7 @@ void F_DNSdata(tVarList *vlFu, tVarList *vlu,
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
   {
     set_Sigma_Omega_r_y_BC(vlFu, vlu, vluDerivs, 1);
-    //set_Sigma_0_ATlam1A0B0_BC(vlFu, vlu, vluDerivs, 1);
+    //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlFu, vlu, vluDerivs, 1);
   }
   else
     set_DNSdata_Sigma_BC(vlFu,vlu,  vlc2,vlc2,vluDerivs, 1);
@@ -3305,7 +3305,7 @@ void J_DNSdata(tVarList *vlJdu, tVarList *vldu,
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
   {
     set_Sigma_Omega_r_y_BC(vlJdu, vldu, vlduDerivs, 0);
-    //set_Sigma_0_ATlam1A0B0_BC(vlJdu, vldu, vlduDerivs, 0);
+    //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlJdu, vldu, vlduDerivs, 0);
   }
   else
     set_DNSdata_Sigma_BC(vlJdu,vlu,  vlJdu,vldu,vlduDerivs, 0);
@@ -3337,7 +3337,7 @@ void F_oneComp(tVarList *vlFw, tVarList *vlw,
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
   {
     set_Sigma_Omega_r_y_BC(vlFw, vlw, vlwDerivs, 1);
-    //set_Sigma_0_ATlam1A0B0_BC(vlFw, vlw, vlwDerivs, 1);
+    //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlFw, vlw, vlwDerivs, 1);
   }
   else
     set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 1);
@@ -3376,7 +3376,7 @@ void J_oneComp(tVarList *vlJdw, tVarList *vldw,
   if(Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
   {
     set_Sigma_Omega_r_y_BC(vlJdw, vldw, vldwDerivs, 0);
-    //set_Sigma_0_ATlam1A0B0_BC(vlJdw, vldw, vldwDerivs, 0);
+    //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlJdw, vldw, vldwDerivs, 0);
   }
   else
     set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 0);
