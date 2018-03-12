@@ -124,14 +124,14 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
           if(!FakeMatterOutside) for(f=2; f<6; f++) push_intList(skip_f, f);
 
           /* if .... */
-          if(0)
+          if(0 && FakeMatterOutside)
           {
             int idPsi[4];
             idPsi[1] = iPsix;
             idPsi[2] = iPsiy;
             idPsi[3] = iPsiz;
             push_intList(skip_f, 0);
-            /* call normal derivs the same for face0 */
+            /* set normal derivs the same for face0 */
             set_interbox_BC_onface(box, iFPsi, 0, iPsi, idPsi, 1);
           }
         }
@@ -139,7 +139,7 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
         if( (box->MATTR == INSIDE) && (box->BOUND == SSURF) )
         {
           /* if  ...*/
-          if(0)
+          if(0 && FakeMatterOutside)
           {
             /* make list of faces to omit in DNS_set_interbox_and_outer_BCs */
             push_intList(skip_f, 1);
@@ -325,7 +325,7 @@ void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tBox *box, int iFSigma, int iSigma)
   double *Sigma  = box->v[iSigma];
   double *co, *oSigma;
   double Sig_100, oSig_000;
-  int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+  int isXinDom = (box->CI->dom == box->SIDE - STAR1);
 
   /* do nothing if we are not in dom0 for STAR1 or dom1 for STAR2 */
   if(!isXinDom) return;
