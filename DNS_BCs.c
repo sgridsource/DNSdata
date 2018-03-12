@@ -9,7 +9,8 @@
 
 
 /* functions in this file */
-void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tBox *box, int iFSigma, int iSigma);
+void set_Sigma_C0_in1ATlamA0B0_BC(tBox *box, int iFSigma, int iSigma,
+                                  int domOfStar1, double lam);
 
 
 
@@ -123,7 +124,7 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
           push_intList(skip_f, 1);
           if(!FakeMatterOutside) for(f=2; f<6; f++) push_intList(skip_f, f);
 
-          /* if .... */
+          /* set normal deriv equal at lam=0 of TOUCH box */
           if(0 && FakeMatterOutside)
           {
             int idPsi[4];
@@ -133,19 +134,21 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
             push_intList(skip_f, 0);
             /* set normal derivs the same for face0 */
             set_interbox_BC_onface(box, iFPsi, 0, iPsi, idPsi, 1);
+            ///*  if we are in box2 or box16 set C0 in Psi=Sigma */
+            //set_Sigma_C0_in1ATlamA0B0_BC(box, iFPsi, iPsi, 1, 0.0);
           }
         }
         /* we may need a special BC at lam=1 of the inside boxes */
         if( (box->MATTR == INSIDE) && (box->BOUND == SSURF) )
         {
-          /* if  ...*/
+          /* set Sigma at lam=1 of INSIDE box at one point */
           if(0 && FakeMatterOutside)
           {
             /* make list of faces to omit in DNS_set_interbox_and_outer_BCs */
             push_intList(skip_f, 1);
 
             /* if we are in box1 or box15 set C0 in Psi=Sigma */
-            set_Sigma_C0_in1INSIDEATlam1A0B0_BC(box, iFPsi, iPsi);
+            set_Sigma_C0_in1ATlamA0B0_BC(box, iFPsi, iPsi, 0, 1.0);
           }
         }
       }
@@ -310,9 +313,10 @@ void set_Sigma_0_in1TOUCHATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
 
 
 /* impose: DNSdata_Sigma[i]_INSIDE = DNSdata_Sigma[i]_TOUCH for each star
-   at ONE point on outside (lam=1,A=B=0) of one INSIDE box,
-   set this BC at the point with index (i,j,k) = (n1-1, n2/2, n3/2) */
-void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tBox *box, int iFSigma, int iSigma)
+   at ONE point at (lam=1/0,A=B=0) of one INSIDE/TOUCH box,
+   set this BC at the point with index (i,j,k) = ((n1-1)*lam, n2/2, n3/2) */
+void set_Sigma_C0_in1ATlamA0B0_BC(tBox *box, int iFSigma, int iSigma,
+                                  int domOfStar1, double lam)
 {
   tGrid *grid = box->grid;
   tBox *obox;
@@ -320,32 +324,52 @@ void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tBox *box, int iFSigma, int iSigma)
   int n2 = box->n2;
   int n3 = box->n3;
   int b = box->b;
-  int ijk;
+  int ijk, i, oi;
   double *FSigma = box->v[iFSigma];
   double *Sigma  = box->v[iSigma];
   double *co, *oSigma;
   double Sig_100, oSig_000;
-  int isXinDom = (box->CI->dom == box->SIDE - STAR1);
+  int BCdom;
 
-  /* do nothing if we are not in dom0 for STAR1 or dom1 for STAR2 */
-  if(!isXinDom) return;
+  /* find dom in which we apply BC */
+  if(box->SIDE == STAR1)
+    BCdom = domOfStar1;
+  else
+    switch(domOfStar1)
+    {
+    case 0:
+    case 2:
+      BCdom = domOfStar1 + 1;
+      break;
+    case 1:
+    case 3:
+      BCdom = domOfStar1 - 1;
+      break;
+    default:
+      BCdom = domOfStar1;
+    }
+
+  /* do nothing if we are not in dom0 for STAR1 or dom1 for STAR2, ... */
+  if(box->CI->dom != BCdom) return;
 
   /* get mem for coeffs in co */
   co = dmalloc(box->nnodes);
 
   /* find Sigma at (lam,A,B)=(1,0,0) by 2D interpolation */
-  spec_Coeffs_inplaneN(box, 1,n1-1, Sigma, co);
-  Sig_100 = spec_interpolate_inplaneN(box, 1,n1-1, co, 0.,0.);
+  i = (n1-1)*lam;
+  spec_Coeffs_inplaneN(box, 1,i, Sigma, co);
+  Sig_100 = spec_interpolate_inplaneN(box, 1,i, co, 0.,0.);
 
   /* find oSigma at (lam,A,B)=(0,0,0) by 2D interpolation */
   obox = grid->box[b+6]; // for our setup the TOUCH box is 6 boxes further
+  oi = (obox->n1-1)*(1.0-lam);
   oSigma = obox->v[iSigma];
-  spec_Coeffs_inplaneN(obox, 1,0, oSigma, co);
-  oSig_000 = spec_interpolate_inplaneN(obox, 1,0, co, 0.,0.);
+  spec_Coeffs_inplaneN(obox, 1,oi, oSigma, co);
+  oSig_000 = spec_interpolate_inplaneN(obox, 1,oi, co, 0.,0.);
 
   free(co);
 
   /* we need BCs for Sigma in touching box at lam=1, A=B=0 */
-  ijk = Index(n1-1, n2/2, n3/2);
+  ijk = Index(i, n2/2, n3/2);
   FSigma[ijk] = Sig_100 - oSig_000; // - 0. * nonlin;
 }

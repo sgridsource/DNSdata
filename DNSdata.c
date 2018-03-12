@@ -553,6 +553,30 @@ int DNSdata_startup(tGrid *grid)
   /* set DNSdata_actual_xyzmax pars */
   set_DNSdata_actual_xyzmax_pars(grid);
 
+/*
+for(b=1; b<13; b++)
+{
+tBox *box = grid->box[b];
+int i;
+double *pX = box->v[Ind("X")];
+double *pY = box->v[Ind("Y")];
+double *pZ = box->v[Ind("Z")];
+double *px = box->v[Ind("x")];
+double *py = box->v[Ind("y")];
+double *pz = box->v[Ind("z")];
+double *DNSdata_Sigma  = box->v[Ind("DNSdata_Sigma")];
+for(i=0; i<6*6*6; i++)
+{
+double dx = px[i]-20.;
+double dy = py[i];
+double dz = pz[i];
+double r = sqrt(dx*dx + dy*dy + dz*dz);
+DNSdata_Sigma[i] = b + 100*b*r;
+if(i==0) printf("b=%d r=%g S=%g\n", b, r, DNSdata_Sigma[i]);
+}
+}
+*/
+
   prTimeIn_s("WallTime: ");
   return 0;
 }
