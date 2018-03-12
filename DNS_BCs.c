@@ -9,8 +9,7 @@
 
 
 /* functions in this file */
-/* ... */
-
+void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tBox *box, int iFSigma, int iSigma);
 
 
 
@@ -120,9 +119,34 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
         if(box->MATTR == TOUCH)
         {
           int f;
-          /* make a list of faces to omit */
+          /* make a list of faces to omit in DNS_set_interbox_and_outer_BCs */
           push_intList(skip_f, 1);
           if(!FakeMatterOutside) for(f=2; f<6; f++) push_intList(skip_f, f);
+
+          /* if .... */
+          if(0)
+          {
+            int idPsi[4];
+            idPsi[1] = iPsix;
+            idPsi[2] = iPsiy;
+            idPsi[3] = iPsiz;
+            push_intList(skip_f, 0);
+            /* call normal derivs the same for face0 */
+            set_interbox_BC_onface(box, iFPsi, 0, iPsi, idPsi, 1);
+          }
+        }
+        /* we may need a special BC at lam=1 of the inside boxes */
+        if( (box->MATTR == INSIDE) && (box->BOUND == SSURF) )
+        {
+          /* if  ...*/
+          if(0)
+          {
+            /* make list of faces to omit in DNS_set_interbox_and_outer_BCs */
+            push_intList(skip_f, 1);
+
+            /* if we are in box1 or box15 set C0 in Psi=Sigma */
+            set_Sigma_C0_in1INSIDEATlam1A0B0_BC(box, iFPsi, iPsi);
+          }
         }
       }
 
@@ -284,82 +308,44 @@ void set_Sigma_0_in1TOUCHATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
   } /* end loop over vars */
 }
 
+
 /* impose: DNSdata_Sigma[i]_INSIDE = DNSdata_Sigma[i]_TOUCH for each star
    at ONE point on outside (lam=1,A=B=0) of one INSIDE box,
    set this BC at the point with index (i,j,k) = (n1-1, n2/2, n3/2) */
-void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
-                                         tVarList *vluDerivs, int nonlin)
+void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tBox *box, int iFSigma, int iSigma)
 {
-  tGrid *grid = vlu->grid;
-  int vind;
-  int vindDerivs=0;
-  tVarBoxSubboxIndices *blkinfo = (tVarBoxSubboxIndices*) vlu->vlPars;
+  tGrid *grid = box->grid;
+  tBox *obox;
+  int n1 = box->n1;
+  int n2 = box->n2;
+  int n3 = box->n3;
+  int b = box->b;
+  int ijk;
+  double *FSigma = box->v[iFSigma];
+  double *Sigma  = box->v[iSigma];
+  double *co, *oSigma;
+  double Sig_100, oSig_000;
+  int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
 
-  for(vind=0; vind<vlu->n; vind++)
-  {
-    int b;
-    int iFSigma = vlFu->index[vind];
-    int iSigma  = vlu->index[vind];
-    int ncomp = VarNComponents(iSigma);
-    char *varname = VarName(vlu->index[vind]);
+  /* do nothing if we are not in dom0 for STAR1 or dom1 for STAR2 */
+  if(!isXinDom) return;
 
-    /* do nothing and goto end of loop if var with vind is not the one
-       of the current block */
-    if(blkinfo!=NULL) if(vlu->index[vind] != blkinfo->vari)
-                        goto Incr_vindDerivs2;
+  /* get mem for coeffs in co */
+  co = dmalloc(box->nnodes);
 
-    /* do nothing if var is not Sigma */
-    if(!strstr(varname, "DNSdata_Sigma")) goto Incr_vindDerivs2;
+  /* find Sigma at (lam,A,B)=(1,0,0) by 2D interpolation */
+  spec_Coeffs_inplaneN(box, 1,n1-1, Sigma, co);
+  Sig_100 = spec_interpolate_inplaneN(box, 1,n1-1, co, 0.,0.);
 
-    /* box loop */
-    forallboxes(grid, b)
-    {
-      tBox *box = grid->box[b];
-      tBox *obox;
-      int n1 = box->n1;
-      int n2 = box->n2;
-      int n3 = box->n3;
-      int ijk;
-      double *FSigma = box->v[iFSigma];
-      double *Sigma  = box->v[iSigma];
-      double *co, *oSigma;
-      double Sig_100, oSig_000;
-      int hasSSURF    = (box->BOUND == SSURF);
-      int insideSSURF = hasSSURF && (box->MATTR == INSIDE);
-      int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+  /* find oSigma at (lam,A,B)=(0,0,0) by 2D interpolation */
+  obox = grid->box[b+6]; // for our setup the TOUCH box is 6 boxes further
+  oSigma = obox->v[iSigma];
+  spec_Coeffs_inplaneN(obox, 1,0, oSigma, co);
+  oSig_000 = spec_interpolate_inplaneN(obox, 1,0, co, 0.,0.);
 
-      /* do nothing and continue if current block is not in box b */
-      if(blkinfo!=NULL) if(b!=blkinfo->bi) continue;
+  free(co);
 
-      /* do nothing else for DNSdata_Sigma if we are not INSIDE or at SSURF */
-      if(!insideSSURF) continue;
-
-      /* do nothing if we are not in dom0 for STAR1 or dom1 for STAR2 */
-      if(!isXinDom) continue;
-
-      /* get mem for coeffs in co */
-      co = dmalloc(box->nnodes);
-
-      /* find Sigma at (lam,A,B)=(1,0,0) by 2D interpolation */
-      spec_Coeffs_inplaneN(box, 1,n1-1, Sigma, co);
-      Sig_100 = spec_interpolate_inplaneN(box, 1,n1-1, co, 0.,0.);
-
-      /* find oSigma at (lam,A,B)=(0,0,0) by 2D interpolation */
-      obox = grid->box[b+6]; // for our setup the TOUCH box is 6 boxes further
-      oSigma = obox->v[iSigma];
-      spec_Coeffs_inplaneN(obox, 1,0, oSigma, co);
-      oSig_000 = spec_interpolate_inplaneN(obox, 1,0, co, 0.,0.);
-
-      free(co);
-
-      /* we need BCs for Sigma in touching box at lam=1, A=B=0 */
-      ijk = Index(n1-1, n2/2, n3/2);
-      FSigma[ijk] = Sig_100 - oSig_000; // - 0. * nonlin;
-    } /* end forallboxes */
-
-    Incr_vindDerivs2:
-      /* increase index for derivs */
-      vindDerivs += 3;
-      if(VarComponent(vlu->index[vind])==ncomp-1) vindDerivs += 6*ncomp;
-  } /* end loop over vars */
+  /* we need BCs for Sigma in touching box at lam=1, A=B=0 */
+  ijk = Index(n1-1, n2/2, n3/2);
+  FSigma[ijk] = Sig_100 - oSig_000; // - 0. * nonlin;
 }
