@@ -171,7 +171,7 @@ void set_Sigma_Omega_r_y_BC(tVarList *vlFu, tVarList *vlu,
                         goto Incr_vindDerivs2;
 
     /* do nothing if var is not Sigma */
-    if(!strstr(varname, "DNSdata_Sigma")) continue;
+    if(!strstr(varname, "DNSdata_Sigma")) goto Incr_vindDerivs2;
 
     /* box loop */
     forallboxes(grid, b)
@@ -241,7 +241,7 @@ void set_Sigma_0_in1TOUCHATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
                         goto Incr_vindDerivs2;
 
     /* do nothing if var is not Sigma */
-    if(!strstr(varname, "DNSdata_Sigma")) continue;
+    if(!strstr(varname, "DNSdata_Sigma")) goto Incr_vindDerivs2;
 
     /* box loop */
     forallboxes(grid, b)
@@ -309,7 +309,7 @@ void set_Sigma_C0_in1INSIDEATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
                         goto Incr_vindDerivs2;
 
     /* do nothing if var is not Sigma */
-    if(!strstr(varname, "DNSdata_Sigma")) continue;
+    if(!strstr(varname, "DNSdata_Sigma")) goto Incr_vindDerivs2;
 
     /* box loop */
     forallboxes(grid, b)
