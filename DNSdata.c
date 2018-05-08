@@ -3058,17 +3058,21 @@ int DNSdata_analyze(tGrid *grid)
     forallboxes(grid, b)
     {
       tBox *box = grid->box[b];
-      /* find boxes with matter and star surfaces for STAR1 */
-      if(box->MATTR==INSIDE && box->BOUND==SSURF && box->SIDE==STAR1)
+      /* find boxes with matter and star surfaces */
+      if(box->MATTR==INSIDE && box->BOUND==SSURF)
       {
-        if(box->CI->dom==0) xin1  = CubedSphere_sigma(box, 1, -1, 0.,0.);
-        if(box->CI->dom==1) xout1 = CubedSphere_sigma(box, 1, -1, 0.,0.);
-      }
-      /* find boxes with matter and star surfaces for STAR2 */
-      if(box->MATTR==INSIDE && box->BOUND==SSURF && box->SIDE==STAR2)
-      {
-        if(box->CI->dom==0) xout2 = CubedSphere_sigma(box, 1, -1, 0.,0.);
-        if(box->CI->dom==1) xin2  = CubedSphere_sigma(box, 1, -1, 0.,0.);
+        if(box->CI->dom==0)
+        {
+          double xin = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
+          if(box->SIDE==STAR1) xin1 = xin;
+          if(box->SIDE==STAR2) xin2 = xin;
+        }
+        if(box->CI->dom==1) 
+        {
+          double xout = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
+          if(box->SIDE==STAR1) xout1 = xout;
+          if(box->SIDE==STAR2) xout2 = xout;
+        }
       }
     }
   }
