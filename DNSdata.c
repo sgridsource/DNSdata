@@ -2579,6 +2579,9 @@ Yo(42);
     varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
     varcopy(grid, Ind("DNSdata_qgold"),     Ind("DNSdata_qg"));
 
+    /* set DNSdata_qnocent before ell solve */
+    DNS_compute_new_q(grid, Ind("DNSdata_qnocent"));
+
     /* set wB before we solve */
     DNS_set_wB(grid, STAR1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
     DNS_set_wB(grid, STAR2, Getd("DNSdata_actual_xmax2"),0.0,0.0);
