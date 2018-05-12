@@ -1,5 +1,5 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 11.3.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 11.5.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -15,9 +15,9 @@
 
 
 
-void DNS_CTS(tVarList *vlFu, tVarList *vlu,  
-		   tVarList *vlJdu, tVarList *vldu, tVarList *vlduDerivs, 		   int nonlin)
+void DNS_CTS(tVarList *vlFu, tVarList *vlu,       tVarList *vlJdu, tVarList *vldu, tVarList *vlduDerivs,      int nonlin)
 {
+int iStart = Set_pdb_iStart_AtPar("DNSdata_rotationstate1");
 int VwApprox1 = Getv("DNSdata_rotationstate1","VwApproximation");
 int VwApprox2 = Getv("DNSdata_rotationstate2","VwApproximation");
 int corot1 = VwApprox1 || Getv("DNSdata_rotationstate1","corotation");
@@ -324,45 +324,42 @@ double xmax, xC;
 double omegMOmeg1, omegMOmeg2, omegMOmeg3;
 if(blkinfo!=NULL) if(bi!=blkinfo->bi) continue;
 if(nonlin) {
-D_and_DD_of_S(box, index_Psi,  
-		      Ind("DNSdata_Psix"), Ind("DNSdata_Psixx"));
-D_and_DD_of_Sa(box, index_B1, 		       Ind("DNSdata_Bxx"), Ind("DNSdata_Bxxx"));
-D_and_DD_of_S(box, index_alphaP, 		      Ind("DNSdata_alphaPx"), Ind("DNSdata_alphaPxx"));
-D_and_DD_of_S(box, index_Sigma, 		      Ind("DNSdata_Sigmax"), Ind("DNSdata_Sigmaxx"));
+D_and_DD_of_S(box, index_Psi,          Ind("DNSdata_Psix"), Ind("DNSdata_Psixx"));
+D_and_DD_of_Sa(box, index_B1,          Ind("DNSdata_Bxx"), Ind("DNSdata_Bxxx"));
+D_and_DD_of_S(box, index_alphaP,         Ind("DNSdata_alphaPx"), Ind("DNSdata_alphaPxx"));
+D_and_DD_of_S(box, index_Sigma,         Ind("DNSdata_Sigmax"), Ind("DNSdata_Sigmaxx"));
 spec_Deriv2(box, 1, Sigma, ddSigmadlam2);
 spec_Deriv1(box, 1, ddSigmadlam2, dddSigmadlam3);
 spec_Deriv1(box, 1, Sigma, dSigmadlam);
 } else {
 if(blkinfo!=NULL) {
-  if(blkinfo->vari == index_lPsi)                          D_and_DD_of_S(box, index_lPsi,  
-				       index_dlPsi1, index_ddlPsi11);
-  if(blkinfo->vari == index_lB1)                          D_and_DD_of_S(box, index_lB1, 				       index_dlB11, index_ddlB111);
-  if(blkinfo->vari == index_lB2)                          D_and_DD_of_S(box, index_lB2, 				       index_dlB21, index_ddlB211);
-  if(blkinfo->vari == index_lB3)                          D_and_DD_of_S(box, index_lB3, 				       index_dlB31, index_ddlB311);
-  if(blkinfo->vari == index_lalphaP)                          D_and_DD_of_S(box, index_lalphaP, 				       index_dlalphaP1, index_ddlalphaP11);
+  if(blkinfo->vari == index_lPsi)                          D_and_DD_of_S(box, index_lPsi,             index_dlPsi1, index_ddlPsi11);
+  if(blkinfo->vari == index_lB1)                          D_and_DD_of_S(box, index_lB1,            index_dlB11, index_ddlB111);
+  if(blkinfo->vari == index_lB2)                          D_and_DD_of_S(box, index_lB2,            index_dlB21, index_ddlB211);
+  if(blkinfo->vari == index_lB3)                          D_and_DD_of_S(box, index_lB3,            index_dlB31, index_ddlB311);
+  if(blkinfo->vari == index_lalphaP)                          D_and_DD_of_S(box, index_lalphaP,            index_dlalphaP1, index_ddlalphaP11);
   if(blkinfo->vari == index_lSigma) {
-    D_and_DD_of_S(box, index_lSigma, 			  index_dlSigma1, index_ddlSigma11);
+    D_and_DD_of_S(box, index_lSigma,      index_dlSigma1, index_ddlSigma11);
     spec_Deriv2(box, 1, lSigma, ddlSigmadlam2);
     spec_Deriv1(box, 1, ddlSigmadlam2, dddlSigmadlam3);
     spec_Deriv1(box, 1, lSigma, dlSigmadlam);
   } /* end blkinfo->vari == index_lSigma */
 } /* end blkinfo!=NULL  */
 else {
-  D_and_DD_of_S(box, index_lPsi,  
-			index_dlPsi1, index_ddlPsi11);
-  D_and_DD_of_Sa(box, index_lB1, 			 index_dlB11, index_ddlB111);
-  D_and_DD_of_S(box, index_lalphaP, 			index_dlalphaP1, index_ddlalphaP11);
-  D_and_DD_of_S(box, index_lSigma, 			index_dlSigma1, index_ddlSigma11);
+  D_and_DD_of_S(box, index_lPsi,     index_dlPsi1, index_ddlPsi11);
+  D_and_DD_of_Sa(box, index_lB1,     index_dlB11, index_ddlB111);
+  D_and_DD_of_S(box, index_lalphaP,    index_dlalphaP1, index_ddlalphaP11);
+  D_and_DD_of_S(box, index_lSigma,    index_dlSigma1, index_ddlSigma11);
   spec_Deriv2(box, 1, lSigma, ddlSigmadlam2);
   spec_Deriv1(box, 1, ddlSigmadlam2, dddlSigmadlam3);
   spec_Deriv1(box, 1, lSigma, dlSigmadlam);
 } /* end else */
 } /* end linear case */
-FirstDerivsOf_Sa(box, Ind("DNSdata_wBx"), 					 Ind("DNSdata_wBxx"));
+FirstDerivsOf_Sa(box, Ind("DNSdata_wBx"),       Ind("DNSdata_wBxx"));
 if(dqFromqg) {
-FirstDerivsOf_S(box,  Ind("DNSdata_qg"), 				     Ind("DNSdata_qx"));
+FirstDerivsOf_S(box,  Ind("DNSdata_qg"),          Ind("DNSdata_qx"));
 } else {
-FirstDerivsOf_S(box,  Ind("DNSdata_q"), 				     Ind("DNSdata_qx"));
+FirstDerivsOf_S(box,  Ind("DNSdata_q"),          Ind("DNSdata_qx"));
 } /* end if */
 VwApprox = corot = 0;
 if(isSTAR1) {
@@ -1476,26 +1473,26 @@ vecLapB3
 
 FPsi[ijk]
 =
-Psi5*((0.03125*LBLB)/alpha2 + 6.2831853071795864769*rho) + ddPsi11[ijk] + 
+Psi5*((0.03125*LBLB)/alpha2 + 6.283185307179586477*rho) + ddPsi11[ijk] + 
   ddPsi22[ijk] + ddPsi33[ijk]
 ;
 
 FB1[ijk]
 =
 -(dLnalphaPsim61*LB11) - dLnalphaPsim62*LB12 - dLnalphaPsim63*LB13 + 
-  vecLapB1 - 50.265482457436691815*j1*Psi4*alpha[ijk]
+  vecLapB1 - 50.26548245743669182*j1*Psi4*alpha[ijk]
 ;
 
 FB2[ijk]
 =
 -(dLnalphaPsim61*LB12) - dLnalphaPsim62*LB22 - dLnalphaPsim63*LB23 + 
-  vecLapB2 - 50.265482457436691815*j2*Psi4*alpha[ijk]
+  vecLapB2 - 50.26548245743669182*j2*Psi4*alpha[ijk]
 ;
 
 FB3[ijk]
 =
 -(dLnalphaPsim61*LB13) - dLnalphaPsim62*LB23 - dLnalphaPsim63*LB33 + 
-  vecLapB3 - 50.265482457436691815*j3*Psi4*alpha[ijk]
+  vecLapB3 - 50.26548245743669182*j3*Psi4*alpha[ijk]
 ;
 
 FalphaP[ijk]
@@ -2423,7 +2420,7 @@ FlPsi[ijk]
 ((0.0625*(LBdo11*LlB11 + (LBdo12 + LBdo21)*LlB12 + 
           (LBdo13 + LBdo31)*LlB13 + LBdo22*LlB22 + 
           (LBdo23 + LBdo32)*LlB23 + LBdo33*LlB33))/alpha2 + 
-     6.2831853071795864769*lrho)*Psi5 + ddlPsi11[ijk] + ddlPsi22[ijk] + 
+     6.283185307179586477*lrho)*Psi5 + ddlPsi11[ijk] + ddlPsi22[ijk] + 
   ddlPsi33[ijk] + 31.415926535897932385*Psi4*rho*lPsi[ijk] + 
   LBLB*((-0.0625*Psi7*lalphaP[ijk])/alphaP3 + 
      (0.21875*Psi6*lPsi[ijk])/alphaP2)
@@ -2465,7 +2462,7 @@ ddlalphaP11[ijk] + ddlalphaP22[ijk] + ddlalphaP33[ijk] +
              (LBdo13 + LBdo31)*LlB13 + LBdo22*LlB22 + 
              (LBdo23 + LBdo32)*LlB23 + LBdo33*LlB33))/alpha2 + 
         3.1415926535897932385*(2.*lrho + 4.*lS))*alphaP[ijk] + 
-     6.2831853071795864769*rho*lalphaP[ijk]) - 
+     6.283185307179586477*rho*lalphaP[ijk]) - 
   ((1.3125*LBLB*Psi5)/alphaP2 + 3.1415926535897932385*Psi3*(8.*rho + 16.*S))*
    alphaP[ijk]*lPsi[ijk]
 ;
