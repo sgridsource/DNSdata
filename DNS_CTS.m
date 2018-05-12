@@ -586,6 +586,7 @@ BeginCFunction[] := Module[{},
 		   int nonlin)\n"];
   pr["{\n"];
 
+  pr["int iStart = Set_pdb_iStart_AtPar(\"DNSdata_rotationstate1\");\n"];
   pr["int VwApprox1 = Getv(\"DNSdata_rotationstate1\",\"VwApproximation\");\n"];
   pr["int VwApprox2 = Getv(\"DNSdata_rotationstate2\",\"VwApproximation\");\n"];
   pr["int corot1 = VwApprox1 || Getv(\"DNSdata_rotationstate1\",\"corotation\");\n"];
