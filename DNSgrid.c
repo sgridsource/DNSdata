@@ -816,12 +816,12 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
     //printf("sigma=%g\n", CubedSphere_sigma(box, 1, 7, -1., -1.));
     //printf("sigma=%g\n", CubedSphere_sigma(box, 1, -1, -1., -1.));
 
-    /* Here we use SGRID_LEVEL6_Pragma(omp parallel), since both
+    /* Here we use SGRID_LEVEL6orTOP_Pragma(omp parallel), since both
        DNSgrid_Get_BoxAndCoords_of_xyz and spec_interpolate should be
-       thread safe. So we may not want a separate grid copy per thread */
+       thread safe. So we may not want a separate grid copy per thread. */
 #undef GRIDperTHREAD_Interp_Var_From_Grid1_To_Grid2_star
     //define GRIDperTHREAD_Interp_Var_From_Grid1_To_Grid2_star 1
-    SGRID_LEVEL6_Pragma(omp parallel)
+    SGRID_LEVEL6orTOP_Pragma(omp parallel)
     {
 #ifdef GRIDperTHREAD_Interp_Var_From_Grid1_To_Grid2_star
       tGrid *grid1_p = make_empty_grid(grid1->nvariables, 0);
@@ -830,7 +830,7 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
       tGrid *grid1_p = grid1;
 #endif
       /* start loop */
-      SGRID_LEVEL6_Pragma(omp for) 
+      SGRID_LEVEL6orTOP_Pragma(omp for) 
       forallpoints(box,i)
       {
         double X = pX[i];
