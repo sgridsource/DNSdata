@@ -90,6 +90,9 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
                              double Pc, double Phic, double Psic,
                              double *m, double *P, double *Phi, double *Psi,
                              double *m0);
+int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
+                          double Pc, double Phic, double Psic,
+                          double *m, double *P, double *Phi, double *Psi);
 
 /* from DNSgrid.c */
 int set_DNS_boxsizes(tGrid *grid);

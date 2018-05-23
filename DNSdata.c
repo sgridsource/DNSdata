@@ -433,8 +433,8 @@ int DNSdata_startup(tGrid *grid)
       double *DNSdata_wBx    = box->v[Ind("DNSdata_wBx")];
       double *DNSdata_wBy    = box->v[Ind("DNSdata_wBx")+1];
       double *DNSdata_wBz    = box->v[Ind("DNSdata_wBx")+2];
-      double r1, m1_r, P1, Phi1, Psi1, m01_r, q1;
-      double r2, m2_r, P2, Phi2, Psi2, m02_r, q2;
+      double r1, m1_r, P1, Phi1, Psi1, q1;
+      double r2, m2_r, P2, Phi2, Psi2, q2;
       double Bx1,By1,Bz1;
       double Bx2,By2,Bz2;
 
@@ -454,23 +454,23 @@ int DNSdata_startup(tGrid *grid)
         if(TOVav || TOVprod || box->SIDE==STAR1)
         {
           r1 = sqrt((x-xc1)*(x-xc1) + (y-ysh1)*(y-ysh1) + z*z);
-          TOV_m_P_Phi_Psi_m0_OF_rf(r1, rs1, P_core1, Phic1, Psic1,
-                                   &m1_r, &P1, &Phi1, &Psi1, &m01_r);
+          TOV_m_P_Phi_Psi_OF_rf(r1, rs1, m1, P_core1, Phic1, Psic1,
+                                &m1_r, &P1, &Phi1, &Psi1);
           q1 = DNS_polytrope_hm1_of_P(P1);
           DNSdata_initial_shift(1, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs1, 
                                 -(x-xc1), -(y-ysh1), z,  &Bx1,&By1,&Bz1);
         }
-        else { m1_r = P1 = Phi1 = m01_r = q1 = Bx1=By1=Bz1 = 0.0;  Psi1 = 1.0; }
+        else { m1_r = P1 = Phi1 = q1 = Bx1=By1=Bz1 = 0.0;  Psi1 = 1.0; }
         if(TOVav || TOVprod || box->SIDE==STAR2)
         {
           r2 = sqrt((x-xc2)*(x-xc2) + y*y + z*z);
-          TOV_m_P_Phi_Psi_m0_OF_rf(r2, rs2, P_core2, Phic2, Psic2,
-                                   &m2_r, &P2, &Phi2, &Psi2, &m02_r);
+          TOV_m_P_Phi_Psi_OF_rf(r2, rs2, m2, P_core2, Phic2, Psic2,
+                                &m2_r, &P2, &Phi2, &Psi2);
           q2 = DNS_polytrope_hm1_of_P(P2);
           DNSdata_initial_shift(2, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs2, 
                                 x-xc2, y, z,  &Bx2,&By2,&Bz2);
         }
-        else { m2_r = P2 = Phi2 = m02_r = q2 = Bx2=By2=Bz2 = 0.0;  Psi2 = 1.0; }
+        else { m2_r = P2 = Phi2 = q2 = Bx2=By2=Bz2 = 0.0;  Psi2 = 1.0; }
         
         /* set the data */
         if(TOVprod)

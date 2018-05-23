@@ -200,7 +200,7 @@ int TOV_init(double Pc, int pr, double *rf_surf,
 }
 
 
-/* find *m, *P, *Phi, *Psi at rf, 
+/* find *m, *P, *Phi, *Psi, *m0 at rf, 
    for a given rf_surf, kappa, Gam, Pc, Phic, Psic */
 int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
                              double Pc, double Phic, double Psic,
@@ -283,6 +283,31 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
   free_vector(y,  1,nvar);
   free_vector(rfp, 1,nvar);
   free_matrix(yp, 1,nvar, 1,kmax);
+  return 0;
+}
+
+/* find *m, *P, *Phi, *Psi at rf, 
+   for a given rf_surf, m_surf, Pc, Phic, Psic.
+   This is faster than TOV_m_P_Phi_Psi_m0_OF_rf, because it integrates
+   only if we are inside the star. */
+int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
+                          double Pc, double Phic, double Psic,
+                          double *m, double *P, double *Phi, double *Psi)
+{
+  double m0;
+  double r;
+
+  if(rf>rf_surf)
+  {
+    *m   = m_surf;
+    *P   = 0.0;
+    *Psi = 1.0 + (*m)/(2*rf);
+    r = rf*(*Psi)*(*Psi);  /* Schw. r at surface, current rf at surface */
+    *Phi =0.5*log(1.0 - 2.0*(*m)/r);
+  }
+  else
+    TOV_m_P_Phi_Psi_m0_OF_rf(rf, rf_surf, Pc, Phic, Psic,
+                             m, P, Phi, Psi, &m0);
   return 0;
 }
 
