@@ -12,6 +12,7 @@
 typedef struct T_grid_b_star_A_B_struct {
   tGrid *grid; /* grid */
   int b;       /* box number */
+  int b_in;    /* box number of inner box */
   int star;    /* STAR1/2 */
   double A;    /* A coord */
   double B;    /* B coord */
@@ -523,15 +524,22 @@ void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val)
 /*************************************/
 
 /* WE NEED to find sigma at A,B such that q(sigma; lam=0or1, A,B) = 0 */
-/* q as a func of lam for a given  A, B */
-double q_of_lam_forgiven_AB_ZP(double lam, void *p)
+/* q as a func of Tlam for a given  A, B
+   the transformed lambda:
+   Tlam := lam - 1 , if box is b_in
+   Tlam := lam,      if box is b    */
+double q_of_Tlam_forgiven_AB_ZP(double Tlam, void *p)
 {
   t_grid_b_star_A_B_struct *pars = (t_grid_b_star_A_B_struct *) p;
   tGrid *grid = pars->grid;
-  int b       = pars->b;
   double A    = pars->A;
   double B    = pars->B;
-  double q    = DNS_compute_new_centered_q_atXYZ(grid,b, lam, A,B);
+  int b;
+  double lam, q;
+
+  if(Tlam<0.) { lam = 1. + Tlam;  b = pars->b_in; }
+  else        { lam = Tlam;       b = pars->b;    }
+  q = DNS_compute_new_centered_q_atXYZ(grid,b, lam, A,B);
   //printf("b=%d lam=%g A=%g B=%g q=%g\n", b, lam, A,B, q);
   return q;
 }
@@ -599,8 +607,9 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       int inz_in;   /* q_in<=0  at i=inz_in (and q_in>0 i=inz_in+1) */
       int inz_out;  /* q_out<=0 at i=inz_out (and q_out>0 i=inz_out-1) */
       int i1, i2;   /* zero occurs between index i1 and i2 in domain dom */
-      double lam1, lam2; /* zero occurs between lam=lam1 and lam=lam2 in domain dom */
-      double lam0;       /* q=0 at lam=lam0 in domain dom */
+      double Tlam1, Tlam2; /* zero occurs between Tlam=Tlam1 and Tlam=Tlam2 */
+      double Tlam0;        /* q=0 at Tlam=Tlam0, Tlam \in [-1,1] */
+      double lam0;         /* q=0 at lam=lam0 in domain dom */
 
       /* find indices where q_in and q_out switch sign */
       for(i=1; i<n1in; i++) if(q_in[Index(i,j,k)]<=0.0) break;
@@ -621,35 +630,44 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
         errorexit("reset_Coordinates_CubedSphere_sigma01: q>0 everywhere???");
       }
 
-      /* initial bracket for lam */
+      /* initial bracket for Tlam */
       boxq0 = grid->box[dom];
-      lam1 = boxq0->v[iX][Index(i1,j,k)];
-      lam2 = boxq0->v[iX][Index(i2,j,k)];
-
-      if(i1 == i2)  /* zero is between inner and outer box (see above) */
-        lam0 = 0.0; /* since we must have i1=i2=0, dom=outerdom */
-      else
+      Tlam1 = boxq0->v[iX][Index(i1,j,k)];
+      Tlam2 = boxq0->v[iX][Index(i2,j,k)];
+      if(dom == innerdom)
       {
-        /* set pars */
-        pars->grid = grid;
-        pars->A = A;
-        pars->B = B;
-        pars->b = dom;
-
-        //printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
-        //       "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
-        //printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
-        //printf("dom=%d i1=%d i2=%d lam1=%g lam2=%g\n", dom, i1,i2, lam1,lam2);
-
-        /* use Brent's method to find lam0 where q=0 */
-        /* zbrac_P may not be needed as lam1/2 should already bracket lam0 */
-        //if(zbrac_P(q_of_lam_forgiven_AB_ZP, &lam1,&lam2, (void *) pars)<0)
-        //  errorexit("cannot find bracket for q_of_lam_forgiven_AB_ZP");
-        stat=zbrent_itsP(&lam0, q_of_lam_forgiven_AB_ZP,  lam1,lam2,
-                         (void *) pars, itmax, tol);
+        Tlam1 = Tlam1 - 1.;
+        Tlam2 = Tlam2 - 1.;
       }
 
+      if(i1 == i2)  /* zero is between inner and outer box (see above) */
+      {
+        Tlam1 = -0.01;
+        Tlam2 = +0.01;
+      }
+      /* set pars */
+      pars->grid = grid;
+      pars->A = A;
+      pars->B = B;
+      pars->b = outerdom;
+      pars->b_in = innerdom;
+
+      //printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
+      //       "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
+      //printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
+      //printf("dom=%d i1=%d i2=%d Tlam1=%g Tlam2=%g\n", dom, i1,i2, Tlam1,Tlam2);
+
+      /* use Brent's method to find Tlam0 where q=0 */
+      /* zbrac_P may not be needed as Tlam1/2 should already bracket Tlam0 */
+      if(zbrac_P(q_of_Tlam_forgiven_AB_ZP, &Tlam1,&Tlam2, (void *) pars)<0)
+        errorexit("cannot find bracket for q_of_Tlam_forgiven_AB_ZP");
+      stat=zbrent_itsP(&Tlam0, q_of_Tlam_forgiven_AB_ZP,  Tlam1,Tlam2,
+                       (void *) pars, itmax, tol);
+      if(Tlam0<0.) { lam0 = 1. + Tlam0;  dom = innerdom; }
+      else         { lam0 = Tlam0;       dom = outerdom; }
+
       /* now that we have lam0 we can find x,y,z */
+      boxq0 = grid->box[dom];
       x = boxq0->x_of_X[1]((void *)boxq0, -1, lam0, A,B);
       y = boxq0->x_of_X[2]((void *)boxq0, -1, lam0, A,B);
       z = boxq0->x_of_X[3]((void *)boxq0, -1, lam0, A,B);
