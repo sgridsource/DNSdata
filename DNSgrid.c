@@ -660,11 +660,8 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       //printf("lam0=%g x=%g y=%g z=%g sig01_AB=%g\n", lam0, x,y,z, sig01_AB);
 
       /* set sigma = sig01_AB in both domains */
-      for(i=0; i<n1; i++)
-      {
-        boxnew->v[isigma0][ind]     = sig01_AB;
-        boxnewin->v[isigma1][indin] = sig01_AB;
-      }
+      boxnew->v[isigma0][ind]     = sig01_AB;
+      boxnewin->v[isigma1][indin] = sig01_AB;
     } /* end forplane1 */
   }
   //FIXME: Not sure if we need this???
