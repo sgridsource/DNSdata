@@ -682,9 +682,9 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       boxnewin->v[isigma1][indin] = sig01_AB;
     } /* end forplane1 */
   }
-  //FIXME: Not sure if we need this???
-  // /* ensure that sigma is continuous between boxes on gridnew */
-  // DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
+  /* ensure that sigma is continuous between boxes on gridnew */
+  if(Getv("DNSdata_CubSph_sigma_continuity","yes"))
+    DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
 
   /* compute sigma derives on gridnew */
   compute_sigma01_derivs(gridnew, star);

@@ -248,6 +248,8 @@ int sgrid_DNSdata()
          "[grid,grid_bak]");
 
   AddPar("DNSdata_grid", "36CS_2xyz", "what grid we use [36CS_2xyz]");
+  AddPar("DNSdata_CubSph_sigma_continuity", "no", "make "
+         "Coordinates_CubSph_sigma continuous across boxes [no,yes]");
 
   /* some par that contains values of variables controlling the 
      "main iteration loop", all variables are saved in this on par */
