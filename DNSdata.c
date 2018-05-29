@@ -1127,8 +1127,8 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
 
       /* adjust C1 and thus m01 */
       Cvec[1] = Getd("DNSdata_C1"); /* initial guess */
-      Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
-      Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+      Cvec[0] = Cvec[1]*1.0001;     /* lower bracket bound (note C<0) */
+      Cvec[2] = Cvec[1]*0.9999;     /* upper bracket bound (note C<0) */
       stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
       if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
       stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
@@ -1145,8 +1145,8 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
 
       /* adjust C2 and thus m02 */
       Cvec[1] = Getd("DNSdata_C2"); /* initial guess */
-      Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
-      Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+      Cvec[0] = Cvec[1]*1.0001;     /* lower bracket bound (note C<0) */
+      Cvec[2] = Cvec[1]*0.9999;     /* upper bracket bound (note C<0) */
       stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
       if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
       stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
