@@ -735,7 +735,12 @@ void DNS_compute_new_centered_q(tGrid *grid, int star)
   int iq = Ind("DNSdata_q");
   int iqg= Ind("DNSdata_qg");
 
+//printf("DNS_compute_new_centered_q: C1=%.13g  C2=%.13g\n",
+//Getd("DNSdata_C1"), Getd("DNSdata_C2"));
+//quick_Vars_output(grid->box[2], "DNSdata_q",41,41);
   DNS_compute_new_q_instar(grid, star, iq);
+//quick_Vars_output(grid->box[2], "DNSdata_q",55,55);
+
   if(Getv("DNSdata_center_new_q_flag", "yes"))
   {
     int iqx= Ind("DNSdata_qx");
@@ -1108,59 +1113,81 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
       printf(" guess: DNSdata_C1=%g DNSdata_C2=%g\n",
              Getd("DNSdata_C1"), Getd("DNSdata_C2"));
     }
-    /***********************************************************************/
-    /* do newton_linesrch_itsP iterations of Cvec until m0errorvec is zero */
-    /***********************************************************************/
-    //or /***************************************************************/
-    //   /* do zbrent_itsP iterations of Cvec until m01/2 error is zero */
-    //   /***************************************************************/
-    /* backup grid,pdb */
-    backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
-    pars->grid = grid;
-    if(Getv("DNSdata_m0_error_VectorFuncP_grid0","grid_bak")) pars->grid0=grid_bak;
-    else  pars->grid0 = grid;
+    if(Getv("DNSdata_adjust_C1C2", "zbrent"))
+    {
+      /***************************************************************/
+      /* do zbrent_itsP iterations of Cvec until m01/2 error is zero */
+      /***************************************************************/
 
-    /* adjust C1 and thus m01 */
-    Cvec[1] = Getd("DNSdata_C1");
-    stat = newton_linesrch_itsP(Cvec, 1, &check, m01_error_VectorFuncP,
-                                (void *) pars, 1000, tol*0.01);
-    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
-    Setd("DNSdata_C1", Cvec[1]);
-    //Cvec[1] = Getd("DNSdata_C1"); /* initial guess */
-    //Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
-    //Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
-    //stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
-    //if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
-    //stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
-    //                   (void *) pars, 1000, tol*0.01);
-    //if(stat<0) printf("  --> stat=%d\n", stat);
-    //Setd("DNSdata_C1", Cvec[1]);
-    //compute_new_q_and_adjust_domainshapes(grid, STAR1);
+      /* backup grid,pdb */
+      backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
+      pars->grid = grid;
+      if(Getv("DNSdata_m0_error_VectorFuncP_grid0","grid_bak")) pars->grid0=grid_bak;
+      else  pars->grid0 = grid;
 
-    /* backup grid,pdb */
-    backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
-    pars->grid = grid;
-    if(Getv("DNSdata_m0_error_VectorFuncP_grid0","grid_bak")) pars->grid0=grid_bak;
-    else  pars->grid0 = grid;
+      /* adjust C1 and thus m01 */
+      Cvec[1] = Getd("DNSdata_C1"); /* initial guess */
+      Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
+      Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+      stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
+      if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
+      stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
+                         (void *) pars, 1000, tol*0.01);
+      if(stat<0) printf("  --> stat=%d\n", stat);
+      Setd("DNSdata_C1", Cvec[1]);
+      compute_new_q_and_adjust_domainshapes(grid, STAR1);
 
-    /* adjust C2 and thus m02 */
-    Cvec[1] = Getd("DNSdata_C2");
-    if(Getd("DNSdata_m02")>0)
-      stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
+      /* backup grid,pdb */
+      backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
+      pars->grid = grid;
+      if(Getv("DNSdata_m0_error_VectorFuncP_grid0","grid_bak")) pars->grid0=grid_bak;
+      else  pars->grid0 = grid;
+
+      /* adjust C2 and thus m02 */
+      Cvec[1] = Getd("DNSdata_C2"); /* initial guess */
+      Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
+      Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
+      stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
+      if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
+      stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
+                         (void *) pars, 1000, tol*0.01);
+      if(stat<0) printf("  --> stat=%d\n", stat);
+      Setd("DNSdata_C2", Cvec[1]);
+      compute_new_q_and_adjust_domainshapes(grid, STAR2);
+    }
+    else
+    {
+      /***********************************************************************/
+      /* do newton_linesrch_itsP iterations of Cvec until m0errorvec is zero */
+      /***********************************************************************/
+
+      /* backup grid,pdb */
+      backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
+      pars->grid = grid;
+      if(Getv("DNSdata_m0_error_VectorFuncP_grid0","grid_bak")) pars->grid0=grid_bak;
+      else  pars->grid0 = grid;
+
+      /* adjust C1 and thus m01 */
+      Cvec[1] = Getd("DNSdata_C1");
+      stat = newton_linesrch_itsP(Cvec, 1, &check, m01_error_VectorFuncP,
                                   (void *) pars, 1000, tol*0.01);
-    if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
-    Setd("DNSdata_C2", Cvec[1]);
-    //Cvec[1] = Getd("DNSdata_C2"); /* initial guess */
-    //Cvec[0] = Cvec[1]*1.01;       /* lower bracket bound (note C<0) */
-    //Cvec[2] = Cvec[1]*0.99;       /* upper bracket bound (note C<0) */
-    //stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
-    //if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
-    //stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
-    //                   (void *) pars, 1000, tol*0.01);
-    //if(stat<0) printf("  --> stat=%d\n", stat);
-    //Setd("DNSdata_C2", Cvec[1]);
-    //compute_new_q_and_adjust_domainshapes(grid, STAR2);
+      if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
+      Setd("DNSdata_C1", Cvec[1]);
 
+      /* backup grid,pdb */
+      backup_grid_pdb(grid,pdb, grid_bak,pdb_bak);
+      pars->grid = grid;
+      if(Getv("DNSdata_m0_error_VectorFuncP_grid0","grid_bak")) pars->grid0=grid_bak;
+      else  pars->grid0 = grid;
+
+      /* adjust C2 and thus m02 */
+      Cvec[1] = Getd("DNSdata_C2");
+      if(Getd("DNSdata_m02")>0)
+        stat = newton_linesrch_itsP(Cvec, 1, &check, m02_error_VectorFuncP,
+                                    (void *) pars, 1000, tol*0.01);
+      if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
+      Setd("DNSdata_C2", Cvec[1]);
+    }
 
     printf("adjust_C1_C2_q_keep_restmasses:\n");
     printf(" new: DNSdata_C1=%g DNSdata_C2=%g\n",
@@ -2600,10 +2627,10 @@ box->v[38][i] = 6.5 + ((double) rand())*0.5/RAND_MAX;
 box->v[38][i] = 6.5 + ((double) rand())*0.5/RAND_MAX;
 }
 }
-quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01", 66,66);
+quick_Vars_output(grid->box[1], "Coordinates_CubedSphere_sigma01", 66,66);
 DNSgrid_Coordinates_CubSph_sigma_continuity(grid, STAR1);
 DNSgrid_Coordinates_CubSph_sigma_continuity(grid, STAR2);
-quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01", 77,77);
+quick_Vars_output(grid->box[1], "Coordinates_CubedSphere_sigma01", 77,77);
 exit(99);
 */
     /* check if we do another ell. solve for DNSdata_Sigma */
@@ -3834,11 +3861,8 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
     errorexit("compute_new_q_and_adjust_domainshapes_InterpFromGrid0: "
               "star is not STAR1 or STAR2");
 
-//quick_Var_output(grid->box[2], "DNSdata_q",1,1);
-
   /* compute new q */
   DNS_compute_new_centered_q(grid, star);
-//quick_Var_output(grid->box[2], "DNSdata_q",2,2);
 
   /* make new grid2, which is an exact copy of grid */
   grid2 = make_empty_grid(grid->nvariables, 0);
@@ -3849,8 +3873,8 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 
   /* make sure coords on new grid are initialized */
   DNSgrid_init_Coords_for_star(grid2, star);
-//quick_Var_output(grid->box[2], "Coordinates_CubedSphere_sigma01",3,3);
-//quick_Var_output(grid2->box[2], "Coordinates_CubedSphere_sigma01",4,4);
+//quick_Vars_output(grid->box[2], "Coordinates_CubedSphere_sigma01",3,3);
+//quick_Vars_output(grid2->box[2], "Coordinates_CubedSphere_sigma01",4,4);
 
   /* interpolate q (and maybe some other vars) from grid onto new grid2 */
   //  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_qg"),star);
@@ -3870,16 +3894,16 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   }
   if(interp_qgold)
     Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_qgold"),star);
-//quick_Var_output(grid->box[2], "DNSdata_Psi",3,3);
-//quick_Var_output(grid2->box[2],"DNSdata_Psi",4,4);
+//quick_Vars_output(grid->box[2], "DNSdata_Psi",3,3);
+//quick_Vars_output(grid2->box[2],"DNSdata_Psi",4,4);
 
   DNS_compute_new_centered_q(grid2, star);
-//quick_Var_output(grid->box[2], "DNSdata_q",5,5);
-//quick_Var_output(grid2->box[2],"DNSdata_q",6,6);
-//quick_Var_output(grid->box[2], "Coordinates_CubedSphere_dsigma01_dA",7,7);
-//quick_Var_output(grid->box[2], "Coordinates_CubedSphere_dsigma01_dB",7,7);
-//quick_Var_output(grid2->box[2],"Coordinates_CubedSphere_dsigma01_dA",8,8);
-//quick_Var_output(grid2->box[2],"Coordinates_CubedSphere_dsigma01_dB",8,8);
+//quick_Vars_output(grid->box[2], "DNSdata_q",5,5);
+//quick_Vars_output(grid2->box[2],"DNSdata_q",6,6);
+//quick_Vars_output(grid->box[2], "Coordinates_CubedSphere_dsigma01_dA",7,7);
+//quick_Vars_output(grid->box[2], "Coordinates_CubedSphere_dsigma01_dB",7,7);
+//quick_Vars_output(grid2->box[2],"Coordinates_CubedSphere_dsigma01_dA",8,8);
+//quick_Vars_output(grid2->box[2],"Coordinates_CubedSphere_dsigma01_dB",8,8);
 
 //  /* set q to zero if q<0 or in region 1 and 2 */
 //  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
@@ -3939,8 +3963,8 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   /* set C1 */
   Setd("DNSdata_C1", vec[1]);
 
-//quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",1,1,0);
-//quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
+//quick_Vars_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",1,1,0);
+//quick_Vars_output(grid->box[1], "Coordinates_CubedSphere_sigma01",2,2,0);
 
   /* adjust grid so that new q=0 is at A=0 */
   //compute_new_q_and_adjust_domainshapes(grid, STAR1);
@@ -3956,8 +3980,8 @@ void m01_error_VectorFuncP(int n, double *vec, double *fvec, void *p)
   fflush(stdout);
 //grid->time=-100;
 //write_grid(grid);
-//quick_Var_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",11,11,0);
-//quick_Var_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,0);
+//quick_Vars_output(grid0->box[1], "Coordinates_CubedSphere_sigma01",11,11,0);
+//quick_Vars_output(grid->box[1], "Coordinates_CubedSphere_sigma01",12,12,0);
 
   fvec[1] = m01 - pars->m01;
 }

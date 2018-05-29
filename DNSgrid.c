@@ -652,15 +652,29 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
       pars->b = outerdom;
       pars->b_in = innerdom;
 
-      //printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
-      //       "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
-      //printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
-      //printf("dom=%d i1=%d i2=%d Tlam1=%g Tlam2=%g\n", dom, i1,i2, Tlam1,Tlam2);
 
       /* use Brent's method to find Tlam0 where q=0 */
       /* zbrac_P may not be needed as Tlam1/2 should already bracket Tlam0 */
       if(zbrac_P(q_of_Tlam_forgiven_AB_ZP, &Tlam1,&Tlam2, (void *) pars)<0)
+      {
+        printf("reset_Coordinates_CubedSphere_sigma01: outerdom=%d  A=%g B=%g  "
+               "inz_in=%d inz_out=%d\n", outerdom, A,B, inz_in,inz_out);
+        printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  j=%d k=%d "
+               "pars->b=%d pars->b_in=%d\n", innerdom,j,k, pars->b,pars->b_in);
+        printf("dom=%d i1=%d i2=%d Tlam1=%g Tlam2=%g\n", dom, i1,i2, Tlam1,Tlam2);
+        printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
+        printf("q_in[Index(n1in-1,j,k)]=%g\n", q_in[Index(n1in-1,j,k)]);
+        printf("q_out[Index(0,j,k)]=%g\n", q_out[Index(0,j,k)]);
+        printf("new q(Tlam1)=%g, new q(Tlam2)=%g\n",
+               q_of_Tlam_forgiven_AB_ZP(Tlam1, (void *) pars),
+               q_of_Tlam_forgiven_AB_ZP(Tlam2, (void *) pars));
+        printf("new q(-0.1)=%g, new q(0.1)=%g\n",
+               q_of_Tlam_forgiven_AB_ZP(-0.1, (void *) pars),
+               q_of_Tlam_forgiven_AB_ZP(0.1, (void *) pars));
+        quick_Vars_output(box, 
+        "Coordinates_CubedSphere_sigma01 DNSdata_q", 666,666);
         errorexit("cannot find bracket for q_of_Tlam_forgiven_AB_ZP");
+      }
       stat=zbrent_itsP(&Tlam0, q_of_Tlam_forgiven_AB_ZP,  Tlam1,Tlam2,
                        (void *) pars, itmax, tol);
       if(Tlam0<0.) { lam0 = 1. + Tlam0;  dom = innerdom; }
