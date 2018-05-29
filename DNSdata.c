@@ -3854,6 +3854,7 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
                                                            int star)
 {
   tGrid *grid2;
+  int iq = Ind("DNSdata_q");
   int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
   int outerdom;
 
@@ -3861,15 +3862,21 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
     errorexit("compute_new_q_and_adjust_domainshapes_InterpFromGrid0: "
               "star is not STAR1 or STAR2");
 
-  /* compute new q */
-  DNS_compute_new_centered_q(grid, star);
+  /* save q from grid0 on grid */
+  copy_gridvar(iq, grid0, grid);
 
-  /* make new grid2, which is an exact copy of grid */
-  grid2 = make_empty_grid(grid->nvariables, 0);
-  copy_grid(grid, grid2, 0);
+  /* compute new q on grid0 */
+  DNS_compute_new_centered_q(grid0, star);
+
+  /* make new grid2, which is an exact copy of grid0 */
+  grid2 = make_empty_grid(grid0->nvariables, 0);
+  copy_grid(grid0, grid2, 0);
 
   /* reset sigma such that q=0 at A=0 */
-  reset_Coordinates_CubedSphere_sigma01(grid, grid2, star);
+  reset_Coordinates_CubedSphere_sigma01(grid0, grid2, star);
+
+  /* restore q on grid0 from grid */
+  copy_gridvar(iq, grid, grid0);
 
   /* make sure coords on new grid are initialized */
   DNSgrid_init_Coords_for_star(grid2, star);
