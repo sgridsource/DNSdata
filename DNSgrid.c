@@ -671,6 +671,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
         printf("new q(-0.1)=%g, new q(0.1)=%g\n",
                q_of_Tlam_forgiven_AB_ZP(-0.1, (void *) pars),
                q_of_Tlam_forgiven_AB_ZP(0.1, (void *) pars));
+        printf("C1=%.13g  C2=%.13g\n", Getd("DNSdata_C1"), Getd("DNSdata_C2"));
         quick_Vars_output(box, 
         "Coordinates_CubedSphere_sigma01 DNSdata_q", 666,666);
         errorexit("cannot find bracket for q_of_Tlam_forgiven_AB_ZP");
