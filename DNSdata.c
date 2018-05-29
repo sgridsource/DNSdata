@@ -1132,7 +1132,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
       stat = zbrac_P(m01_error_ZP, Cvec, Cvec+2, (void *) pars);
       if(stat<0) errorexit("cannot find bracket for m01_error_ZP");
       stat = zbrent_itsP(Cvec+1, m01_error_ZP, Cvec[0], Cvec[2],
-                         (void *) pars, 1000, tol*0.01);
+                         (void *) pars, 1000, tol);
       if(stat<0) printf("  --> stat=%d\n", stat);
       Setd("DNSdata_C1", Cvec[1]);
       compute_new_q_and_adjust_domainshapes(grid, STAR1);
@@ -1150,7 +1150,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
       stat = zbrac_P(m02_error_ZP, Cvec, Cvec+2, (void *) pars);
       if(stat<0) errorexit("cannot find bracket for m02_error_ZP");
       stat = zbrent_itsP(Cvec+1, m02_error_ZP, Cvec[0], Cvec[2],
-                         (void *) pars, 1000, tol*0.01);
+                         (void *) pars, 1000, tol);
       if(stat<0) printf("  --> stat=%d\n", stat);
       Setd("DNSdata_C2", Cvec[1]);
       compute_new_q_and_adjust_domainshapes(grid, STAR2);
