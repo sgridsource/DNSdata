@@ -2458,6 +2458,8 @@ int DNSdata_solve(tGrid *grid)
     linear_solver=templates_bicgstab_wrapper;
   else if(Getv("DNSdata_linSolver", "templates_CGS"))
     linear_solver=templates_cgs_wrapper;
+  else if(Getv("DNSdata_linSolver", "templates_SOR"))
+    linear_solver=templates_sor_wrapper;
   else if(Getv("DNSdata_linSolver", "UMFPACK"))
     linear_solver=UMFPACK_solve_wrapper;
   else if(Getv("DNSdata_linSolver", "UMFPACK_forSortedVars"))
