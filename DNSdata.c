@@ -2476,6 +2476,12 @@ int DNSdata_solve(tGrid *grid)
     linear_solver=templates_gmres_wrapper_with_BlockJacobi_precon;
   else if(Getv("DNSdata_linSolver", "templates_BICGSTAB_with_BlockJacobi_precon"))
     linear_solver=templates_bicgstab_wrapper_with_BlockJacobi_precon;
+  else if(Getv("DNSdata_linSolver", "templates_CGS_with_BlockJacobi_precon"))
+    linear_solver=templates_cgs_wrapper_with_BlockJacobi_precon;
+  else if(Getv("DNSdata_linSolver", "templates_QMR_with_BlockJacobi_precon"))
+    linear_solver=templates_qmr_wrapper_with_BlockJacobi_precon;
+  else if(Getv("DNSdata_linSolver", "templates_BICG_with_BlockJacobi_precon"))
+    linear_solver=templates_bicg_wrapper_with_BlockJacobi_precon;
   else if(Getv("DNSdata_linSolver", "ZIB_GMRES_with_BlockJacobi_precon"))
     linear_solver=ZIB_gmres_wrapper_with_BlockJacobi_precon;
   else if(Getv("DNSdata_linSolver", "ZIB_GBIT_with_BlockJacobi_precon"))
