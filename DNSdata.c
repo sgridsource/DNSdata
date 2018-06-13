@@ -2450,6 +2450,8 @@ int DNSdata_solve(tGrid *grid)
     linear_solver=bicgstab;
   else if(Getv("DNSdata_linSolver", "bicgstab_with_fd_UMFPACK_precon"))
     linear_solver=bicgstab_with_fd_UMFPACK_precon;
+  else if(Getv("DNSdata_linSolver", "bicgstab_with_BlockJacobi_precon"))
+    linear_solver=bicgstab_with_BlockJacobi_precon;
   else if(Getv("DNSdata_linSolver", "LAPACK"))
     linear_solver=LAPACK_dgesv_wrapper;
   else if(Getv("DNSdata_linSolver", "SOR_Iterator"))
