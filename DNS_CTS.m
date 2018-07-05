@@ -521,7 +521,7 @@ FlSigma == rho0 delta[b,c] ddlSigma[b,c] +
                      hf uzero Psi4 (beta[c] ldrhofPLUSrhofdLnalphaPsi6uz[c]),
 
         Cinstruction == "} else if(LaplaceSigmaOutside) {", (* Lapl. Sigma *)
-          FSigma == delta[b,c] ddlSigma[b,c],
+          FlSigma == delta[b,c] ddlSigma[b,c],
         Cinstruction == "} else {", (* continous Sigma *)
           FlSigma == dddlSigmadlam3 + 2 ddlSigmadlam2 + dlSigmadlam,
         Cinstruction == "} /* end Outside cases */",

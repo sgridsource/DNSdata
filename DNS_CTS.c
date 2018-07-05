@@ -2995,7 +2995,7 @@ dlSigmaUp1*drhofPLUSrhofdLnalphaPsi21 +
 
 } else if(LaplaceSigmaOutside) { 
 
-FSigma[ijk]
+FlSigma[ijk]
 =
 ddlSigma11[ijk] + ddlSigma22[ijk] + ddlSigma33[ijk]
 ;
