@@ -200,34 +200,36 @@ tocompute = {
       Cinstruction == "} else if(MATTRtouch) {", (* touches star surface *)
 
         Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
-          (* use h=1, rho0 = -lam as fake matter *)
-          hf == 1,       (* fake h *)
-          Cif == FakeT0,
-            rhof == -lam,  (* fake rho0=-lam *)
-            drhof[a] == -dlam[a],
-          Cif == else,
-            rhof == -1,    (* fake rho0=-1 *)
-            drhof[a] == 0,
-          Cif == end,
-          (* same terms as above but with dLnh = 0 *)
-          dLnalphaPsi2[a] == dLnalphaP[a] + dLnPsi[a],
-          dLnalpha[a]     == dLnalphaP[a] - dLnPsi[a],
-          dLnalphaPsi6uz[a] == dLnalphaP[a] + 5 dLnPsi[a] + duzero[a]/uzero,
-          drhofPLUSrhofdLnalphaPsi2[a] == drhof[a] + rhof dLnalphaPsi2[a],
-          drhofPLUSrhofdLnalpha[a]     == drhof[a] + rhof dLnalpha[a],
-          drhofPLUSrhofdLnalphaPsi6uz[a] == drhof[a] + rhof dLnalphaPsi6uz[a],
-          (* FSigma with fake matter *)
-          FSigma == rhof delta[b,c] ddSigma[b,c] + 
-                    dSigmaUp[c] drhofPLUSrhofdLnalphaPsi2[c] +
-                    Psim2 (wB[c] drhofPLUSrhofdLnalpha[c] + rhof divwB) -
-                    hf uzero Psi4 (rhof divbeta +
-                                beta[c] drhofPLUSrhofdLnalphaPsi6uz[c]),
+          Cinstruction == "if(LapSig) {",  (* Laplace Sigma *)
+            FSigma == delta[b,c] ddSigma[b,c],
+          Cinstruction == "} else {",
+            (* use h=1, rho0 = -lam as fake matter *)
+            hf == 1,       (* fake h *)
+            Cif == FakeT0,
+              rhof == -lam,  (* fake rho0=-lam *)
+              drhof[a] == -dlam[a],
+            Cif == else,
+              rhof == -1,    (* fake rho0=-1 *)
+              drhof[a] == 0,
+            Cif == end,
+            (* same terms as above but with dLnh = 0 *)
+            dLnalphaPsi2[a] == dLnalphaP[a] + dLnPsi[a],
+            dLnalpha[a]     == dLnalphaP[a] - dLnPsi[a],
+            dLnalphaPsi6uz[a] == dLnalphaP[a] + 5 dLnPsi[a] + duzero[a]/uzero,
+            drhofPLUSrhofdLnalphaPsi2[a] == drhof[a] + rhof dLnalphaPsi2[a],
+            drhofPLUSrhofdLnalpha[a]     == drhof[a] + rhof dLnalpha[a],
+            drhofPLUSrhofdLnalphaPsi6uz[a] == drhof[a] + rhof dLnalphaPsi6uz[a],
+            (* FSigma with fake matter *)
+            FSigma == rhof delta[b,c] ddSigma[b,c] + 
+                      dSigmaUp[c] drhofPLUSrhofdLnalphaPsi2[c] +
+                      Psim2 (wB[c] drhofPLUSrhofdLnalpha[c] + rhof divwB) -
+                      hf uzero Psi4 (rhof divbeta +
+                                  beta[c] drhofPLUSrhofdLnalphaPsi6uz[c]),
 
-        Cinstruction == "} else if(LaplaceSigmaOutside) {", (* Lapl. Sigma *)
-          FSigma == delta[b,c] ddSigma[b,c],
+          Cinstruction == "}",
         Cinstruction == "} else {", (* continous Sigma *)
           FSigma == dddSigmadlam3 + 2 ddSigmadlam2 + dSigmadlam,
-        Cinstruction == "} /* end Outside cases */",
+        Cinstruction == "} /* end !FakeMatterOutside */",
 
       Cinstruction == "} else {",   (* away from star surface *)
         FSigma  == Sigma,           (* set Sigma to zero *)
@@ -478,53 +480,56 @@ FlSigma == rho0 delta[b,c] ddlSigma[b,c] +
 *)
       Cinstruction == "} else if(MATTRtouch) {", (* touches star surface *)
         Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
-          (* use h=1, rho0 = -lam as fake matter *)
-          hf == 1,       (* fake h *)
-          Cif == FakeT0,
-            rhof == -lam,  (* fake rho0=-lam *)
-            drhof[a] == -dlam[a],
-          Cif == else,
-            rhof == -1,    (* fake rho0=-1 *)
-            drhof[a] == 0,
-          Cif == end,
-          (* same terms as above but with dLnh = 0 *)
-          dLnalphaPsi2[a] == dLnalphaP[a] + dLnPsi[a],
-          dLnalpha[a]     == dLnalphaP[a] - dLnPsi[a],
-          dLnalphaPsi6uz[a] == dLnalphaP[a] + 5 dLnPsi[a] + duzero[a]/uzero,
-          drhofPLUSrhofdLnalphaPsi2[a] == drhof[a] + rhof dLnalphaPsi2[a],
-          drhofPLUSrhofdLnalpha[a]     == drhof[a] + rhof dLnalpha[a],
-          drhofPLUSrhofdLnalphaPsi6uz[a] == drhof[a] + rhof dLnalphaPsi6uz[a],
-          (* same terms as above but with lrho0=0, ldrho0=0, lh=0, ldLnh=0 *)
-          lLnuzero == luzero/uzero,
-          dLnuzero[a] == duzerosqr[a]/(2 uzerosqr),
-          lduzero[a] == lduzerosqr[a]/(2 uzero) -
-                        luzerosqr duzerosqr[a] / (4 uzero uzerosqr),
-          ldLnuzero[a] == lduzero[a]/(uzero) - (lLnuzero) dLnuzero[a],
-          lhfuzeroPsi4 == hf luzero Psi4 + 4 hf uzero Psi3 lPsi, 
-          ldLnalphaPsi2[a] == ldLnalphaP[a] + ldLnPsi[a],
-          ldLnalpha[a]     == ldLnalphaP[a] - ldLnPsi[a],
-          ldLnalphaPsi6uz[a] == ldLnalphaP[a] + ldLnuzero[a] + 5 ldLnPsi[a],
-          ldrhofPLUSrhofdLnalphaPsi2[a] == rhof ldLnalphaPsi2[a],
-          ldrhofPLUSrhofdLnalpha[a]   == rhof ldLnalpha[a],
-          ldrhofPLUSrhofdLnalphaPsi6uz[a] == rhof ldLnalphaPsi6uz[a],
-          (* BC *)
-          FlSigma == rhof delta[b,c] ddlSigma[b,c] + 
-                     dlSigmaUp[c] drhofPLUSrhofdLnalphaPsi2[c] +
-                     Psim2 (lwB[c] drhofPLUSrhofdLnalpha[c] + rhof divlwB) -
-                     hf uzero Psi4 (rhof divlbeta +
-                                    lB[c] drhofPLUSrhofdLnalphaPsi6uz[c]) +
-                     dSigmaUp[c] ldrhofPLUSrhofdLnalphaPsi2[c] +
-                     Psim2 (wB[c] ldrhofPLUSrhofdLnalpha[c]) -
-                     2 Psim3 lPsi (wB[c] drhofPLUSrhofdLnalpha[c] + rhof divwB) -
-                     lhfuzeroPsi4 (rhof divbeta +
-                                   beta[c] drhofPLUSrhofdLnalphaPsi6uz[c]) -
-                     hf uzero Psi4 (beta[c] ldrhofPLUSrhofdLnalphaPsi6uz[c]),
+          Cinstruction == "if(LapSig) {",  (* Laplace Sigma *)
+            FlSigma == delta[b,c] ddlSigma[b,c],
+          Cinstruction == "} else {",
+            (* use h=1, rho0 = -lam as fake matter *)
+            hf == 1,       (* fake h *)
+            Cif == FakeT0,
+              rhof == -lam,  (* fake rho0=-lam *)
+              drhof[a] == -dlam[a],
+            Cif == else,
+              rhof == -1,    (* fake rho0=-1 *)
+              drhof[a] == 0,
+            Cif == end,
+            (* same terms as above but with dLnh = 0 *)
+            dLnalphaPsi2[a] == dLnalphaP[a] + dLnPsi[a],
+            dLnalpha[a]     == dLnalphaP[a] - dLnPsi[a],
+            dLnalphaPsi6uz[a] == dLnalphaP[a] + 5 dLnPsi[a] + duzero[a]/uzero,
+            drhofPLUSrhofdLnalphaPsi2[a] == drhof[a] + rhof dLnalphaPsi2[a],
+            drhofPLUSrhofdLnalpha[a]     == drhof[a] + rhof dLnalpha[a],
+            drhofPLUSrhofdLnalphaPsi6uz[a] == drhof[a] + rhof dLnalphaPsi6uz[a],
+            (* same terms as above but with lrho0=0, ldrho0=0, lh=0, ldLnh=0 *)
+            lLnuzero == luzero/uzero,
+            dLnuzero[a] == duzerosqr[a]/(2 uzerosqr),
+            lduzero[a] == lduzerosqr[a]/(2 uzero) -
+                          luzerosqr duzerosqr[a] / (4 uzero uzerosqr),
+            ldLnuzero[a] == lduzero[a]/(uzero) - (lLnuzero) dLnuzero[a],
+            lhfuzeroPsi4 == hf luzero Psi4 + 4 hf uzero Psi3 lPsi, 
+            ldLnalphaPsi2[a] == ldLnalphaP[a] + ldLnPsi[a],
+            ldLnalpha[a]     == ldLnalphaP[a] - ldLnPsi[a],
+            ldLnalphaPsi6uz[a] == ldLnalphaP[a] + ldLnuzero[a] + 5 ldLnPsi[a],
+            ldrhofPLUSrhofdLnalphaPsi2[a] == rhof ldLnalphaPsi2[a],
+            ldrhofPLUSrhofdLnalpha[a]   == rhof ldLnalpha[a],
+            ldrhofPLUSrhofdLnalphaPsi6uz[a] == rhof ldLnalphaPsi6uz[a],
+            (* BC *)
+            FlSigma == rhof delta[b,c] ddlSigma[b,c] + 
+                       dlSigmaUp[c] drhofPLUSrhofdLnalphaPsi2[c] +
+                       Psim2 (lwB[c] drhofPLUSrhofdLnalpha[c] + rhof divlwB) -
+                       hf uzero Psi4 (rhof divlbeta +
+                                      lB[c] drhofPLUSrhofdLnalphaPsi6uz[c]) +
+                       dSigmaUp[c] ldrhofPLUSrhofdLnalphaPsi2[c] +
+                       Psim2 (wB[c] ldrhofPLUSrhofdLnalpha[c]) -
+                       2 Psim3 lPsi (wB[c] drhofPLUSrhofdLnalpha[c] + rhof divwB) -
+                       lhfuzeroPsi4 (rhof divbeta +
+                                     beta[c] drhofPLUSrhofdLnalphaPsi6uz[c]) -
+                       hf uzero Psi4 (beta[c] ldrhofPLUSrhofdLnalphaPsi6uz[c]),
 
-        Cinstruction == "} else if(LaplaceSigmaOutside) {", (* Lapl. Sigma *)
-          FlSigma == delta[b,c] ddlSigma[b,c],
+          Cinstruction == "}",
         Cinstruction == "} else {", (* continous Sigma *)
           FlSigma == dddlSigmadlam3 + 2 ddlSigmadlam2 + dlSigmadlam,
-        Cinstruction == "} /* end Outside cases */",
+        Cinstruction == "} /* end !FakeMatterOutside */",
+
       Cinstruction == "} else {", (* away from star surface *)
         FlSigma  == lSigma,       (* set lSigma to zero *)
       Cinstruction == "}",
@@ -611,8 +616,8 @@ BeginCFunction[] := Module[{},
   pr["double omegay2 = Getd(\"DNSdata_omegay2\");\n"];
   pr["double omegaz2 = Getd(\"DNSdata_omegaz2\");\n"];
   pr["int FakeMatterOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"FakeMatterOutside\");\n"];
-  pr["int LaplaceSigmaOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"LaplaceSigmaOutside\");\n"];
   pr["int FakeT0 = Getv(\"DNSdata_FakeMatterType\",\"rhoEQ-lam\");\n"];
+  pr["int LapSig = Getv(\"DNSdata_FakeMatterType\",\"LaplaceSigmaOutside\");\n"];
   pr["\n"];
 
   pr["tGrid *grid = vlu->grid;\n"];

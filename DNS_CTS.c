@@ -37,8 +37,8 @@ double omegax2 = Getd("DNSdata_omegax2");
 double omegay2 = Getd("DNSdata_omegay2");
 double omegaz2 = Getd("DNSdata_omegaz2");
 int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
-int LaplaceSigmaOutside = Getv("DNSdata_Sigma_surface_BCs","LaplaceSigmaOutside");
 int FakeT0 = Getv("DNSdata_FakeMatterType","rhoEQ-lam");
+int LapSig = Getv("DNSdata_FakeMatterType","LaplaceSigmaOutside");
 
 tGrid *grid = vlu->grid;
 int bi;
@@ -1538,6 +1538,17 @@ drho0PLUSrho0dLnalphaPsi2oh1*dSigmaUp1 +
 
 if(FakeMatterOutside) { 
 
+
+if(LapSig) { 
+
+FSigma[ijk]
+=
+ddSigma11[ijk] + ddSigma22[ijk] + ddSigma33[ijk]
+;
+
+
+} else { 
+
 hf
 =
 1.
@@ -1700,12 +1711,7 @@ drhofPLUSrhofdLnalphaPsi21*dSigmaUp1 +
 ;
 
 
-} else if(LaplaceSigmaOutside) { 
-
-FSigma[ijk]
-=
-ddSigma11[ijk] + ddSigma22[ijk] + ddSigma33[ijk]
-;
+} 
 
 
 } else { 
@@ -1716,7 +1722,7 @@ dddSigmadlam3[ijk] + 2.*ddSigmadlam2[ijk] + dSigmadlam[ijk]
 ;
 
 
-} /* end Outside cases */ 
+} /* end !FakeMatterOutside */ 
 
 
 } else { 
@@ -2672,6 +2678,17 @@ dlSigmaUp1*drho0PLUSrho0dLnalphaPsi2oh1 +
 
 if(FakeMatterOutside) { 
 
+
+if(LapSig) { 
+
+FlSigma[ijk]
+=
+ddlSigma11[ijk] + ddlSigma22[ijk] + ddlSigma33[ijk]
+;
+
+
+} else { 
+
 hf
 =
 1.
@@ -2993,12 +3010,7 @@ dlSigmaUp1*drhofPLUSrhofdLnalphaPsi21 +
 ;
 
 
-} else if(LaplaceSigmaOutside) { 
-
-FlSigma[ijk]
-=
-ddlSigma11[ijk] + ddlSigma22[ijk] + ddlSigma33[ijk]
-;
+} 
 
 
 } else { 
@@ -3009,7 +3021,7 @@ dddlSigmadlam3[ijk] + 2.*ddlSigmadlam2[ijk] + dlSigmadlam[ijk]
 ;
 
 
-} /* end Outside cases */ 
+} /* end !FakeMatterOutside */ 
 
 
 } else { 
