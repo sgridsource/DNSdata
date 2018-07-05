@@ -199,7 +199,7 @@ tocompute = {
                                 beta[c] drho0PLUSrho0dLnalphaPsi6uz[c]),
       Cinstruction == "} else if(MATTRtouch) {", (* touches star surface *)
 
-	Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
+        Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
           (* use h=1, rho0 = -lam as fake matter *)
           hf == 1,       (* fake h *)
           Cif == FakeT0,
@@ -223,9 +223,11 @@ tocompute = {
                     hf uzero Psi4 (rhof divbeta +
                                 beta[c] drhofPLUSrhofdLnalphaPsi6uz[c]),
 
-	Cinstruction == "} else {", (* continous Sigma *)
+        Cinstruction == "} else if(LaplaceSigmaOutside) {", (* Lapl. Sigma *)
+          FSigma == delta[b,c] ddSigma[b,c],
+        Cinstruction == "} else {", (* continous Sigma *)
           FSigma == dddSigmadlam3 + 2 ddSigmadlam2 + dSigmadlam,
-        Cinstruction == "} /* end !FakeMatterOutside */",
+        Cinstruction == "} /* end Outside cases */",
 
       Cinstruction == "} else {",   (* away from star surface *)
         FSigma  == Sigma,           (* set Sigma to zero *)
@@ -475,7 +477,7 @@ FlSigma == rho0 delta[b,c] ddlSigma[b,c] +
            h uzero Psi4 beta[c] (ldLnuzero[c]),
 *)
       Cinstruction == "} else if(MATTRtouch) {", (* touches star surface *)
-	Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
+        Cinstruction == "if(FakeMatterOutside) {", (* use fake matter *)
           (* use h=1, rho0 = -lam as fake matter *)
           hf == 1,       (* fake h *)
           Cif == FakeT0,
@@ -517,9 +519,12 @@ FlSigma == rho0 delta[b,c] ddlSigma[b,c] +
                      lhfuzeroPsi4 (rhof divbeta +
                                    beta[c] drhofPLUSrhofdLnalphaPsi6uz[c]) -
                      hf uzero Psi4 (beta[c] ldrhofPLUSrhofdLnalphaPsi6uz[c]),
-	Cinstruction == "} else {", (* continous Sigma *)
+
+        Cinstruction == "} else if(LaplaceSigmaOutside) {", (* Lapl. Sigma *)
+          FSigma == delta[b,c] ddlSigma[b,c],
+        Cinstruction == "} else {", (* continous Sigma *)
           FlSigma == dddlSigmadlam3 + 2 ddlSigmadlam2 + dlSigmadlam,
-        Cinstruction == "} /* end !FakeMatterOutside */",
+        Cinstruction == "} /* end Outside cases */",
       Cinstruction == "} else {", (* away from star surface *)
         FlSigma  == lSigma,       (* set lSigma to zero *)
       Cinstruction == "}",
@@ -606,6 +611,7 @@ BeginCFunction[] := Module[{},
   pr["double omegay2 = Getd(\"DNSdata_omegay2\");\n"];
   pr["double omegaz2 = Getd(\"DNSdata_omegaz2\");\n"];
   pr["int FakeMatterOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"FakeMatterOutside\");\n"];
+  pr["int LaplaceSigmaOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"LaplaceSigmaOutside\");\n"];
   pr["int FakeT0 = Getv(\"DNSdata_FakeMatterType\",\"rhoEQ-lam\");\n"];
   pr["\n"];
 

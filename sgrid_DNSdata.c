@@ -167,7 +167,7 @@ int sgrid_DNSdata()
   }
   AddPar("DNSdata_Sigma_surface_BCs", "FakeMatterOutside",
          "BCs for Sigma on star surfaces "
-         "[FakeMatterOutside,OutputSurfaceBCres,EllEqn,"
+         "[FakeMatterOutside,OutputSurfaceBCres,LaplaceSigmaOutside,EllEqn,"
          "AddInnerVolIntToBC,AddInnerSumToBC,InnerVolIntZero,InnerSumZero,"
          "ZeroAtPoint,none,ZeroInOuterBoxes]");
   AddPar("DNSdata_FakeMatterType", "rhoEQ-1", "[rhoEQ-lam,rhoEQ-1]");
