@@ -7,7 +7,7 @@
 (* variables *)
 variables = {Psi, B[a], alphaP, Sigma, dB[a,b], dSigma[a],
 	     psi, g[a,b], alpha, beta[a], K[a,b], rho, jdo[a], Sdo[a,b],
-             q, wB[a], VR[a], x, y, z}
+             q, wB[a], VR[a], x, y, z, rhobar}
 
 constvariables = {OmegaCrossR[a], xrdotor[a], omegMOmeg[a], xMxmax[a]}
 
@@ -156,6 +156,9 @@ tocompute = {
     beta[a] == B[a] + OmegaCrossR[a] + xrdotor[a],
   Cif == end,
 
+  (* set rescaled rhobar *)
+  rhobar == rho Psi4 Psi4,
+
   Cinstruction == "} /* end of points loop */\n"
 }
 
@@ -251,6 +254,7 @@ variabledeclarations[] := Module[{},
   prdecvarname[{q},       "DNSdata_q"];
   prdecvarname[{wB[a]},   "DNSdata_wBx"];
   prdecvarname[{VR[a]},   "DNSdata_VRx"];
+  prdecvarname[{rhobar},  "DNSdata_rhobar"];
 
   prdecvarname[{dB[a,b]}, 	"DNSdata_Bxx"];
   prdecvarname[{dSigma[a]},     "DNSdata_Sigmax"];

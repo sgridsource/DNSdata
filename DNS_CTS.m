@@ -14,7 +14,7 @@ variables = {Psi, B[a], alphaP, Sigma, FPsi, FB[a], FalphaP ,FSigma,
 	     g[a,b], alpha, beta[a], K[a,b], 
              q, wB[a], dq[a], dwB[a,b], VR[a], x, y, z, lam,dlam[a],
              dSigmadlam,dlSigmadlam, ddSigmadlam2,ddlSigmadlam2,
-             dddSigmadlam3,dddlSigmadlam3, CoordFac}
+             dddSigmadlam3,dddlSigmadlam3, rhobar, CoordFac}
 
 constvariables = {OmegaCrossR[a], xrdotor[a], omegMOmeg[a], xMxmax[a]}
 
@@ -56,6 +56,10 @@ tocompute = {
   Psi3   == Psi*Psi2,
   Psi4   == Psi2*Psi2,
   Psi5   == Psi*Psi4,
+  Psim1  == 1/Psi,
+  Psim2  == Psim1*Psim1,
+  Psim3  == Psim2*Psim1,
+  Psim4  == Psim2*Psim2,
 
   (* rest mass density rho0, pressure P, and total energy density rhoE *)
   Cinstruction == "DNS_polytrope_EoS_of_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1);",
@@ -88,10 +92,6 @@ tocompute = {
   (* general case *)
   (****************)
   Cif == else,
-    Psim1 == 1/Psi,
-    Psim2 == Psim1*Psim1,
-    Psim3 == Psim2*Psim1,
-    Psim4 == Psim2*Psim2,
     Psim8 == Psim4*Psim4,
     Psim6 == Psi2*Psim8,
     Psim5 == Psim6*Psi,
@@ -168,7 +168,8 @@ tocompute = {
 
     (* equations for Psi, B[a], alphaP, Sigma *)
     FPsi    == delta[b,c] ddPsi[b,c] + Psi5 LBLB/(32 alpha2) +
-               2Pi Psi5 rho, 
+               2Pi ( Psi5  rho    (1 - CTSmod) +
+                     Psim3 rhobar (CTSmod) ), 
     FB[a]   == vecLapB[a] - LB[a,b] dLnalphaPsim6[b] -
                16Pi alpha Psi4 j[a],
     FalphaP == delta[b,c] ddalphaP[b,c] - alphaP (
@@ -364,7 +365,8 @@ tocompute = {
     FlPsi    == delta[b,c] ddlPsi[b,c] + 7 Psi6 lPsi LBLB/(32 alphaP2) -
                 (Psi7 LBLB/(16 alphaP3)) lalphaP + 
                 (Psi5/(32 alpha2)) 2 LBdo[a,b] LlB[a,b] +
-                2Pi 5 Psi4 lPsi rho + 2Pi Psi5 lrho, 
+                2Pi ( ( 5 Psi4  lPsi rho + Psi5 lrho ) (1 - CTSmod) +
+                      (-3 Psim4 lPsi rhobar) (CTSmod) ),
     FlB[a]   == vecLaplB[a] - LlB[a,b] dLnalphaPsim6[b] - 
                 LB[a,b] ldLnalphaPsim6[b] - 16Pi lalphaP Psi3 j[a] -
                 16Pi alphaP 3 Psi2 lPsi j[a] - 16Pi alpha Psi4 lj[a],
@@ -615,6 +617,7 @@ BeginCFunction[] := Module[{},
   pr["double omegax2 = Getd(\"DNSdata_omegax2\");\n"];
   pr["double omegay2 = Getd(\"DNSdata_omegay2\");\n"];
   pr["double omegaz2 = Getd(\"DNSdata_omegaz2\");\n"];
+  pr["double CTSmod = Getv(\"DNSdata_CTSmod\",\"yes\");\n"];
   pr["int FakeMatterOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"FakeMatterOutside\");\n"];
   pr["int FakeT0 = Getv(\"DNSdata_FakeMatterType\",\"rhoEQ-lam\");\n"];
   pr["int LapSig = Getv(\"DNSdata_FakeMatterType\",\"LaplaceSigmaOutside\");\n"];
@@ -683,6 +686,7 @@ variabledeclarations[] := Module[{},
   prdecvarname[{dlSigmadlam},    "DNSdata_lSigmaX"];
   prdecvarname[{ddlSigmadlam2},  "DNSdata_lSigmaXX"];
   prdecvarname[{dddlSigmadlam3}, "DNSdata_lSigmaXXX"];
+  prdecvarname[{rhobar},         "DNSdata_rhobar"];
 
   prdecvarname[{CoordFac},     "DNSdata_CoordFac"];
 

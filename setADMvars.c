@@ -1,5 +1,5 @@
 /* setADMvars.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 10.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 1.9.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -66,6 +66,8 @@ int index_DNSdata_VRx = Ind("DNSdata_VRx");
 double *VR1 = box->v[index_DNSdata_VRx + 0];
 double *VR2 = box->v[index_DNSdata_VRx + 1];
 double *VR3 = box->v[index_DNSdata_VRx + 2];
+int index_DNSdata_rhobar = Ind("DNSdata_rhobar");
+double *rhobar = box->v[index_DNSdata_rhobar + 0];
 int index_DNSdata_Bxx = Ind("DNSdata_Bxx");
 double *dB11 = box->v[index_DNSdata_Bxx + 0];
 double *dB12 = box->v[index_DNSdata_Bxx + 1];
@@ -191,11 +193,11 @@ double xrdotor3;
 
 
 
-FirstDerivsOf_Sa(box, Ind("DNSdata_Bx"),  
-					 Ind("DNSdata_Bxx"));
+FirstDerivsOf_Sa(box, Ind("DNSdata_Bx"),       Ind("DNSdata_Bxx")); 
 
-FirstDerivsOf_S(box, Ind("DNSdata_Sigma"), 
-					Ind("DNSdata_Sigmax"));
+
+FirstDerivsOf_S(box, Ind("DNSdata_Sigma"),     Ind("DNSdata_Sigmax")); 
+
 
 VwApprox = corot = 0; 
 
@@ -851,6 +853,11 @@ OmegaCrossR3 + xrdotor3 + B3[ijk]
 /* if (shiftver1) */
 
 
+rhobar[ijk]
+=
+rho[ijk]*pow2(Psi4)
+;
+
 
 } /* end of points loop */ 
 
@@ -860,4 +867,4 @@ OmegaCrossR3 + xrdotor3 + B3[ijk]
 }  /* end of function */
 
 /* setADMvars.c */
-/* nvars = 55, n* = 216,  n/ = 61,  n+ = 231, n = 508, O = 1 */
+/* nvars = 56, n* = 218,  n/ = 61,  n+ = 233, n = 512, O = 1 */

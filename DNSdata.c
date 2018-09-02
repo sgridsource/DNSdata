@@ -344,6 +344,7 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("DNSdata_lSigmaX"));
   enablevar(grid, Ind("DNSdata_lSigmaXX"));
   enablevar(grid, Ind("DNSdata_lSigmaXXX"));
+  enablevar(grid, Ind("DNSdata_rhobar"));
   enablevar(grid, Ind("DNSdata_wBx"));
   enablevar(grid, Ind("DNSdata_q"));
   enablevar(grid, Ind("DNSdata_qg"));
@@ -3656,6 +3657,7 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
       /* call Newton solver for Psi */
       prdivider(1);
       printf("Solving elliptic Eqn for %s:\n", word);
+      if(Getv("DNSdata_CTSmod","yes")) setADMvars(grid); /* sets rhobar */
       Newton_ret = 
       Newton(F_oneComp, J_oneComp, vlw, vlFw, vlwDerivs, NULL,
              Newton_itmax, Newton_tol, &normresnonlin, prN,

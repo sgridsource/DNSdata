@@ -40,6 +40,7 @@ int sgrid_DNSdata()
   AddVar("DNSdata_lSigmaX",   "",     "1st A-deriv of Sigma");
   AddVar("DNSdata_lSigmaXX",  "",     "2nd A-deriv of linearized Sigma");
   AddVar("DNSdata_lSigmaXXX", "",     "3rd A-deriv of linearized Sigma");
+  AddVar("DNSdata_rhobar",    "",   "rhobar := rho Psi^8");
 
   AddVar("DNSdata_VR",  "I", "velocity in rotating frame: "
                              "V^i = u^i/u^0 - xi^i,  xi^i = KV");
@@ -154,6 +155,9 @@ int sgrid_DNSdata()
          "[needs to be adjusted so that m01 stays the constant]");
   AddPar("DNSdata_C2",    "-1", "C2 in q = (C2/F-1)/(n+1) "
          "[needs to be adjusted so that m02 stays the constant]");
+  AddPar("DNSdata_CTSmod", "no", "whether we modify some CTS eqns (e.g. Psi "
+         "eqn) such that we get a unique lin. Soln. [no,yes]. This works"
+         "only with DNS_ordered_Eqn_Iterator.");
   AddPar("DNSdata_guess", "TOV", "init. guess for Psi, alphaP and "
          "q [initialize_from_checkpoint,TOV,TOVaverage,TOVproduct] "
          "for shift [TaniguchiShift]");

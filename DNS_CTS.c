@@ -1,5 +1,5 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 5.7.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 1.9.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -36,6 +36,7 @@ double omegaz1 = Getd("DNSdata_omegaz1");
 double omegax2 = Getd("DNSdata_omegax2");
 double omegay2 = Getd("DNSdata_omegay2");
 double omegaz2 = Getd("DNSdata_omegaz2");
+double CTSmod = Getv("DNSdata_CTSmod","yes");
 int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
 int FakeT0 = Getv("DNSdata_FakeMatterType","rhoEQ-lam");
 int LapSig = Getv("DNSdata_FakeMatterType","LaplaceSigmaOutside");
@@ -317,6 +318,8 @@ int index_DNSdata_lSigmaXX = Ind("DNSdata_lSigmaXX");
 double *ddlSigmadlam2 = box->v[index_DNSdata_lSigmaXX + 0];
 int index_DNSdata_lSigmaXXX = Ind("DNSdata_lSigmaXXX");
 double *dddlSigmadlam3 = box->v[index_DNSdata_lSigmaXXX + 0];
+int index_DNSdata_rhobar = Ind("DNSdata_rhobar");
+double *rhobar = box->v[index_DNSdata_rhobar + 0];
 int index_DNSdata_CoordFac = Ind("DNSdata_CoordFac");
 double *CoordFac = box->v[index_DNSdata_CoordFac + 0];
 
@@ -835,6 +838,26 @@ Psi5
 Psi4*Psi[ijk]
 ;
 
+Psim1
+=
+1/Psi[ijk]
+;
+
+Psim2
+=
+pow2(Psim1)
+;
+
+Psim3
+=
+Psim1*Psim2
+;
+
+Psim4
+=
+pow2(Psim2)
+;
+
 
 DNS_polytrope_EoS_of_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1); 
 
@@ -914,26 +937,6 @@ uzerosqr
 
 
 } else { /* if (!VwApprox) */
-
-Psim1
-=
-1/Psi[ijk]
-;
-
-Psim2
-=
-pow2(Psim1)
-;
-
-Psim3
-=
-Psim1*Psim2
-;
-
-Psim4
-=
-pow2(Psim2)
-;
 
 Psim8
 =
@@ -1474,8 +1477,9 @@ vecLapB3
 
 FPsi[ijk]
 =
-Psi5*((0.03125*LBLB)/alpha2 + 6.283185307179586477*rho) + ddPsi11[ijk] + 
-  ddPsi22[ijk] + ddPsi33[ijk]
+Psi5*((0.03125*LBLB)/alpha2 + 3.1415926535897932385*(2. - 2.*CTSmod)*rho) + 
+  ddPsi11[ijk] + ddPsi22[ijk] + ddPsi33[ijk] + 
+  6.283185307179586477*CTSmod*Psim3*rhobar[ijk]
 ;
 
 FB1[ijk]
@@ -2435,10 +2439,12 @@ FlPsi[ijk]
 ((0.0625*(LBdo11*LlB11 + (LBdo12 + LBdo21)*LlB12 + 
           (LBdo13 + LBdo31)*LlB13 + LBdo22*LlB22 + 
           (LBdo23 + LBdo32)*LlB23 + LBdo33*LlB33))/alpha2 + 
-     6.283185307179586477*lrho)*Psi5 + ddlPsi11[ijk] + ddlPsi22[ijk] + 
-  ddlPsi33[ijk] + 31.415926535897932385*Psi4*rho*lPsi[ijk] + 
+     3.1415926535897932385*(2. - 2.*CTSmod)*lrho)*Psi5 + ddlPsi11[ijk] + 
+  ddlPsi22[ijk] + ddlPsi33[ijk] + 
   LBLB*((-0.0625*Psi7*lalphaP[ijk])/alphaP3 + 
-     (0.21875*Psi6*lPsi[ijk])/alphaP2)
+     (0.21875*Psi6*lPsi[ijk])/alphaP2) + 
+  3.1415926535897932385*lPsi[ijk]*
+   ((10. - 10.*CTSmod)*Psi4*rho - 6.*CTSmod*Psim4*rhobar[ijk])
 ;
 
 FlB1[ijk]
@@ -3081,4 +3087,4 @@ CoordFac[ijk]*FlSigma[ijk]
 }  /* end of function */
 
 /* DNS_CTS.c */
-/* nvars = 181, n* = 1454,  n/ = 219,  n+ = 1188, n = 2861, O = 1 */
+/* nvars = 182, n* = 1467,  n/ = 219,  n+ = 1195, n = 2881, O = 1 */
