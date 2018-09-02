@@ -3621,6 +3621,9 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
   int prN=pr;
   char *word;
 
+  /* make sure that rhobar is initialized */
+  setADMvars(grid);
+
   if(pr)
   { 
     printf("DNS_Eqn_Iterator_for_vars_in_string:\n"); 
@@ -3651,22 +3654,38 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
     pos=0;
     while( (pos=sscan_word_at_p(str, pos, word)) != EOF)
     {
+      int iter;
+
       /* make new vlw, ... for var in string word */
       make_vl_vlDeriv_vlF_vld_vldDerivs_vlJd_forComponent(grid,
                &vlw,&vlwDerivs,&vlFw,  &vldw,&vldwDerivs,&vlJdw,  word);
       /* call Newton solver for Psi */
       prdivider(1);
       printf("Solving elliptic Eqn for %s:\n", word);
-      if(Getv("DNSdata_CTSmod","yes")) setADMvars(grid); /* sets rhobar */
-      Newton_ret = 
-      Newton(F_oneComp, J_oneComp, vlw, vlFw, vlwDerivs, NULL,
-             Newton_itmax, Newton_tol, &normresnonlin, prN,
-             linear_solver, Preconditioner_I, vldw, vlJdw, vldwDerivs, vlw,
-             linSolver_itmax, linSolver_tolFac, linSolver_tol);
+      /* call Newton several times in case we iterate */
+      //for(iter=1; iter<=Newton_itmax; iter++)
+      //If we solve for Psi with CTSmod, we need to iterate and always update
+      //rhobar after each Newton solve. However, this iteration does not seem
+      //to converge for m0=2.2 ... So for now we do only 1 iteration, i.e. we
+      //don't actually iterate.
+      for(iter=1; iter<=1; iter++)
+      {
+        Newton_ret = 
+        Newton(F_oneComp, J_oneComp, vlw, vlFw, vlwDerivs, NULL,
+               Newton_itmax, Newton_tol, &normresnonlin, prN,
+               linear_solver, Preconditioner_I, vldw, vlJdw, vldwDerivs, vlw,
+               linSolver_itmax, linSolver_tolFac, linSolver_tol);
+        if(Getv("DNSdata_CTSmod","yes")) setADMvars(grid); /* sets rhobar */
+
+        /* compute current error, after resetting rhobar */
+        normresnonlin = GridL2Norm_of_vars_in_string(grid, word);
+
+        /* signal error if Newton_ret>Newton_itmax */
+        if(Newton_ret>=Newton_itmax) Newton_err=1;
+        if((normresnonlin<=Newton_tol) || Newton_err) break;
+      }
       free_vl_vlDeriv_vlF_vld_vldDerivs_vlJd(vlw, vlwDerivs, vlFw,  
                                              vldw, vldwDerivs, vlJdw);
-      /* signal error if Newton_ret>Newton_itmax */
-      if(Newton_ret>=Newton_itmax) Newton_err=1;
     }
     free(word);
     /* quit by setting it=itmax if Newton_err=1 */
