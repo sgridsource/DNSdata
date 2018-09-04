@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 22.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 4.9.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -1147,8 +1147,8 @@ if (AddInnerVolIntToBC || InnerVolIntZero) {
 VolAvSigma = 0.0; 
 
 
-if(isVolAvBox) VolAvSigma =                                             
-                         BoxVolumeIntegral(grid->box[bi], index_Sigma);
+if(isVolAvBox) VolAvSigma =                                   
+                         BoxVolumeIntegral(box, index_Sigma);
 }
 /* if (AddInnerVolIntToBC || InnerVolIntZero) */
 
@@ -1177,19 +1177,19 @@ VolAvSigma += Sigma[ijk];
 
 
 /* conditional */
-if (isVolAvBox) {
+if (isSTAR1) {
 
 
 VolAvSigma = VolAvSigma - VolAvSigma1; 
 
 
-} else { /* if (!isVolAvBox) */
+} else { /* if (!isSTAR1) */
 
 
 VolAvSigma = VolAvSigma - VolAvSigma2; 
 
 }
-/* if (isVolAvBox) */
+/* if (isSTAR1) */
 
 
 
@@ -1546,8 +1546,8 @@ if (AddInnerVolIntToBC || InnerVolIntZero) {
 VolAvlSigma = 0.0; 
 
 
-if(isVolAvBox) VolAvlSigma =                              
-          BoxVolumeIntegral(grid->box[bi], index_lSigma);
+if(isVolAvBox) VolAvlSigma =                    
+          BoxVolumeIntegral(box, index_lSigma);
 }
 /* if (AddInnerVolIntToBC || InnerVolIntZero) */
 
@@ -2215,4 +2215,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 602,  n/ = 279,  n+ = 387, n = 1268, O = 1 */
+/* nvars = 124, n* = 602,  n/ = 279,  n+ = 385, n = 1266, O = 1 */
