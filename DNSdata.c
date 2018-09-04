@@ -992,7 +992,7 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
       if (AddInnerVolIntToBC || InnerVolIntZero)
         VolAvSigma = BoxVolumeIntegral(box, index_Sigma);
       else /* otherwise sum */
-        forallpoints(grid->box[3], ijk) VolAvSigma2 += Sigma[ijk];
+        forallpoints(box, ijk) VolAvSigma += Sigma[ijk];
       /* set VolAvSigma1/2 */
       if(box->SIDE==STAR1) VolAvSigma1 = VolAvSigma;
       else                 VolAvSigma2 = VolAvSigma;
