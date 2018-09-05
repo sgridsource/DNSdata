@@ -1495,12 +1495,12 @@ VolAvSigma + FSigma[ijk]
 if(isVolAvBox) { 
 
 
+ijk = Index(n1-1, n2/2, n3/2); 
+
+
 
 /* conditional */
 if (SigmaZeroAtPoint) {
-
-
-ijk=Index(n1-1,0,0); 
 
 FSigma[ijk]
 =
@@ -1515,9 +1515,6 @@ Sigma[ijk]
 
 /* conditional */
 if (InnerVolIntZero || InnerSumZero) {
-
-
-ijk=Index(n1-1,0,0); 
 
 FSigma[ijk]
 =
@@ -2065,12 +2062,12 @@ VolAvlSigma + FlSigma[ijk]
 if(isVolAvBox) { 
 
 
+ijk = Index(n1-1, n2/2, n3/2); 
+
+
 
 /* conditional */
 if (SigmaZeroAtPoint) {
-
-
-ijk=Index(n1-1,0,0); 
 
 FlSigma[ijk]
 =
@@ -2085,9 +2082,6 @@ lSigma[ijk]
 
 /* conditional */
 if (InnerVolIntZero || InnerSumZero) {
-
-
-ijk=Index(n1-1,0,0); 
 
 FlSigma[ijk]
 =
@@ -2215,4 +2209,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 602,  n/ = 279,  n+ = 385, n = 1266, O = 1 */
+/* nvars = 124, n* = 602,  n/ = 283,  n+ = 383, n = 1268, O = 1 */

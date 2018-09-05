@@ -335,16 +335,17 @@ tocompute = {
 
       (* impose extra condition in every 6th box *)
       Cinstruction == "if(isVolAvBox) {",
-        (* set Sigma to zero at ijk=Index(n1-1,0,0) *)
+
+        (* impose conditions at this point: *)
+        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+
+        (* set Sigma to zero at ijk *)
         Cif == SigmaZeroAtPoint,
-          Cinstruction == "ijk=Index(n1-1,0,0);",
           FSigma == Sigma,
         Cif == end,
 
-        (* set VolAvSigma to zero,
-           impose it at ijk=Index(n1-1,0,0) in *)
+        (* set VolAvSigma to zero at ijk *)
         Cif == (InnerVolIntZero || InnerSumZero),
-          Cinstruction == "ijk=Index(n1-1,0,0);",
           FSigma == VolAvSigma,
         Cif == end,
       Cinstruction == "} /* end if(isVolAvBox) */",
@@ -472,15 +473,17 @@ tocompute = {
 
       (* impose extra condition in every 6th box *)
       Cinstruction == "if(isVolAvBox) {",
-        (* set Sigma to zero at ijk=Index(n1-1,0,0) *)
+
+        (* impose conditions at this point: *)
+        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+
+        (* set Sigma to zero at ijk *)
         Cif == SigmaZeroAtPoint,
-          Cinstruction == "ijk=Index(n1-1,0,0);",
           FlSigma == lSigma,
         Cif == end,
 
-        (* set VolAvSigma to zero, impose it at ijk=Index(n1-1,0,0) *)
+        (* set VolAvSigma to zero at ijk *)
         Cif == (InnerVolIntZero || InnerSumZero),
-          Cinstruction == "ijk=Index(n1-1,0,0);",
           FlSigma == VolAvlSigma,
         Cif == end,
       Cinstruction == "} /* end if(isVolAvBox) */",
