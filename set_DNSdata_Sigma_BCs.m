@@ -105,7 +105,7 @@ tocompute = {
       Cinstruction == "spec_Deriv1(box, 1, Sigma, dSigmadlam);",
 
       (* set Sigma's equal at star surfaces, impose it at i=1 *)
-      Cinstruction == "forinnerplaneN(1, i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k);",
+      Cinstruction == "forplane1(i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k);",
       Cinstruction == "ind0   = Ind_n1n2(0,j,k,n1,n2);
                        indin  = Ind_n1n2(n1in-1,j,k,n1in,n2in);
                        Sig    = Sigma[ind0];
@@ -120,7 +120,7 @@ tocompute = {
       Cif == else,
         xc == cxmax2,
       Cif == end,
-      Cinstruction == "forinnerplaneN(1, i,j,k, n1,n2,n3, 0){",
+      Cinstruction == "forplane1(i,j,k, n1,n2,n3, 0){",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
       nv1 == x-xc, (* get normal vec n[a] *)
       nv2 == y,
@@ -141,7 +141,7 @@ tocompute = {
       Cif == else,
         xc == cxmax2,
       Cif == end,
-      Cinstruction == "forinnerplaneN(1, i,j,k, n1,n2,n3, 2){",
+      Cinstruction == "forplane1(i,j,k, n1,n2,n3, 2){",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
       nv1 == x-xc, (* get normal vec n[a] *)
       nv2 == y,
@@ -162,7 +162,7 @@ tocompute = {
       Cinstruction == "spec_Deriv1(box, 1, lSigma, dlSigmadlam);",
 
       (* set Sigma's equal at star surfaces, impose it at i=1 *)
-      Cinstruction == "forinnerplaneN(1, i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k);",
+      Cinstruction == "forplane1(i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k);",
       Cinstruction == "ind0   = Ind_n1n2(0,j,k,n1,n2);
                        indin  = Ind_n1n2(n1in-1,j,k,n1in,n2in);
                        lSig   = lSigma[ind0];
@@ -177,7 +177,7 @@ tocompute = {
       Cif == else,
         xc == cxmax2,
       Cif == end,
-      Cinstruction == "forinnerplaneN(1, i,j,k, n1,n2,n3, 0){",
+      Cinstruction == "forplane1(i,j,k, n1,n2,n3, 0){",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
       nv1 == x-xc, (* get normal vec n[a] *)
       nv2 == y,
@@ -198,7 +198,7 @@ tocompute = {
       Cif == else,
         xc == cxmax2,
       Cif == end,
-      Cinstruction == "forinnerplaneN(1, i,j,k, n1,n2,n3, 2){",
+      Cinstruction == "forplane1(i,j,k, n1,n2,n3, 2){",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
       nv1 == x-xc, (* get normal vec n[a] *)
       nv2 == y,
