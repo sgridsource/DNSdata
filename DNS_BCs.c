@@ -122,7 +122,7 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
           int f;
           /* make a list of faces to omit in DNS_set_interbox_and_outer_BCs */
           push_intList(skip_f, 1);
-          if(!FakeMatterOutside) for(f=2; f<6; f++) push_intList(skip_f, f);
+          //if(!FakeMatterOutside) for(f=2; f<6; f++) push_intList(skip_f, f);
 
           /* set normal deriv equal at lam=0 of TOUCH box */
           if(0 && FakeMatterOutside)
