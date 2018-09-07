@@ -419,10 +419,10 @@ tocompute = {
     Cif == nonlin, (* non-linear case *)
 
       (* we only impose InnerVolIntZero in one box *)
-      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
+      Cif == InnerVolIntZero, (* (AddInnerVolIntToBC || InnerVolIntZero), *)
         Cinstruction == "VolAvSigma = BoxVolumeIntegral(box, index_Sigma);",
       Cif == end,
-      Cif == (AddInnerSumToBC || InnerSumZero),
+      Cif == InnerSumZero, (* (AddInnerSumToBC || InnerSumZero), *)
         Cinstruction == "VolAvSigma = 0.0;",
         Cinstruction == "forallpoints(box, ijk) {",
         Cinstruction == "VolAvSigma += Sigma[ijk];",
@@ -451,10 +451,10 @@ tocompute = {
 
     Cif == else,   (* linear case *)
 
-      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
+      Cif == InnerVolIntZero, (* (AddInnerVolIntToBC || InnerVolIntZero), *)
         Cinstruction == "VolAvlSigma = BoxVolumeIntegral(box, index_lSigma);",
       Cif == end,
-      Cif == (AddInnerSumToBC || InnerSumZero),
+      Cif == InnerSumZero, (* (AddInnerSumToBC || InnerSumZero), *)
         Cinstruction == "VolAvlSigma = 0.0;",
         Cinstruction == "forallpoints(box, ijk) {",
         Cinstruction == "VolAvlSigma += lSigma[ijk];",
@@ -559,9 +559,9 @@ BeginCFunction[] := Module[{},
   pr["int dqFromqg = Getv(\"DNSdata_q_derivs\",\"dqg\");\n"];
   pr["int dQFromdlam = Getv(\"DNSdata_drho0_inBC\",\"dlam\");\n"];
   pr["int SigmaZeroAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroAtPoint\");\n"];
-  pr["int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
+  pr["//int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
   pr["int InnerVolIntZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerVolIntZero\");\n"];
-  pr["int AddInnerSumToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerSumToBC\");\n"];
+  pr["//int AddInnerSumToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerSumToBC\");\n"];
   pr["int InnerSumZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerSumZero\");\n"];
   pr["int SigmaZeroInOuterBoxes = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroInOuterBoxes\");\n"];
   pr["int noBCs = Getv(\"DNSdata_Sigma_surface_BCs\",\"none\");\n"];
