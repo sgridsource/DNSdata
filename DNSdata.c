@@ -967,7 +967,10 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
 {
   int b, ijk;
   int AddInnerVolIntToBC=Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
-  int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs", "InnerVolIntZero");
+  int InnerVolIntZero  = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
+  int AddInnerSumToBC  = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
+  int InnerSumZero     = Getv("DNSdata_Sigma_surface_BCs","InnerSumZero");
+  int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
   double *Sigma;
   double VolAvSigma1=0., VolAvSigma2=0.;
 
@@ -978,6 +981,9 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
+    int n1 = box->n1;
+    int n2 = box->n2;
+    int n3 = box->n3;
     int MATTRinside = (box->MATTR== INSIDE);
     int hasSSURF    = (box->BOUND== SSURF);
     //int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
@@ -993,8 +999,13 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
       /* use VolInt in some cases */
       if (AddInnerVolIntToBC || InnerVolIntZero)
         VolAvSigma = BoxVolumeIntegral(box, index_Sigma);
-      else /* otherwise sum */
+      else if(AddInnerSumToBC || InnerSumZero)
         forallpoints(box, ijk) VolAvSigma += Sigma[ijk];
+      else  /* otherwise value at one point */
+      {
+        ijk = Index(n1/2, n2/2, n3/2);
+        VolAvSigma = Sigma[ijk];
+      }
       /* set VolAvSigma1/2 */
       if(box->SIDE==STAR1) VolAvSigma1 = VolAvSigma;
       else                 VolAvSigma2 = VolAvSigma;

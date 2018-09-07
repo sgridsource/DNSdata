@@ -235,30 +235,6 @@ tocompute = {
       Cinstruction == "FirstDerivsOf_S(box, index_Sigma, \
                                        Ind(\"DNSdata_Sigmax\"));",
 
-      (* we only impose InnerVolIntZero, ... in every sixth box *)
-      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
-        Cinstruction == "VolAvSigma = 0.0;",
-        Cinstruction == "if(isVolAvBox) VolAvSigma =
-                         BoxVolumeIntegral(box, index_Sigma);",
-      Cif == end,
-
-      Cif == (AddInnerSumToBC || InnerSumZero),
-        Cinstruction == "VolAvSigma = 0.0;",
-        Cinstruction == "if(isVolAvBox) forallpoints(box, ijk) {",
-        Cinstruction == "VolAvSigma += Sigma[ijk];",
-        Cinstruction == "} /* endfor */",
-      Cif == end,
-
-      (* modify VolAvSigma so that we later impose 
-         VolAvSigma=VolAvSigma1/2 *)
-      Cif == (isSTAR1),
-        Cinstruction == "VolAvSigma = VolAvSigma - VolAvSigma1;",
-      Cif == else,
-        Cinstruction == "VolAvSigma = VolAvSigma - VolAvSigma2;",
-      Cif == end,
-
-      Cinstruction == "//printf(\"VolAvSigma=%g\\n\",VolAvSigma);",
-
       (* which star are we considering? *)
       Cif == (isSTAR1),
         xmax == xmax1,
@@ -323,48 +299,14 @@ tocompute = {
           (* add extra term with wB *)
           FSigma == FSigma + Psim2 wB[c] dQ[c],
         Cif == end,
-        (* add VolAvSigma=0 to BC *)
-        Cif == ( (AddInnerVolIntToBC || AddInnerSumToBC) ),
-          FSigma == FSigma + VolAvSigma,
-        Cif == end,
 
       Cinstruction == "} /* end forplane1 */",
-
-      (* impose extra condition in every 6th box *)
-      Cinstruction == "if(isVolAvBox) {",
-
-        (* impose conditions at this point: *)
-        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
-
-        (* set Sigma to zero at ijk *)
-        Cif == SigmaZeroAtPoint,
-          FSigma == Sigma,
-        Cif == end,
-
-        (* set VolAvSigma to zero at ijk *)
-        Cif == (InnerVolIntZero || InnerSumZero),
-          FSigma == VolAvSigma,
-        Cif == end,
-      Cinstruction == "} /* end if(isVolAvBox) */",
 
 
     (* linear case: *)
     Cif == else,
       Cinstruction == "FirstDerivsOf_S(box, index_lSigma, index_dlSigma1);",
 
-      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
-        Cinstruction == "VolAvlSigma = 0.0;",
-        Cinstruction == "if(isVolAvBox) VolAvlSigma =
-          BoxVolumeIntegral(box, index_lSigma);",
-      Cif == end,
-
-      Cif == (AddInnerSumToBC || InnerSumZero),
-        Cinstruction == "VolAvlSigma = 0.0;",
-        Cinstruction == "if(isVolAvBox) forallpoints(box, ijk) {",
-        Cinstruction == "VolAvlSigma += lSigma[ijk];",
-        Cinstruction == "} /* endfor */",
-      Cif == end,
-      Cinstruction == "//if(VolAvlSigma!=0.0) printf(\"box->b=%d VolAvlSigma=%g\\n\",box->b,VolAvlSigma);",
 
       (* which star are we considering? *)
       Cif == (isSTAR1),
@@ -461,33 +403,77 @@ tocompute = {
                                Psim2 wB[c] dlQ[c],
         Cif == end,
 
-        (* add VolAvlSigma=0 to BC *)
-        Cif == ( (AddInnerVolIntToBC || AddInnerSumToBC) ),
-          FlSigma == FlSigma + VolAvlSigma,
-        Cif == end,
-
       Cinstruction == "} /* end forplane1 */",
-
-      (* impose extra condition in every 6th box *)
-      Cinstruction == "if(isVolAvBox) {",
-
-        (* impose conditions at this point: *)
-        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
-
-        (* set Sigma to zero at ijk *)
-        Cif == SigmaZeroAtPoint,
-          FlSigma == lSigma,
-        Cif == end,
-
-        (* set VolAvSigma to zero at ijk *)
-        Cif == (InnerVolIntZero || InnerSumZero),
-          FlSigma == VolAvlSigma,
-        Cif == end,
-      Cinstruction == "} /* end if(isVolAvBox) */",
-
 
     Cif == end, (* end of nonlin/linear case *)
 
+  Cif == end,
+
+
+  (* impose extra condition in one starbox *)
+  Cif == ( MATTRinside && isVolAvBox ),
+
+    (* impose conditions at this point: *)
+    Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+
+    Cif == nonlin, (* non-linear case *)
+
+      (* we only impose InnerVolIntZero in one box *)
+      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
+        Cinstruction == "VolAvSigma = BoxVolumeIntegral(box, index_Sigma);",
+      Cif == end,
+      Cif == (AddInnerSumToBC || InnerSumZero),
+        Cinstruction == "VolAvSigma = 0.0;",
+        Cinstruction == "forallpoints(box, ijk) {",
+        Cinstruction == "VolAvSigma += Sigma[ijk];",
+        Cinstruction == "} /* endfor */",
+      Cif == end,
+
+      (* find VolAvSigma0 that we would like to have in our condition *)
+      Cif == (isSTAR1),
+        Cinstruction == "VolAvSigma0 = VolAvSigma1;",
+      Cif == else,
+        Cinstruction == "VolAvSigma0 = VolAvSigma2;",
+      Cif == end,
+      Cinstruction == "//printf(\"VolAvSigma-VolAvSigma0=%g\\n\",
+                                VolAvSigma-VolAvSigma0);",
+      Cinstruction == "//printf(\"(%d)\", ijk);",
+
+      (* set Sigma to zero at ijk *)
+      Cif == SigmaZeroAtPoint,
+        FSigma == Sigma - VolAvSigma0,
+      Cif == end,
+
+      (* set VolAvSigma to zero at ijk *)
+      Cif == (InnerVolIntZero || InnerSumZero),
+        FSigma == VolAvSigma - VolAvSigma0,
+      Cif == end,
+
+    Cif == else,   (* linear case *)
+
+      Cif == (AddInnerVolIntToBC || InnerVolIntZero),
+        Cinstruction == "VolAvlSigma = BoxVolumeIntegral(box, index_lSigma);",
+      Cif == end,
+      Cif == (AddInnerSumToBC || InnerSumZero),
+        Cinstruction == "VolAvlSigma = 0.0;",
+        Cinstruction == "forallpoints(box, ijk) {",
+        Cinstruction == "VolAvlSigma += lSigma[ijk];",
+        Cinstruction == "} /* endfor */",
+      Cif == end,
+      Cinstruction == "//if(VolAvlSigma!=0.0) printf(\"box->b=%d VolAvlSigma=%g\\n\",box->b,VolAvlSigma);",
+      Cinstruction == "//printf(\"|%d|\", ijk);",
+
+      (* set Sigma to zero at ijk *)
+      Cif == SigmaZeroAtPoint,
+        FlSigma == lSigma,
+      Cif == end,
+
+      (* set VolAvSigma to zero at ijk *)
+      Cif == (InnerVolIntZero || InnerSumZero),
+        FlSigma == VolAvlSigma,
+      Cif == end,
+
+    Cif == end, (* end of nonlin/linear case *)
   Cif == end,
 
   (* set FSigma and FlSigma such that Sigma remains unchanged on inside *)
@@ -591,7 +577,7 @@ BeginCFunction[] := Module[{},
   pr["double cxmax2 = Getd(\"DNSdata_xmax2\");\n"];
   pr["double VolAvSigma1 = Getd(\"DNSdata_desired_VolAvSigma1\");\n"];
   pr["double VolAvSigma2 = Getd(\"DNSdata_desired_VolAvSigma2\");\n"];
-  pr["double VolAvSigma, VolAvlSigma;\n"];
+  pr["double VolAvSigma, VolAvSigma0, VolAvlSigma;\n"];
   pr["double OuterSigmaTransitionD1 = 1.0;\n"];
   pr["double OuterSigmaTransitionD2 = 1.0;\n"];
   pr["\n"];
