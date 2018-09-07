@@ -115,7 +115,7 @@ int sgrid_DNSdata()
   AddPar("DNSdata_actual_ymax2", "0", "y-pos. of actual global max of q in NS2");
   AddPar("DNSdata_actual_zmax2", "0", "z-pos. of actual global max of q in NS2");
   AddPar("DNSdata_q_derivs", "dq", "how we compute the derivs of q [dq,dqg]");
-  AddPar("DNSdata_drho0_inBC", "dq", "what we use for drho0 in BC [dq,dA]");
+  AddPar("DNSdata_drho0_inBC", "dlam", "what we use for drho0 in BC [dq,dlam]");
   AddPar("DNSdata_new_q", "FromFields", "how we compute the new q "
          "[FromFields,Fromqgold]");
   AddPar("DNSdata_center_new_q", "no",
@@ -169,10 +169,10 @@ int sgrid_DNSdata()
     AddPar("DNSdata_adjustdomain01", "yes", "if we adjust domainshapes "
            "after shift [yes,no]");
   }
-  AddPar("DNSdata_Sigma_surface_BCs", "FakeMatterOutside",
+  AddPar("DNSdata_Sigma_surface_BCs", "InnerVolIntZero",
          "BCs for Sigma on star surfaces "
-         "[FakeMatterOutside,OutputSurfaceBCres,EllEqn,"
-         "InnerVolIntZero,InnerSumZero,ZeroAtPoint,none,ZeroInOuterBoxes]");
+         "[InnerVolIntZero,InnerSumZero,ZeroAtPoint,none,ZeroInOuterBoxes,"
+         "FakeMatterOutside,OutputSurfaceBCres,EllEqn]");
   AddPar("DNSdata_FakeMatterType", "rhoEQ-1", "[rhoEQ-lam,rhoEQ-1,"
          "LaplaceSigmaOutside]");
   AddPar("DNSdata_InnerToOuterSigmaTransition", "C1",
