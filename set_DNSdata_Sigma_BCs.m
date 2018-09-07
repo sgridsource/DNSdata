@@ -334,7 +334,7 @@ tocompute = {
       Cinstruction == "if(isVolAvBox) {",
 
         (* impose conditions at this point: *)
-        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
 
         (* set Sigma to zero at ijk *)
         Cif == SigmaZeroAtPoint,
@@ -472,7 +472,7 @@ tocompute = {
       Cinstruction == "if(isVolAvBox) {",
 
         (* impose conditions at this point: *)
-        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
 
         (* set Sigma to zero at ijk *)
         Cif == SigmaZeroAtPoint,
@@ -621,13 +621,15 @@ BeginCFunction[] := Module[{},
   pr["int n2 = box->n2;\n"];
   pr["int n3 = box->n3;\n"];
   pr["int i,j,k, pln;\n\n"];
-  pr["int isSTAR1     = (box->SIDE == STAR1);\n\n"];
-  pr["int MATTRinside = (box->MATTR== INSIDE);\n\n"];
-  pr["int MATTRtouch  = (box->MATTR== TOUCH);\n\n"];
-  pr["int MATTRaway   = (box->MATTR== AWAY);\n\n"];
-  pr["int hasSSURF    = (box->BOUND== SSURF);\n\n"];
-  pr["int isXinDom    = (box->CI->dom == box->SIDE - STAR1);\n\n"];
-  pr["int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);\n\n"];
+  pr["int isSTAR1     = (box->SIDE == STAR1);\n"];
+  pr["int MATTRinside = (box->MATTR== INSIDE);\n"];
+  pr["int MATTRtouch  = (box->MATTR== TOUCH);\n"];
+  pr["int MATTRaway   = (box->MATTR== AWAY);\n"];
+  pr["int hasSSURF    = (box->BOUND== SSURF);\n"];
+  pr["//int isXinDom    = (box->CI->dom == box->SIDE - STAR1);\n"];
+  pr["//int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);\n"];
+  pr["int isCube = (box->CI->type == 0);\n"];
+  pr["int isVolAvBox  = (MATTRinside && isCube);\n"];
 
   pr["\n"];
   pr["\n"];
