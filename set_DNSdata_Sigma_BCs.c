@@ -25,9 +25,9 @@ int corot2 = VwApprox2 || Getv("DNSdata_rotationstate2","corotation");
 int dqFromqg = Getv("DNSdata_q_derivs","dqg");
 int dQFromdlam = Getv("DNSdata_drho0_inBC","dlam");
 int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
-int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
+//int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
 int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
-int AddInnerSumToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
+//int AddInnerSumToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
 int InnerSumZero = Getv("DNSdata_Sigma_surface_BCs","InnerSumZero");
 int SigmaZeroInOuterBoxes = Getv("DNSdata_Sigma_surface_BCs","ZeroInOuterBoxes");
 int noBCs = Getv("DNSdata_Sigma_surface_BCs","none");
@@ -43,7 +43,7 @@ double cxmax1 = Getd("DNSdata_xmax1");
 double cxmax2 = Getd("DNSdata_xmax2");
 double VolAvSigma1 = Getd("DNSdata_desired_VolAvSigma1");
 double VolAvSigma2 = Getd("DNSdata_desired_VolAvSigma2");
-double VolAvSigma, VolAvlSigma;
+double VolAvSigma, VolAvSigma0, VolAvlSigma;
 double OuterSigmaTransitionD1 = 1.0;
 double OuterSigmaTransitionD2 = 1.0;
 
@@ -74,19 +74,14 @@ int n3 = box->n3;
 int i,j,k, pln;
 
 int isSTAR1     = (box->SIDE == STAR1);
-
 int MATTRinside = (box->MATTR== INSIDE);
-
 int MATTRtouch  = (box->MATTR== TOUCH);
-
 int MATTRaway   = (box->MATTR== AWAY);
-
 int hasSSURF    = (box->BOUND== SSURF);
-
-int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
-
-int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
-
+//int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+//int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
+int isCube = (box->CI->type == 0);
+int isVolAvBox  = (MATTRinside && isCube);
 
 
 double *FPsi = vlldataptr(vlFu, box, 0);
@@ -1129,63 +1124,6 @@ FirstDerivsOf_S(box, index_Sigma,                                        Ind("DN
 
 
 /* conditional */
-if (AddInnerVolIntToBC || InnerVolIntZero) {
-
-
-VolAvSigma = 0.0; 
-
-
-if(isVolAvBox) VolAvSigma =                                   
-                         BoxVolumeIntegral(box, index_Sigma);
-}
-/* if (AddInnerVolIntToBC || InnerVolIntZero) */
-
-
-
-
-/* conditional */
-if (AddInnerSumToBC || InnerSumZero) {
-
-
-VolAvSigma = 0.0; 
-
-
-if(isVolAvBox) forallpoints(box, ijk) { 
-
-
-VolAvSigma += Sigma[ijk]; 
-
-
-} /* endfor */ 
-
-}
-/* if (AddInnerSumToBC || InnerSumZero) */
-
-
-
-
-/* conditional */
-if (isSTAR1) {
-
-
-VolAvSigma = VolAvSigma - VolAvSigma1; 
-
-
-} else { /* if (!isSTAR1) */
-
-
-VolAvSigma = VolAvSigma - VolAvSigma2; 
-
-}
-/* if (isSTAR1) */
-
-
-
-//printf("VolAvSigma=%g\n",VolAvSigma); 
-
-
-
-/* conditional */
 if (isSTAR1) {
 
 xmax
@@ -1463,103 +1401,13 @@ FSigma[ijk] + Psim2*(dQ1*wB1[ijk] + dQ2*wB2[ijk] + dQ3*wB3[ijk])
 
 
 
-
-/* conditional */
-if (AddInnerVolIntToBC || AddInnerSumToBC) {
-
-FSigma[ijk]
-=
-VolAvSigma + FSigma[ijk]
-;
-
-}
-/* if (AddInnerVolIntToBC || AddInnerSumToBC) */
-
-
-
 } /* end forplane1 */ 
 
 
-if(isVolAvBox) { 
-
-
-ijk = Index(n1-1, n2/2, n3/2); 
-
-
-
-/* conditional */
-if (SigmaZeroAtPoint) {
-
-FSigma[ijk]
-=
-Sigma[ijk]
-;
-
-}
-/* if (SigmaZeroAtPoint) */
-
-
-
-
-/* conditional */
-if (InnerVolIntZero || InnerSumZero) {
-
-FSigma[ijk]
-=
-VolAvSigma
-;
-
-}
-/* if (InnerVolIntZero || InnerSumZero) */
-
-
-
-} /* end if(isVolAvBox) */ 
-
-
-} else { /* if (!InnerVolIntZero || InnerSumZero) */
+} else { /* if (!ImposeActualBC) */
 
 
 FirstDerivsOf_S(box, index_lSigma, index_dlSigma1); 
-
-
-
-/* conditional */
-if (AddInnerVolIntToBC || InnerVolIntZero) {
-
-
-VolAvlSigma = 0.0; 
-
-
-if(isVolAvBox) VolAvlSigma =                    
-          BoxVolumeIntegral(box, index_lSigma);
-}
-/* if (AddInnerVolIntToBC || InnerVolIntZero) */
-
-
-
-
-/* conditional */
-if (AddInnerSumToBC || InnerSumZero) {
-
-
-VolAvlSigma = 0.0; 
-
-
-if(isVolAvBox) forallpoints(box, ijk) { 
-
-
-VolAvlSigma += lSigma[ijk]; 
-
-
-} /* endfor */ 
-
-}
-/* if (AddInnerSumToBC || InnerSumZero) */
-
-
-
-//if(VolAvlSigma!=0.0) printf("box->b=%d VolAvlSigma=%g\n",box->b,VolAvlSigma); 
 
 
 
@@ -2030,27 +1878,155 @@ FlSigma[ijk] + Psim2*(dQ1*lwB1 + dQ2*lwB2 + dQ3*lwB3 + dlQ1*wB1[ijk] +
 
 
 
+} /* end forplane1 */ 
+
+}
+/* if (ImposeActualBC) */
+
+
+}
+/* if (ImposeActualBC) */
+
+
+
 
 /* conditional */
-if (AddInnerVolIntToBC || AddInnerSumToBC) {
+if (MATTRinside && isVolAvBox) {
 
-FlSigma[ijk]
+
+ijk = Index(n1/2, n2/2, n3/2); 
+
+
+
+/* conditional */
+if (nonlin) {
+
+
+
+/* conditional */
+if (InnerVolIntZero) {
+
+
+VolAvSigma = BoxVolumeIntegral(box, index_Sigma); 
+
+}
+/* if (InnerVolIntZero) */
+
+
+
+
+/* conditional */
+if (InnerSumZero) {
+
+
+VolAvSigma = 0.0; 
+
+
+forallpoints(box, ijk) { 
+
+
+VolAvSigma += Sigma[ijk]; 
+
+
+} /* endfor */ 
+
+}
+/* if (InnerSumZero) */
+
+
+
+
+/* conditional */
+if (isSTAR1) {
+
+
+VolAvSigma0 = VolAvSigma1; 
+
+
+} else { /* if (!isSTAR1) */
+
+
+VolAvSigma0 = VolAvSigma2; 
+
+}
+/* if (isSTAR1) */
+
+
+
+//printf("VolAvSigma-VolAvSigma0=%g\n",VolAvSigma-VolAvSigma0); 
+
+
+//printf("(%d)", ijk); 
+
+
+
+/* conditional */
+if (SigmaZeroAtPoint) {
+
+FSigma[ijk]
 =
-VolAvlSigma + FlSigma[ijk]
+-VolAvSigma0 + Sigma[ijk]
 ;
 
 }
-/* if (AddInnerVolIntToBC || AddInnerSumToBC) */
+/* if (SigmaZeroAtPoint) */
 
 
 
-} /* end forplane1 */ 
+
+/* conditional */
+if (InnerVolIntZero || InnerSumZero) {
+
+FSigma[ijk]
+=
+VolAvSigma - VolAvSigma0
+;
+
+}
+/* if (InnerVolIntZero || InnerSumZero) */
 
 
-if(isVolAvBox) { 
+
+} else { /* if (!InnerVolIntZero || InnerSumZero) */
 
 
-ijk = Index(n1-1, n2/2, n3/2); 
+
+/* conditional */
+if (InnerVolIntZero) {
+
+
+VolAvlSigma = BoxVolumeIntegral(box, index_lSigma); 
+
+}
+/* if (InnerVolIntZero) */
+
+
+
+
+/* conditional */
+if (InnerSumZero) {
+
+
+VolAvlSigma = 0.0; 
+
+
+forallpoints(box, ijk) { 
+
+
+VolAvlSigma += lSigma[ijk]; 
+
+
+} /* endfor */ 
+
+}
+/* if (InnerSumZero) */
+
+
+
+//if(VolAvlSigma!=0.0) printf("box->b=%d VolAvlSigma=%g\n",box->b,VolAvlSigma); 
+
+
+//printf("|%d|", ijk); 
 
 
 
@@ -2079,9 +2055,6 @@ VolAvlSigma
 }
 /* if (InnerVolIntZero || InnerSumZero) */
 
-
-
-} /* end if(isVolAvBox) */ 
 
 }
 /* if (InnerVolIntZero || InnerSumZero) */
@@ -2186,4 +2159,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 596,  n/ = 281,  n+ = 378, n = 1255, O = 1 */
+/* nvars = 124, n* = 594,  n/ = 290,  n+ = 379, n = 1263, O = 1 */

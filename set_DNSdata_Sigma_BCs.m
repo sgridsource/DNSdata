@@ -435,8 +435,7 @@ tocompute = {
       Cif == else,
         Cinstruction == "VolAvSigma0 = VolAvSigma2;",
       Cif == end,
-      Cinstruction == "//printf(\"VolAvSigma-VolAvSigma0=%g\\n\",
-                                VolAvSigma-VolAvSigma0);",
+      Cinstruction == "//printf(\"VolAvSigma-VolAvSigma0=%g\\n\",VolAvSigma-VolAvSigma0);",
       Cinstruction == "//printf(\"(%d)\", ijk);",
 
       (* set Sigma to zero at ijk *)
