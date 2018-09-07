@@ -980,8 +980,10 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
     tBox *box = grid->box[b];
     int MATTRinside = (box->MATTR== INSIDE);
     int hasSSURF    = (box->BOUND== SSURF);
-    int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
-    int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
+    //int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+    //int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
+    int isCube = (box->CI->type == 0);
+    int isVolAvBox  = (MATTRinside && isCube);
 
     if(isVolAvBox)
     {
