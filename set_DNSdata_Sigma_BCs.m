@@ -19,18 +19,13 @@ constvariables = {OmegaCrossR[a], xrdotor[a]}
 (* compute in this order *)
 tocompute = {
 
-  (* do nothing if we are not in a box with a star surface *)
-  Cif == (!hasSSURF),
-    Cinstruction == "continue;",
-  Cif == end,
-
   (* do nothing and continue if block is not in box bi *)
   Cinstruction == "if(blkinfo != NULL) {
                      if(blkinfo->bi   != bi) continue;
                      if(blkinfo->vari != index_lSigma) continue;  }",
 
   (* Use Sigma=0 as BC if corot *)
-  Cif == ( (isSTAR1 && corot1) || ((!isSTAR1) && corot2) ),
+  Cif == ( ((isSTAR1 && corot1) || ((!isSTAR1) && corot2)) && hasSSURF ),
 
     Cif == nonlin, (* non-linear case *)
       (* go over lam=0 plane *)
@@ -61,7 +56,9 @@ tocompute = {
   (* Start general case *)
   (**********************)
 
+  (***********************************************)
   (* in box that touches matter for general case *)
+  (***********************************************)
   Cif == ( MATTRtouch ),
 
     Cinstruction == "int    ind0, indin, biin, n1in,n2in,n3in;",
@@ -219,10 +216,10 @@ tocompute = {
 
   Cif == end, (* end case of boxes that touch matter *)
 
-
-  (* if we get here there is a star surface,
-     now treat the case where matter is inside the box *)
-  Cif == ( MATTRinside ),
+  (***********************************************************************)
+  (* now treat the case where matter is inside the box with star surface *)
+  (***********************************************************************)
+  Cif == ( MATTRinside && hasSSURF ),
     (* if we get here bi is that of a cubedSph and there is no corot
        in this box *)
     Cif == dqFromqg,
@@ -494,25 +491,16 @@ tocompute = {
   Cif == end,
 
   (* set FSigma and FlSigma such that Sigma remains unchanged on inside *)
-  Cif == ( MATTRinside  && KeepInnerSigma ),
-    Cinstruction == "int bb;   int star=grid->box[bi]->SIDE;",
-    Cinstruction == "forallboxes(grid,bb) {",
-      Cinstruction == "tBox *bo = grid->box[bb];",
-      Cinstruction == "if(bo->SIDE != star) continue;",
-      Cinstruction == "if(bo->MATTR != INSIDE) continue;",
-      Cif == nonlin, (* non-linear case *)
-        Cinstruction == "double *FSigma_bb = vlldataptr(vlFu, bo, 5);",
-        Cinstruction == "/* Zero error ==> do not touch Sigma */";
-        Cinstruction == "forallpoints(bo, ijk)
-                           FSigma_bb[ijk] = 0.0;",
-      Cif == else,   (* linear case *)
-        Cinstruction == "double *FlSigma_bb = vlldataptr(vlJdu, bo, 5);",
-        Cinstruction == "double *lSigma_bb  = vlldataptr( vldu, bo, 5);",
-        Cinstruction == "/* make lin. matrix diagonal ==> no correction */";
-        Cinstruction == "forallpoints(bo, ijk)
-                           FlSigma_bb[ijk] = lSigma_bb[ijk];",
-      Cif == end,
-    Cinstruction == "} /* endfor bb */",
+  Cif == ( MATTRinside && KeepInnerSigma ),
+    Cif == nonlin, (* non-linear case *)
+      Cinstruction == "forallpoints(box, ijk) {",
+        FSigma  == 0,  (* Zero error ==> do not touch Sigma *)
+      Cinstruction == "} /* endfor */",
+    Cif == else,   (* linear case *)
+      Cinstruction == "forallpoints(box, ijk) {",
+        FlSigma  == lSigma,  (* make lin. matrix delta_ij ==> no correction *)
+      Cinstruction == "} /* endfor */",
+    Cif == end,
   Cif == end,
 
   (* for testing: set Sigma zero everywhere on outside *)
