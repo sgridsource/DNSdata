@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 4.9.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 7.9.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -400,24 +400,12 @@ double xrdotor3;
 
 
 
-
-/* conditional */
-if (!hasSSURF) {
-
-
-continue; 
-
-}
-/* if (!hasSSURF) */
-
-
-
 if(blkinfo != NULL) {                                               
                      if(blkinfo->bi   != bi) continue;
                      if(blkinfo->vari != index_lSigma) continue;  }
 
 /* conditional */
-if ((isSTAR1 && corot1) || (!isSTAR1 && corot2)) {
+if (((isSTAR1 && corot1) || (!isSTAR1 && corot2)) && hasSSURF) {
 
 
 
@@ -1110,7 +1098,7 @@ FlSigma[ijk]
 
 
 /* conditional */
-if (MATTRinside) {
+if (MATTRinside && hasSSURF) {
 
 
 
@@ -2109,49 +2097,38 @@ VolAvlSigma
 if (MATTRinside && KeepInnerSigma) {
 
 
-int bb;   int star=grid->box[bi]->SIDE; 
-
-
-forallboxes(grid,bb) { 
-
-
-tBox *bo = grid->box[bb]; 
-
-
-if(bo->SIDE != star) continue; 
-
-
-if(bo->MATTR != INSIDE) continue; 
-
-
 
 /* conditional */
 if (nonlin) {
 
 
-double *FSigma_bb = vlldataptr(vlFu, bo, 5); 
+forallpoints(box, ijk) { 
+
+FSigma[ijk]
+=
+0
+;
 
 
-forallpoints(bo, ijk)                            
-                           FSigma_bb[ijk] = 0.0;
+} /* endfor */ 
+
 
 } else { /* if (!nonlin) */
 
 
-double *FlSigma_bb = vlldataptr(vlJdu, bo, 5); 
+forallpoints(box, ijk) { 
+
+FlSigma[ijk]
+=
+lSigma[ijk]
+;
 
 
-double *lSigma_bb  = vlldataptr( vldu, bo, 5); 
+} /* endfor */ 
 
-
-forallpoints(bo, ijk)                                        
-                           FlSigma_bb[ijk] = lSigma_bb[ijk];
 }
 /* if (nonlin) */
 
-
-
-} /* endfor bb */ 
 
 }
 /* if (nonlin) */
@@ -2209,4 +2186,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 602,  n/ = 283,  n+ = 383, n = 1268, O = 1 */
+/* nvars = 124, n* = 596,  n/ = 281,  n+ = 378, n = 1255, O = 1 */
