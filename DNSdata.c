@@ -1123,7 +1123,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
         printf("  --> C2 guess: check=%d stat=%d\n", check, stat);
       Setd("DNSdata_C2", Cvec[1]);
 
-      /* print guess for C1/2 */                                        
+      /* print guess for C1/2 */
       printf(" guess: DNSdata_C1=%g DNSdata_C2=%g\n",
              Getd("DNSdata_C1"), Getd("DNSdata_C2"));
     }
