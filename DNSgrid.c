@@ -627,6 +627,11 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
         printf("reset_Coordinates_CubedSphere_sigma01: innerdom=%d  A=%g B=%g  "
                "inz_in=%d inz_out=%d\n", innerdom, A,B, inz_in,inz_out);
         printf("q_in[Index(0,j,k)]=%g\n", q_in[Index(0,j,k)]);
+        printf("q_in[Index(n1in-1,j,k)]=%g\n", q_in[Index(n1in-1,j,k)]);
+        printf("q_out[Index(0,j,k)]=%g\n", q_out[Index(0,j,k)]);
+        printf("C1=%.13g  C2=%.13g\n", Getd("DNSdata_C1"), Getd("DNSdata_C2"));
+        quick_Vars_output(box, 
+        "Coordinates_CubedSphere_sigma01 DNSdata_q", 666,666);
         errorexit("reset_Coordinates_CubedSphere_sigma01: q>0 everywhere???");
       }
 
