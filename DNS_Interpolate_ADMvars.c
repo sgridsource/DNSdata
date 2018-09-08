@@ -36,15 +36,14 @@ int read_next_xyz_from_pointsfile(FILE *in, double *x, double *y, double *z)
 
 /* interpolate ADM initial data onto points listed in pointsfile */
 /* Note: here we check extra pars that are not introduced in sgrid_DNSdata.c :
-   DNSdata_Interpolate_pointsfile = some_filename
-   DNSdata_Interpolate_output = some_output_filename
-   DNSdata_Interpolate_verbose = no # yes
-   DNSdata_Interpolate_make_finer_grid2_forXYZguess = yes # no
-   DNSdata_Interpolate_max_xyz_diff = 1e-8
-   The last 3 are just for debugging. Their values are set e.g. by bam. */
+   BNSdata_Interpolate_pointsfile = some_filename
+   BNSdata_Interpolate_output = some_output_filename
+   BNSdata_Interpolate_verbose = no # yes
+   BNSdata_Interpolate_max_xyz_diff = 1e-8
+   The last 2 are just for debugging. Their values are set e.g. by BAM. */
 int DNS_Interpolate_ADMvars(tGrid *grid)
 {
-  int pr = GetvLax("DNSdata_Interpolate_verbose", "yes");
+  int pr = GetvLax("BNSdata_Interpolate_verbose", "yes");
   FILE *in, *out;
   char *pointsfile;
   char *outfile;
@@ -58,7 +57,7 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   int corot2 = Getv("DNSdata_rotationstate2","corotation");
   int b, j;
 
-  if(GetsLax("DNSdata_Interpolate_pointsfile")==0) return 0;
+  if(GetsLax("BNSdata_Interpolate_pointsfile")==0) return 0;
   prdivider(0);
   printf("DNS_Interpolate_ADMvars:\n");
   prTimeIn_s("WallTime: ");
@@ -99,10 +98,10 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
     spec_Coeffs_varlist(grid->box[b], vlu, vlc);
 
   /* filenames */
-  pointsfile = Gets("DNSdata_Interpolate_pointsfile");
-  outfile    = Gets("DNSdata_Interpolate_output");
-  printf(" DNSdata_Interpolate_pointsfile = %s\n", pointsfile);
-  printf(" DNSdata_Interpolate_output = %s\n", outfile);
+  pointsfile = Gets("BNSdata_Interpolate_pointsfile");
+  outfile    = Gets("BNSdata_Interpolate_output");
+  printf(" BNSdata_Interpolate_pointsfile = %s\n", pointsfile);
+  printf(" BNSdata_Interpolate_output = %s\n", outfile);
   prTimeIn_s(" WallTime: ");
 
   /* open both files */
@@ -152,7 +151,9 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
         if(x>=0.0) star=STAR1;
         else       star=STAR2;
         clear_intList(bl);
-        bladd_ifAttrib(grid, iSIDE, star, bl);
+        bladd_ifAttrib(grid, iSIDE, star, bl); 
+        bladd_ifAttrib(grid, iSIDE, ZERO, bl); /* boxes with x>0 and x<0 */
+        /*
         errorexit("bl is missing boxes that do not belong to just one star");
         nearest_b_XYZ_of_xyz_inboxlist(grid, bl->e,bl->n,
                                        &b, &ind, &X,&Y,&Z, x,y,z);
@@ -163,10 +164,9 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
           Z=z;
         }
         if(pr) printf("guess:  b=%d (X,Y,Z)=(%g,%g,%g)  nearest ind=%d\n", b, X,Y,Z, ind);
-
+        */
         /* get X,Y,Z, b of x,y,z */
-        b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z,
-                                          NULL, x,y,z);
+        b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, bl, x,y,z);
         if(pr) printf("actual: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
         if(b<0)
         {
@@ -174,9 +174,9 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
           printf("error: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z); 
           errorexit("could not find point");
         }
-        if( GetsLax("DNSdata_Interpolate_max_xyz_diff")!=0 )
+        if( GetsLax("BNSdata_Interpolate_max_xyz_diff")!=0 )
         {
-          double tol= Getd("DNSdata_Interpolate_max_xyz_diff");
+          double tol= Getd("BNSdata_Interpolate_max_xyz_diff");
           tBox *box = grid_p->box[b];
           double xs,ys,zs, diff;
 
