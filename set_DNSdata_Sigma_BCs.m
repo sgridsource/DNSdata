@@ -413,9 +413,6 @@ tocompute = {
   (* impose extra condition in one starbox *)
   Cif == ( MATTRinside && isVolAvBox ),
 
-    (* impose conditions at this point: *)
-    Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
-
     Cif == nonlin, (* non-linear case *)
 
       (* we only impose InnerVolIntZero in one box *)
@@ -436,6 +433,9 @@ tocompute = {
         Cinstruction == "VolAvSigma0 = VolAvSigma2;",
       Cif == end,
       Cinstruction == "//printf(\"VolAvSigma-VolAvSigma0=%g\\n\",VolAvSigma-VolAvSigma0);",
+
+      (* impose conditions at this point: *)
+      Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
       Cinstruction == "//printf(\"(%d)\", ijk);",
 
       (* set Sigma to zero at ijk *)
@@ -460,6 +460,9 @@ tocompute = {
         Cinstruction == "} /* endfor */",
       Cif == end,
       Cinstruction == "//if(VolAvlSigma!=0.0) printf(\"box->b=%d VolAvlSigma=%g\\n\",box->b,VolAvlSigma);",
+
+      (* impose conditions at this point: *)
+      Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
       Cinstruction == "//printf(\"|%d|\", ijk);",
 
       (* set Sigma to zero at ijk *)

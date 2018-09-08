@@ -1894,9 +1894,6 @@ FlSigma[ijk] + Psim2*(dQ1*lwB1 + dQ2*lwB2 + dQ3*lwB3 + dlQ1*wB1[ijk] +
 if (MATTRinside && isVolAvBox) {
 
 
-ijk = Index(n1/2, n2/2, n3/2); 
-
-
 
 /* conditional */
 if (nonlin) {
@@ -1954,6 +1951,9 @@ VolAvSigma0 = VolAvSigma2;
 
 
 //printf("VolAvSigma-VolAvSigma0=%g\n",VolAvSigma-VolAvSigma0); 
+
+
+ijk = Index(n1/2, n2/2, n3/2); 
 
 
 //printf("(%d)", ijk); 
@@ -2024,6 +2024,9 @@ VolAvlSigma += lSigma[ijk];
 
 
 //if(VolAvlSigma!=0.0) printf("box->b=%d VolAvlSigma=%g\n",box->b,VolAvlSigma); 
+
+
+ijk = Index(n1/2, n2/2, n3/2); 
 
 
 //printf("|%d|", ijk); 
@@ -2159,4 +2162,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 594,  n/ = 290,  n+ = 379, n = 1263, O = 1 */
+/* nvars = 124, n* = 594,  n/ = 293,  n+ = 379, n = 1266, O = 1 */
