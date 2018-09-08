@@ -14,6 +14,7 @@ int sgrid_DNSdata()
   AddFun(PRE_GRID, set_DNS_boxsizes, "setup initial box sizes");
   AddFun(PRE_COORDINATES, DNSdata_setup_boxes, "setup boxes e.g. place Cub. Sph.");
   AddFun(PRE_INITIALDATA, set_DNS_box_attribs, "set box Attribs for DNSdata");
+  AddFun(PRE_INITIALDATA, pr_DNS_box_attribs, "print box Attribs for DNSdata");
   AddFun(PRE_INITIALDATA, DNSdata_startup, "initialize DNSdata");
   AddFun(INITIALDATA, setDNSdata, "set the DNS data");
   AddFun(ANALYZE, DNSdata_analyze, "compute properties of DNS data");
