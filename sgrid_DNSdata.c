@@ -253,8 +253,12 @@ int sgrid_DNSdata()
          "[grid,grid_bak]");
 
   AddPar("DNSdata_grid", "36CS_2xyz", "what grid we use [36CS_2xyz]");
-  AddPar("DNSdata_CubSph_sigma_continuity", "no", "make "
-         "Coordinates_CubSph_sigma continuous across boxes [no,yes]");
+  AddPar("DNSdata_CubSph_sigma_continuity", "yes", "make "
+         "Coordinates_CubSph_sigma continuous across boxes [yes,no]");
+  AddPar("DNSdata_InnerCubesSize", "0.375", "how far inner cubes in stars "
+         "extend from center (must be below ~1/sqrt(3))");
+  AddPar("DNSdata_OuterBoundary", "10000", "radius of outer boundary in units "
+         "of DNSdata_b");
 
   /* some par that contains values of variables controlling the 
      "main iteration loop", all variables are saved in this on par */
