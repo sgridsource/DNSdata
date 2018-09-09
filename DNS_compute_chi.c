@@ -1,4 +1,4 @@
-/* compute_chi.c */
+/* DNS_compute_chi.c */
 /* dtim 2/2014 */
 
 /* WT: as far as I can tell, Tim computes this for each star:
@@ -30,8 +30,8 @@ int DNS_compute_chi(tGrid *grid)
      int index_DNSdata_temp3   = Ind("DNSdata_temp3");
      int index_DNSdata_temp4   = Ind("DNSdata_temp4");
 
-     /* do nothing if DNSdata_Interpolate_pointsfile exists */
-     if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
+     /* do nothing if BNSdata_Interpolate_pointsfile exists */
+     if(GetsLax("BNSdata_Interpolate_pointsfile")!=0) return 0;
 
 printf("DNS_compute_chi needs to be updated to not use box0/3 and AnsorgNS!!!\n");
 printf("*** Skipping DNS_compute_chi ***\n");

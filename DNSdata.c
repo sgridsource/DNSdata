@@ -386,8 +386,8 @@ int DNSdata_startup(tGrid *grid)
   /* set bfaces */
   DNSgrid_set_bfaces(grid, 1, 1);
 
-  /* do nothing if DNSdata_Interpolate_pointsfile exists */
-  if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
+  /* do nothing if BNSdata_Interpolate_pointsfile exists */
+  if(GetsLax("BNSdata_Interpolate_pointsfile")!=0) return 0;
 
   /* load data from some old checkpoint file */
   if(initFromChkp && GetsLax("outdir_previous_iteration")!=NULL)
@@ -3000,8 +3000,8 @@ exit(99);
 /* call DNSdata_solve or prepare for interpolation */
 int setDNSdata(tGrid *grid)
 {
-  /* read from checkpoint if DNSdata_Interpolate_pointsfile exists */
-  if(GetsLax("DNSdata_Interpolate_pointsfile")!=0)
+  /* read from checkpoint if BNSdata_Interpolate_pointsfile exists */
+  if(GetsLax("BNSdata_Interpolate_pointsfile")!=0)
   {
     /* read checkpoint */
     Sets("checkpoint_restart_it", "0");
@@ -3103,8 +3103,8 @@ int DNSdata_analyze(tGrid *grid)
   int filenamelen;
   int i, fn;
 
-  /* do nothing if DNSdata_Interpolate_pointsfile exists */
-  if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
+  /* do nothing if BNSdata_Interpolate_pointsfile exists */
+  if(GetsLax("BNSdata_Interpolate_pointsfile")!=0) return 0;
   
   printf("DNSdata_analyze: computing properties of DNS data\n");
   prTimeIn_s("WallTime: ");
