@@ -3097,10 +3097,11 @@ int DNSdata_analyze(tGrid *grid)
   double chi2 = Getd("DNSdata_mass_shedding2");
   FILE *fp;
   char *outdir = Gets("outdir");
-  char *name = "DNSdata_properties.txt";
+  char name[] = "DNSdata_properties.txt";
+  char DNS[]  = "DNS";
   char *filename;
   int filenamelen;
-  int i;
+  int i, fn;
 
   /* do nothing if DNSdata_Interpolate_pointsfile exists */
   if(GetsLax("DNSdata_Interpolate_pointsfile")!=0) return 0;
@@ -3287,72 +3288,80 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
   /* write into file */
   filenamelen = strlen(outdir) + strlen(name) + 200;
   filename = cmalloc(filenamelen+1);
-  snprintf(filename, filenamelen, "%s/%s", outdir, name);
-  fp = fopen(filename, "a");
-  if(!fp) errorexits("failed opening %s", filename);
-  if(dequal(grid->time, 0.0))
+  /* 2 filenames: fn=0. DNSdata_properties.txt, fn=1. BNSdata_properties.txt */
+  for(fn=0; fn<2; fn++)
   {
-    fprintf(fp, "================================================\n");
-    fprintf(fp, "Properties after final iteration are below:\n");
-    fprintf(fp, "q_def\t\th-1\n");
-    fprintf(fp, "================================================\n\n");
-  }
-  fprintf(fp, "DNS data properties (time = %g):\n", grid->time);
-  fprintf(fp, "-------------------\n");
+    if(fn==1) name[0] = DNS[0]= 'B'; /* BNS ... */
+    else      name[0] = DNS[0]= 'D'; /* DNS ... */
+    snprintf(filename, filenamelen, "%s/%s", outdir, name);
+    fp = fopen(filename, "a");
+    if(!fp) errorexits("failed opening %s", filename);
 
-  fprintf(fp, "n_list\t\t%s\n", Gets("DNSdata_n"));
-  if(EoS_pwp==1)  fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
-  else            fprintf(fp, "rho0_list\t%s\n", "none");
-  fprintf(fp, "kappa\t\t%s\n", Gets("DNSdata_kappa"));
-  fprintf(fp, "x_CM\t\t%.19g\n", x_CM);
-  fprintf(fp, "Omega\t\t%.19g\n", Omega);
-  fprintf(fp, "ecc\t\t%.19g\n", ecc);
-  fprintf(fp, "rdot\t\t%.19g\n", rdot);
-  fprintf(fp, "m01\t\t%.19g\n", m01);
-  fprintf(fp, "m02\t\t%.19g\n", m02);
-  fprintf(fp, "J_ADM\t\t%.19g\n", J_ADM);
-  fprintf(fp, "M_ADM\t\t%.19g\n", M_ADM);
- /* for(i=b1n1-1; i>=b1n1-5 && i>=0; i--)
-    fprintf(fp, "MpADM[%d]\t%.19g\t(A=%.16g  x=%.16g)\n", i, M_ADM_ofA[i],
-            grid->box[1]->v[iX][i], grid->box[1]->v[ix][i]); */
-  fprintf(fp, "Jx_ADM\t\t%.19g\n", Jx_ADM);
-  fprintf(fp, "Jy_ADM\t\t%.19g\n", Jy_ADM);
-  fprintf(fp, "Jz_ADM\t\t%.19g\n", Jz_ADM);
-  fprintf(fp, "Px_ADM\t\t%.19g\n", Px_ADM);
-  fprintf(fp, "Py_ADM\t\t%.19g\n", Py_ADM);
-  fprintf(fp, "Pz_ADM\t\t%.19g\n", Pz_ADM);
-  fprintf(fp, "\n");
-  fprintf(fp, "(m1/R)_inf\t%.19g\n", TOV_m1/TOV_r_surf1);
-  fprintf(fp, "(m01/R)_inf\t%.19g\n", m01/TOV_r_surf1);
-  fprintf(fp, "xin1\t\t%+.19g\n", xin1);
-  fprintf(fp, "xmax1\t\t%+.19g\n", Getd("DNSdata_actual_xmax1"));
-  fprintf(fp, "xout1\t\t%+.19g\n", xout1);
-  fprintf(fp, "qmax1\t\t%.19g\n", qmax1);
-  fprintf(fp, "chi1\t\t%.19g\n", chi1);
-  /* fprintf(fp, "Sx_ADM1\t\t%.19g\n", Sx_ADM1);
-     fprintf(fp, "Sy_ADM1\t\t%.19g\n", Sy_ADM1);
-     fprintf(fp, "Sz_ADM1\t\t%.19g\n", Sz_ADM1);
-     fprintf(fp, "Px_ADM1\t\t%.19g\n", Px_ADM1);
-     fprintf(fp, "Py_ADM1\t\t%.19g\n", Py_ADM1);
-     fprintf(fp, "Pz_ADM1\t\t%.19g\n", Pz_ADM1); */
-  fprintf(fp, "\n");
-  fprintf(fp, "(m2/R)_inf\t%.19g\n", TOV_m2/TOV_r_surf2);
-  fprintf(fp, "(m02/R)_inf\t%.19g\n", m02/TOV_r_surf2);
-  fprintf(fp, "xin2\t\t%+.19g\n", xin2);
-  fprintf(fp, "xmax2\t\t%+.19g\n", Getd("DNSdata_actual_xmax2"));
-  fprintf(fp, "xout2\t\t%+.19g\n", xout2);
-  fprintf(fp, "qmax2\t\t%.19g\n", qmax2);
-  fprintf(fp, "chi2\t\t%.19g\n", chi2);
-  /* fprintf(fp, "Sx_ADM2\t\t%.19g\n", Sx_ADM2);
-     fprintf(fp, "Sy_ADM2\t\t%.19g\n", Sy_ADM2);
-     fprintf(fp, "Sz_ADM2\t\t%.19g\n", Sz_ADM2);
-     fprintf(fp, "Px_ADM2\t\t%.19g\n", Px_ADM2);
-     fprintf(fp, "Py_ADM2\t\t%.19g\n", Py_ADM2);
-     fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
-  fprintf(fp, "\n");
-  fprintf(fp, "DNSdata_b\t%.19g\n", DNSdata_b);
-  fprintf(fp, "\n");
-  fclose(fp);
+    if(dequal(grid->time, 0.0))
+    {
+      fprintf(fp, "================================================\n");
+      fprintf(fp, "Properties after final iteration are below:\n");
+      fprintf(fp, "q_def\t\th-1\n");
+      fprintf(fp, "================================================\n\n");
+    }
+    else fn=2; /* skip file for fn=1 (exits for(fn... loop) */
+
+    fprintf(fp, "%s data properties (time = %g):\n", DNS, grid->time);
+    fprintf(fp, "-------------------\n");
+    fprintf(fp, "n_list\t\t%s\n", Gets("DNSdata_n"));
+    if(EoS_pwp==1)  fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
+    else            fprintf(fp, "rho0_list\t%s\n", "none");
+    fprintf(fp, "kappa\t\t%s\n", Gets("DNSdata_kappa"));
+    fprintf(fp, "x_CM\t\t%.19g\n", x_CM);
+    fprintf(fp, "Omega\t\t%.19g\n", Omega);
+    fprintf(fp, "ecc\t\t%.19g\n", ecc);
+    fprintf(fp, "rdot\t\t%.19g\n", rdot);
+    fprintf(fp, "m01\t\t%.19g\n", m01);
+    fprintf(fp, "m02\t\t%.19g\n", m02);
+    fprintf(fp, "J_ADM\t\t%.19g\n", J_ADM);
+    fprintf(fp, "M_ADM\t\t%.19g\n", M_ADM);
+    /* for(i=b1n1-1; i>=b1n1-5 && i>=0; i--)
+       fprintf(fp, "MpADM[%d]\t%.19g\t(A=%.16g  x=%.16g)\n", i, M_ADM_ofA[i],
+               grid->box[1]->v[iX][i], grid->box[1]->v[ix][i]); */
+    fprintf(fp, "Jx_ADM\t\t%.19g\n", Jx_ADM);
+    fprintf(fp, "Jy_ADM\t\t%.19g\n", Jy_ADM);
+    fprintf(fp, "Jz_ADM\t\t%.19g\n", Jz_ADM);
+    fprintf(fp, "Px_ADM\t\t%.19g\n", Px_ADM);
+    fprintf(fp, "Py_ADM\t\t%.19g\n", Py_ADM);
+    fprintf(fp, "Pz_ADM\t\t%.19g\n", Pz_ADM);
+    fprintf(fp, "\n");
+    fprintf(fp, "(m1/R)_inf\t%.19g\n", TOV_m1/TOV_r_surf1);
+    fprintf(fp, "(m01/R)_inf\t%.19g\n", m01/TOV_r_surf1);
+    fprintf(fp, "xin1\t\t%+.19g\n", xin1);
+    fprintf(fp, "xmax1\t\t%+.19g\n", Getd("DNSdata_actual_xmax1"));
+    fprintf(fp, "xout1\t\t%+.19g\n", xout1);
+    fprintf(fp, "qmax1\t\t%.19g\n", qmax1);
+    fprintf(fp, "chi1\t\t%.19g\n", chi1);
+    /* fprintf(fp, "Sx_ADM1\t\t%.19g\n", Sx_ADM1);
+       fprintf(fp, "Sy_ADM1\t\t%.19g\n", Sy_ADM1);
+       fprintf(fp, "Sz_ADM1\t\t%.19g\n", Sz_ADM1);
+       fprintf(fp, "Px_ADM1\t\t%.19g\n", Px_ADM1);
+       fprintf(fp, "Py_ADM1\t\t%.19g\n", Py_ADM1);
+       fprintf(fp, "Pz_ADM1\t\t%.19g\n", Pz_ADM1); */
+    fprintf(fp, "\n");
+    fprintf(fp, "(m2/R)_inf\t%.19g\n", TOV_m2/TOV_r_surf2);
+    fprintf(fp, "(m02/R)_inf\t%.19g\n", m02/TOV_r_surf2);
+    fprintf(fp, "xin2\t\t%+.19g\n", xin2);
+    fprintf(fp, "xmax2\t\t%+.19g\n", Getd("DNSdata_actual_xmax2"));
+    fprintf(fp, "xout2\t\t%+.19g\n", xout2);
+    fprintf(fp, "qmax2\t\t%.19g\n", qmax2);
+    fprintf(fp, "chi2\t\t%.19g\n", chi2);
+    /* fprintf(fp, "Sx_ADM2\t\t%.19g\n", Sx_ADM2);
+       fprintf(fp, "Sy_ADM2\t\t%.19g\n", Sy_ADM2);
+       fprintf(fp, "Sz_ADM2\t\t%.19g\n", Sz_ADM2);
+       fprintf(fp, "Px_ADM2\t\t%.19g\n", Px_ADM2);
+       fprintf(fp, "Py_ADM2\t\t%.19g\n", Py_ADM2);
+       fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
+    fprintf(fp, "\n");
+    fprintf(fp, "DNSdata_b\t%.19g\n", DNSdata_b);
+    fprintf(fp, "\n");
+    fclose(fp);
+  }
   free(filename);
   prTimeIn_s("WallTime: ");
   return 0;
