@@ -768,7 +768,30 @@ double InnerVolumeIntegral(tGrid *grid, int star, int vind)
   return VolInt;
 }
 
+/* surface integral over star surface: integrate over lam=0 surface
+   of MATTR == TOUCH boxes */
+double StarSurfaceIntegral(tGrid *grid, int star, int vind)
+{
+  double SurfInt = 0.0;
+  int b;
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    int n1 = box->n1;
+    int n2 = box->n2;
+    int n3 = box->n3;
+    double *Integ = malloc(n1*n2*n3 * sizeof(double));
+    double *v     = box->v[vind];
 
+    if( (box->SIDE == star) && (box->MATTR == TOUCH) )
+    {
+      spec_SurfaceIntegral(box, 1, v, Integ);
+      SurfInt += Integ[0]; /* ind=0 is at lam=0 */
+    }
+    free(Integ);
+  }
+  return SurfInt;
+}
 
 /* set bfaces, set pointlist only if set_fpts=1.  */
 int DNSgrid_set_bfaces(tGrid *grid, int set_fpts, int pr)
