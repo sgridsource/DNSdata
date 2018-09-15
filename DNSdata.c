@@ -3375,6 +3375,7 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM1\t\t%.19g\n", Py_ADM1);
        fprintf(fp, "Pz_ADM1\t\t%.19g\n", Pz_ADM1); */
     fprintf(fp, "\n");
+    fprintf(fp, "M_1\t\t%.19g\n", M_1);
     fprintf(fp, "Px_1\t\t%.19g\n", Px_1);
     fprintf(fp, "Py_1\t\t%.19g\n", Py_1);
     fprintf(fp, "Pz_1\t\t%.19g\n", Pz_1);
@@ -3402,6 +3403,7 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM2\t\t%.19g\n", Py_ADM2);
        fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
     fprintf(fp, "\n");
+    fprintf(fp, "M_2\t\t%.19g\n", M_2);
     fprintf(fp, "Px_2\t\t%.19g\n", Px_2);
     fprintf(fp, "Py_2\t\t%.19g\n", Py_2);
     fprintf(fp, "Pz_2\t\t%.19g\n", Pz_2);
@@ -4482,14 +4484,14 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
     double *MRy = box->v[iIntegy];
     double *MRz = box->v[iIntegz];
     double n[4];
-    double ndPsi, eightPI=8.*PI;
+    double ndPsi, oom2PI=-1./(2.*PI);
     double x1,x2,x3;
     int ijk;
 
     forallpoints(box, ijk)
     {
       boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
-      ndPsi = ( Psi1[ijk]*n[1] + Psi2[ijk]*n[2] + Psi3[ijk]*n[3] )/eightPI;
+      ndPsi = ( Psi1[ijk]*n[1] + Psi2[ijk]*n[2] + Psi3[ijk]*n[3] )*oom2PI;
       if(setRc)
       {
         x1 = x[ijk] - xCM;
@@ -4532,16 +4534,16 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
     double *PJy = box->v[iIntegy];
     double *PJz = box->v[iIntegz];
     double n[4];
-    double Kn1,Kn2,Kn3, eightPI=8.*PI;
+    double Kn1,Kn2,Kn3, oo8PI=1.0/(8.*PI);
     double x1,x2,x3, Knphi1,Knphi2,Knphi3;
     int ijk;
 
     forallpoints(box, ijk)
     {
       boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
-      Kn1 = ( K11[ijk]*n[1] + K12[ijk]*n[2] + K13[ijk]*n[3] )/eightPI;
-      Kn2 = ( K12[ijk]*n[1] + K22[ijk]*n[2] + K23[ijk]*n[3] )/eightPI;
-      Kn3 = ( K13[ijk]*n[1] + K23[ijk]*n[2] + K33[ijk]*n[3] )/eightPI;
+      Kn1 = ( K11[ijk]*n[1] + K12[ijk]*n[2] + K13[ijk]*n[3] )*oo8PI;
+      Kn2 = ( K12[ijk]*n[1] + K22[ijk]*n[2] + K23[ijk]*n[3] )*oo8PI;
+      Kn3 = ( K13[ijk]*n[1] + K23[ijk]*n[2] + K33[ijk]*n[3] )*oo8PI;
       if(setJ)
       {
         x1 = x[ijk] - xCM;
