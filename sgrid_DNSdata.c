@@ -268,6 +268,10 @@ int sgrid_DNSdata()
   AddPar("DNSdata_mass_shedding1", "1", "mass shedding indicator chi for star 1");
   AddPar("DNSdata_mass_shedding2", "1", "mass shedding indicator chi for star 2");
 
+  /* pars for integrals */
+  AddPar("DNSdata_StarSurfaceIntegral_metric", "flat", "what metric "
+         "we use in StarSurfaceIntegral function [flat,gxx]");
+
   /* par for ecc. and inspiral */
   AddPar("DNSdata_ecc", "0", "Eccentricity parameter e of orbits");
   AddPar("DNSdata_rdot", "0", "time deriv. of relative coordinate r=|r1-r2|");

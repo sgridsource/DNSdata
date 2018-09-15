@@ -748,9 +748,14 @@ double InnerVolumeIntegral(tGrid *grid, int star, int vind)
    of MATTR == TOUCH boxes */
 double StarSurfaceIntegral(tGrid *grid, int star, int vind)
 {
-  int ig = Ind("gxx");
   double SurfInt = 0.0;
   int b;
+  int ig;
+
+  /* do we use physical or flat metric for Surface Integrals? */
+  if(Getv("DNSdata_StarSurfaceIntegral_metric","flat")) ig = -1;
+  else                                                  ig = Ind("gxx");
+
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
