@@ -785,7 +785,7 @@ double StarSurfaceIntegral(tGrid *grid, int star, int vind)
 
     if( (box->SIDE == star) && (box->MATTR == TOUCH) )
     {
-      spec_SurfaceIntegral(box, 1, v, Integ);
+      spec_SurfaceIntegral(box, -1, 1, v, Integ);
       SurfInt += Integ[0]; /* ind=0 is at lam=0 */
     }
     free(Integ);
