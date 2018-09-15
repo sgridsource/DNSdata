@@ -29,16 +29,20 @@ void m0_VectorFuncP(int n, double *vec, double *fvec, void *p);
 
 
 /* find core pressure in TOV star */
-double DNS_find_P_core(double m0)
+double DNS_find_P_core(double m0, int pr)
 {
   double vec[2];
   double fvec[2];
   int check, stat;
-  double par[1];
+  double par[2];
   par[0] = m0;
+  par[1] = pr;
+
+  /* guard against unreasonable m0 */
+  if(m0<=0.) return 0.;
 
   /* find P_core, s.t. rest mass is m0 */
-  printf("find P_core of a TOV star, s.t. rest mass is m0=%g\n", m0);
+  if(pr) printf("find P_core of a TOV star, s.t. rest mass is m0=%g\n", m0);
   vec[1] = 1e-7;   /* initial guess */
   /* do newton_linesrch_its iterations: */
   stat=newton_linesrch_itsP(vec, 1, &check, m0_VectorFuncP,
@@ -54,7 +58,7 @@ double DNS_find_P_core(double m0)
 
   /* check if we found correct vec or just a local max in m0 */
   m0_VectorFuncP(1, vec, fvec, (void *) par);
-  if(fabs(fvec[1])>Getd("Coordinates_newtTOLF")*1000)
+  if( (fabs(fvec[1])>Getd("Coordinates_newtTOLF")*1000) && pr )
   {
     int i;
     double v[2], f[2];
@@ -120,7 +124,7 @@ int set_DNS_boxsizes(tGrid *grid)
     /* many parts of the code only work with m01>0 */
     if(Getd("DNSdata_m01")<=0.0) errorexit("make sure DNSdata_m01 > 0");
     /* find P_core1, s.t. rest mass is m01 */
-    P_core1 = DNS_find_P_core(Getd("DNSdata_m01"));
+    P_core1 = DNS_find_P_core(Getd("DNSdata_m01"), 1);
   }
   else  /* get P_core1 from max q */
   {
@@ -143,7 +147,7 @@ int set_DNS_boxsizes(tGrid *grid)
   if(Getd("DNSdata_m02")>0.0 && Getd("DNSdata_qm2")<0.0)
   {
     /* find P_core2, s.t. rest mass is m02 */
-    P_core2 = DNS_find_P_core(Getd("DNSdata_m02"));
+    P_core2 = DNS_find_P_core(Getd("DNSdata_m02"), 1);
     printf("setting: P_core2=%g\n", P_core2);
 
     /* TOV_init yields m02 for a given P_core2 */
@@ -438,11 +442,12 @@ void m0_VectorFuncP(int n, double *vec, double *fvec, void *p)
 {
   double *par = (double *) p;
   double m0A = par[0];
+  int    pr  = par[1];
   double Pc, m, Phic, Psic, m0;
 
   Pc = vec[1];
   TOV_init(Pc, 0, &rf_surf1, &m, &Phic, &Psic, &m0);
-  printf("   Pc=%+.16e  m0=%.16e\n",Pc,m0);
+  if(pr) printf("   Pc=%+.16e  m0=%.16e\n",Pc,m0);
   fvec[1] = m0-m0A;
 }
 

@@ -3273,8 +3273,8 @@ int DNSdata_analyze(tGrid *grid)
   */
 
   /* compute TOV */
-  P_core1 = DNS_find_P_core(m01);
-  P_core2 = DNS_find_P_core(m02);
+  P_core1 = DNS_find_P_core(m01, 0);
+  P_core2 = DNS_find_P_core(m02, 0);
   TOV_init(P_core1, 0,
            &TOV_rf_surf1, &TOV_m1, &TOV_Phic1, &TOV_Psic1, &TOV_m01);
   TOV_init(P_core2, 0,
@@ -4483,9 +4483,9 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
   {
     tBox *box = grid->box[b];
     double *Psi  = box->v[iPsi];
-    double *Psi1 = box->v[idPsi];
-    double *Psi2 = box->v[idPsi+1];
-    double *Psi3 = box->v[idPsi+2];
+    double *Psix = box->v[idPsi];
+    double *Psiy = box->v[idPsi+1];
+    double *Psiz = box->v[idPsi+2];
     double *x   = box->v[ix];
     double *y   = box->v[ix+1];
     double *z   = box->v[ix+2];
@@ -4493,14 +4493,19 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
     double *MRy = box->v[iIntegy];
     double *MRz = box->v[iIntegz];
     double n[4];
-    double ndPsi, oom2PI=-1./(2.*PI);
+    double ndPsi, Psim1,Psim2,Psim4,  oom2PI = -1./(2.*PI);
     double x1,x2,x3;
     int ijk;
 
     forallpoints(box, ijk)
     {
+      Psim1 = 1./Psi[ijk];
+      Psim2 = Psim1*Psim1;
+      Psim4 = Psim2*Psim2;
       boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
-      ndPsi = ( Psi1[ijk]*n[1] + Psi2[ijk]*n[2] + Psi3[ijk]*n[3] )*oom2PI;
+      ndPsi = ( Psix[ijk]*n[1] + Psiy[ijk]*n[2] + Psiz[ijk]*n[3] )*oom2PI;
+      /* take out Psi^4 so that mass is correct for Schw. in Isotr. coords */
+      ndPsi = ndPsi * Psim4;
       if(setRc)
       {
         x1 = x[ijk] - xCM;
