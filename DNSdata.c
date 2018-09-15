@@ -3383,7 +3383,7 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM1\t\t%.19g\n", Py_ADM1);
        fprintf(fp, "Pz_ADM1\t\t%.19g\n", Pz_ADM1); */
     fprintf(fp, "\n");
-    /* fprintf(fp, "M_1\t\t%.19g\n", M_1); */
+    fprintf(fp, "M_1\t\t%.19g\n", M_1);
     fprintf(fp, "Px_1\t\t%.19g\n", Px_1);
     fprintf(fp, "Py_1\t\t%.19g\n", Py_1);
     fprintf(fp, "Pz_1\t\t%.19g\n", Pz_1);
@@ -3412,7 +3412,7 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM2\t\t%.19g\n", Py_ADM2);
        fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
     fprintf(fp, "\n");
-    /* fprintf(fp, "M_2\t\t%.19g\n", M_2); */
+    fprintf(fp, "M_2\t\t%.19g\n", M_2);
     fprintf(fp, "Px_2\t\t%.19g\n", Px_2);
     fprintf(fp, "Py_2\t\t%.19g\n", Py_2);
     fprintf(fp, "Pz_2\t\t%.19g\n", Pz_2);
