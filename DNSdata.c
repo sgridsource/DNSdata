@@ -3310,7 +3310,12 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
   DNS_set_MRc_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // Rc integrand
   DNS_StarSurfInt_vector(grid,STAR1,itemp1,itemp2,itemp3, &Rcx_1,&Rcy_1,&Rcz_1);
   DNS_StarSurfInt_vector(grid,STAR2,itemp1,itemp2,itemp3, &Rcx_2,&Rcy_2,&Rcz_2);
-
+  Rcx_1 = Rcx_1 / M_1;
+  Rcy_1 = Rcy_1 / M_1;
+  Rcz_1 = Rcz_1 / M_1;
+  Rcx_2 = Rcx_2 / M_2;
+  Rcy_2 = Rcy_2 / M_2;
+  Rcz_2 = Rcz_2 / M_2;
   DNS_get_Spin( Px_1, Py_1, Pz_1,  Jx_1, Jy_1, Jz_1,
                Rcx_1,Rcy_1,Rcz_1, &Sx_1,&Sy_1,&Sz_1);
   DNS_get_Spin( Px_2, Py_2, Pz_2,  Jx_2, Jy_2, Jz_2,
