@@ -3077,9 +3077,9 @@ int DNSdata_analyze(tGrid *grid)
   double Px_ADM,Py_ADM,Pz_ADM;
   /* double rx_1, rx_2;
      double Sx_ADM1,Sy_ADM1,Sz_ADM1, Sx_ADM2,Sy_ADM2,Sz_ADM2; */
-  double Px_1,  Py_1,  Pz_1,  Jx_1, Jy_1, Jz_1;
+  double Px_1,  Py_1,  Pz_1,  Jx_1, Jy_1, Jz_1, M_1;
   double Rcx_1, Rcy_1, Rcz_1, Sx_1, Sy_1, Sz_1;
-  double Px_2,  Py_2,  Pz_2,  Jx_2, Jy_2, Jz_2;
+  double Px_2,  Py_2,  Pz_2,  Jx_2, Jy_2, Jz_2, M_2;
   double Rcx_2, Rcy_2, Rcz_2, Sx_2, Sy_2, Sz_2;
   int iX = Ind("X");
   int ix = Ind("x");
@@ -3292,19 +3292,29 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
 
   /* compute star spins from surface integrals */
   setADMvars(grid);
-  DNS_set_P_J_SurfInt_integrand(grid, 0, itemp1,itemp2,itemp3); // P integ
-  DNS_set_PJ_star(grid, STAR1, itemp1,itemp2,itemp3, &Px_1,&Py_1,&Pz_1);
-  DNS_set_PJ_star(grid, STAR2, itemp1,itemp2,itemp3, &Px_2,&Py_2,&Pz_2);
+  DNS_set_P_J_SurfInt_integrand(grid, 0, itemp1,itemp2,itemp3); // P integrand
+  DNS_StarSurfInt_vector(grid, STAR1, itemp1,itemp2,itemp3, &Px_1,&Py_1,&Pz_1);
+  DNS_StarSurfInt_vector(grid, STAR2, itemp1,itemp2,itemp3, &Px_2,&Py_2,&Pz_2);
   //printf("i2=%g\n", grid->box[1]->v[itemp2][0]);
   //printf("gxx=%g\n", grid->box[1]->v[Ind("gxx")][0]);
   //printf("Kxy=%g\n", grid->box[1]->v[Ind("Kxy")][0]);
-  DNS_set_P_J_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // J integ
-  DNS_set_PJ_star(grid, STAR1, itemp1,itemp2,itemp3, &Jx_1,&Jy_1,&Jz_1);
-  DNS_set_PJ_star(grid, STAR2, itemp1,itemp2,itemp3, &Jx_2,&Jy_2,&Jz_2);
-  DNS_get_Rc_S(  Px_1,  Py_1,  Pz_1,  Jx_1, Jy_1, Jz_1,
-               &Rcx_1,&Rcy_1,&Rcz_1, &Sx_1,&Sy_1,&Sz_1);
-  DNS_get_Rc_S(  Px_2,  Py_2,  Pz_2,  Jx_2, Jy_2, Jz_2,
-               &Rcx_2,&Rcy_2,&Rcz_2, &Sx_2,&Sy_2,&Sz_2);
+
+  DNS_set_P_J_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // J integrand
+  DNS_StarSurfInt_vector(grid, STAR1, itemp1,itemp2,itemp3, &Jx_1,&Jy_1,&Jz_1);
+  DNS_StarSurfInt_vector(grid, STAR2, itemp1,itemp2,itemp3, &Jx_2,&Jy_2,&Jz_2);
+
+  DNS_set_MRc_SurfInt_integrand(grid, 0, itemp1,itemp2,itemp3); // M integrand
+  M_1 = StarSurfaceIntegral(grid, STAR1, itemp3);
+  M_2 = StarSurfaceIntegral(grid, STAR2, itemp3);
+
+  DNS_set_MRc_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // Rc integrand
+  DNS_StarSurfInt_vector(grid,STAR1,itemp1,itemp2,itemp3, &Rcx_1,&Rcy_1,&Rcz_1);
+  DNS_StarSurfInt_vector(grid,STAR2,itemp1,itemp2,itemp3, &Rcx_2,&Rcy_2,&Rcz_2);
+
+  DNS_get_Spin( Px_1, Py_1, Pz_1,  Jx_1, Jy_1, Jz_1,
+               Rcx_1,Rcy_1,Rcz_1, &Sx_1,&Sy_1,&Sz_1);
+  DNS_get_Spin( Px_2, Py_2, Pz_2,  Jx_2, Jy_2, Jz_2,
+               Rcx_2,Rcy_2,Rcz_2, &Sx_2,&Sy_2,&Sz_2);
   
   /* write into file */
   filenamelen = strlen(outdir) + strlen(name) + 200;
@@ -4446,6 +4456,57 @@ void set_DNSdata_actual_xyzmax_pars(tGrid *grid)
   printf(" DNSdata_actual_zmax2 = %.13g\n", Getd("DNSdata_actual_zmax2"));
 }
 
+/* set integrand for ADM mass or Center Rc surface integral:
+   Rc integrands are in iIntegx, iIntegy, iIntegz if setRc=1, otherwise
+   M  integrand is in iIntegz */
+void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
+                                   int iIntegx, int iIntegy, int iIntegz)
+{
+  int iPsi  = Ind("DNSdata_Psi");
+  int idPsi = Ind("DNSdata_Psix");
+  int ix = Ind("x");
+  double xCM = Getd("DNSdata_x_CM");
+  int b;
+
+  forallboxes(grid,b)
+  {
+    tBox *box = grid->box[b];
+    double *Psi  = box->v[iPsi];
+    double *Psi1 = box->v[idPsi];
+    double *Psi2 = box->v[idPsi+1];
+    double *Psi3 = box->v[idPsi+2];
+    double *x   = box->v[ix];
+    double *y   = box->v[ix+1];
+    double *z   = box->v[ix+2];
+    double *MRx = box->v[iIntegx];
+    double *MRy = box->v[iIntegy];
+    double *MRz = box->v[iIntegz];
+    double n[4];
+    double ndPsi, eightPI=8.*PI;
+    double x1,x2,x3;
+    int ijk;
+
+    forallpoints(box, ijk)
+    {
+      boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
+      ndPsi = ( Psi1[ijk]*n[1] + Psi2[ijk]*n[2] + Psi3[ijk]*n[3] )/eightPI;
+      if(setRc)
+      {
+        x1 = x[ijk] - xCM;
+        x2 = y[ijk];
+        x3 = z[ijk];
+        MRx[ijk] = x1 * ndPsi;
+        MRy[ijk] = x2 * ndPsi;
+        MRz[ijk] = x3 * ndPsi;
+      }
+      else
+      {
+        MRz[ijk] = ndPsi;
+      }
+    } /* end forallpoints */
+  }
+}
+
 /* set integrand for P or J surface integral, set J if setJ=1 */
 void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
                                    int iIntegx, int iIntegy, int iIntegz)
@@ -4505,9 +4566,9 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
 
 /* compute P1/2, J1/2, Rc1/2, S1/2 on star surface */
 /* set P or J by inegrating corresponding integrand */
-void DNS_set_PJ_star(tGrid *grid, int star,
-                     int iIntegx, int iIntegy, int iIntegz,
-                     double *PJx, double *PJy, double *PJz)
+void DNS_StarSurfInt_vector(tGrid *grid, int star,
+                            int iIntegx, int iIntegy, int iIntegz,
+                            double *PJx, double *PJy, double *PJz)
 {
   *PJx = StarSurfaceIntegral(grid, star, iIntegx);
   *PJy = StarSurfaceIntegral(grid, star, iIntegy);
@@ -4515,29 +4576,13 @@ void DNS_set_PJ_star(tGrid *grid, int star,
 }
 
 /* get center of star Rc and star spin S */
-void DNS_get_Rc_S(double Px, double Py, double Pz,
+void DNS_get_Spin(double Px, double Py, double Pz,
                   double Jx, double Jy, double Jz,
-                  double *Rcx, double *Rcy, double *Rcz,
+                  double Rcx, double Rcy, double Rcz,
                   double  *Sx, double  *Sy, double  *Sz)
 {
-  double P2 = Px*Px + Py*Py + Pz*Pz;
-
-  /* Rc = P \times J / P^2 */
-  if(P2!=0.)
-  {
-    *Rcx = (Py * Jz - Pz * Jy) / P2;
-    *Rcy = (Pz * Jx - Px * Jz) / P2;
-    *Rcz = (Px * Jy - Py * Jx) / P2;
-  }
-  else
-  {
-    *Rcx = 0.;
-    *Rcy = 0.;
-    *Rcz = 0.;
-  }
-  
   /* S = J - Rc /times P */
-  *Sx = Jx - (*Rcy * Pz - *Rcz * Py);
-  *Sy = Jy - (*Rcz * Px - *Rcx * Pz);
-  *Sz = Jz - (*Rcx * Py - *Rcy * Px);
+  *Sx = Jx - (Rcy * Pz - Rcz * Py);
+  *Sy = Jy - (Rcz * Px - Rcx * Pz);
+  *Sz = Jz - (Rcx * Py - Rcy * Px);
 }
