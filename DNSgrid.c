@@ -25,11 +25,48 @@ double P_core1;  /* core pressure of star1 */
 double P_core2;  /* core pressure of star2 */
 
 /* funs in this file */
-void m01_VectorFunc(int n, double *vec, double *fvec);
-void m02_VectorFunc(int n, double *vec, double *fvec);
+void m0_VectorFuncP(int n, double *vec, double *fvec, void *p);
 
 
+/* find core pressure in TOV star */
+double DNS_find_P_core(double m0)
+{
+  double vec[2];
+  double fvec[2];
+  int check, stat;
+  double par[1];
+  par[0] = m0;
 
+  /* find P_core, s.t. rest mass is m0 */
+  printf("find P_core of a TOV star, s.t. rest mass is m0=%g\n", m0);
+  vec[1] = 1e-7;   /* initial guess */
+  /* do newton_linesrch_its iterations: */
+  stat=newton_linesrch_itsP(vec, 1, &check, m0_VectorFuncP,
+                            (void *) par,
+                            Geti("Coordinates_newtMAXITS"),
+                            Getd("Coordinates_newtTOLF") );
+  if(check || stat<0)
+  {
+    printf("WARNING from newton_linesrch_its with MAXITS=%d TOLF=%g:\n",
+           Geti("Coordinates_newtMAXITS"), Getd("Coordinates_newtTOLF"));
+    printf("  check=%d stat=%d\n", check, stat);
+  }
+
+  /* check if we found correct vec or just a local max in m0 */
+  m0_VectorFuncP(1, vec, fvec, (void *) par);
+  if(fabs(fvec[1])>Getd("Coordinates_newtTOLF")*1000)
+  {
+    int i;
+    double v[2], f[2];
+    printf("There may be a max in m0 near Pc=%g\n", vec[1]);
+    for(i=-15; i<=15; i++)
+    { 
+      v[1] = vec[1] + i*vec[1]/1000;
+      m0_VectorFuncP(1, v, f, (void *) par);
+    }
+  }
+  return vec[1];
+}
 
 /* setup initial boxsizes */
 int set_DNS_boxsizes(tGrid *grid)
@@ -46,9 +83,6 @@ int set_DNS_boxsizes(tGrid *grid)
   double DoM3, DoM4, DoM5; /* powers of DoM */
   double xCM, Omega;
   double Fc, qc, Cc, oouzerosqr;
-  double vec[2];
-  double fvec[2];
-  int check, stat;
 
   printf("set_DNS_boxsizes: setting box sizes and coordinates used ...\n");
   prTimeIn_s("WallTime: ");
@@ -85,35 +119,8 @@ int set_DNS_boxsizes(tGrid *grid)
   {
     /* many parts of the code only work with m01>0 */
     if(Getd("DNSdata_m01")<=0.0) errorexit("make sure DNSdata_m01 > 0");
-
     /* find P_core1, s.t. rest mass is m01 */
-    printf("find P_core1 of a TOV star, s.t. rest mass is m01=%g\n",
-           Getd("DNSdata_m01"));
-    vec[1] = 1e-7;   /* initial guess */
-    /* do newton_linesrch_its iterations: */
-    stat=newton_linesrch_its(vec, 1, &check, m01_VectorFunc, 
-   		           Geti("Coordinates_newtMAXITS"),
-   		           Getd("Coordinates_newtTOLF") );
-    if(check || stat<0)
-    {
-      printf("WARNING from newton_linesrch_its with MAXITS=%d TOLF=%g:\n",
-             Geti("Coordinates_newtMAXITS"), Getd("Coordinates_newtTOLF"));
-      printf("  check=%d stat=%d\n", check, stat);
-    }
-    /* check if we found correct vec or just a local max in m0 */
-    m01_VectorFunc(1, vec, fvec);
-    if(fabs(fvec[1])>Getd("Coordinates_newtTOLF")*1000)
-    {
-      int i;
-      double v[2], f[2];
-      printf("There may be a max in m0 near Pc=%g\n", vec[1]);
-      for(i=-15; i<=15; i++)
-      { 
-        v[1] = vec[1] + i*vec[1]/1000;
-        m01_VectorFunc(1, v, f);
-      }
-    }
-    P_core1 = vec[1];
+    P_core1 = DNS_find_P_core(Getd("DNSdata_m01"));
   }
   else  /* get P_core1 from max q */
   {
@@ -136,33 +143,7 @@ int set_DNS_boxsizes(tGrid *grid)
   if(Getd("DNSdata_m02")>0.0 && Getd("DNSdata_qm2")<0.0)
   {
     /* find P_core2, s.t. rest mass is m02 */
-    printf("find P_core2 of a TOV star, s.t. rest mass is m02=%g\n",
-           Getd("DNSdata_m02"));
-    vec[1] = 1e-7;   /* initial guess */
-    /* do newton_linesrch_its iterations: */
-    stat=newton_linesrch_its(vec, 1, &check, m02_VectorFunc, 
-                             Geti("Coordinates_newtMAXITS"),
-                             Getd("Coordinates_newtTOLF") );
-    if(check || stat<0)
-    {
-      printf("WARNING from newton_linesrch_its with MAXITS=%d TOLF=%g:\n",
-             Geti("Coordinates_newtMAXITS"), Getd("Coordinates_newtTOLF"));
-      printf("  check=%d stat=%d\n", check, stat);
-    }
-    /* check if we found correct vec or just a local max in m0 */
-    m02_VectorFunc(1, vec, fvec);
-    if(fabs(fvec[1])>Getd("Coordinates_newtTOLF")*1000)
-    {
-      int i;
-      double v[2], f[2];
-      printf("There may be a max in m0 near Pc=%g\n", vec[1]);
-      for(i=-15; i<=15; i++)
-      { 
-        v[1] = vec[1] + i*vec[1]/1000;
-        m02_VectorFunc(1, v, f);
-      }
-    }
-    P_core2 = vec[1];
+    P_core2 = DNS_find_P_core(Getd("DNSdata_m02"));
     printf("setting: P_core2=%g\n", P_core2);
 
     /* TOV_init yields m02 for a given P_core2 */
@@ -452,29 +433,18 @@ int pr_DNS_box_attribs(tGrid *grid)
 }
 
 
-/* funtion to be passed into newton_linesrch_its to find P_core1 from m01 */
-void m01_VectorFunc(int n, double *vec, double *fvec)
+/* funtion to be passed into newton_linesrch_its to find P_core1/2 from m01/2 */
+void m0_VectorFuncP(int n, double *vec, double *fvec, void *p)
 {
-  double m01 = Getd("DNSdata_m01");
+  double *par = (double *) p;
+  double m0A = par[0];
   double Pc, m, Phic, Psic, m0;
 
   Pc = vec[1];
   TOV_init(Pc, 0, &rf_surf1, &m, &Phic, &Psic, &m0);
   printf("   Pc=%+.16e  m0=%.16e\n",Pc,m0);
-  fvec[1] = m0-m01;
+  fvec[1] = m0-m0A;
 }
-/* funtion to be passed into newton_linesrch_its to find P_core2 from m02 */
-void m02_VectorFunc(int n, double *vec, double *fvec)
-{
-  double m02 = Getd("DNSdata_m02");
-  double Pc, m, Phic, Psic, m0;
-
-  Pc = vec[1];
-  TOV_init(Pc, 0, &rf_surf2, &m, &Phic, &Psic, &m0);
-  printf("   Pc=%+.16e  m0=%.16e\n",Pc,m0);
-  fvec[1] = m0-m02;
-}
-
 
 
 /*****************************/

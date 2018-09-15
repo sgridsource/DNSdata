@@ -3366,8 +3366,9 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     fprintf(fp, "Py_ADM\t\t%.19g\n", Py_ADM);
     fprintf(fp, "Pz_ADM\t\t%.19g\n", Pz_ADM);
     fprintf(fp, "\n");
+    fprintf(fp, "(m1)_inf\t%.19g\n", TOV_m1);
     fprintf(fp, "(m1/R)_inf\t%.19g\n", TOV_m1/TOV_r_surf1);
-    fprintf(fp, "(m01/R)_inf\t%.19g\n", m01/TOV_r_surf1);
+    /* fprintf(fp, "(m01/R)_inf\t%.19g\n", m01/TOV_r_surf1); */
     fprintf(fp, "xin1\t\t%+.19g\n", xin1);
     fprintf(fp, "xmax1\t\t%+.19g\n", Getd("DNSdata_actual_xmax1"));
     fprintf(fp, "xout1\t\t%+.19g\n", xout1);
@@ -3394,8 +3395,9 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     fprintf(fp, "Sy_1\t\t%.19g\n", Sy_1);
     fprintf(fp, "Sz_1\t\t%.19g\n", Sz_1);
     fprintf(fp, "\n");
+    fprintf(fp, "(m2)_inf\t%.19g\n", TOV_m2);
     fprintf(fp, "(m2/R)_inf\t%.19g\n", TOV_m2/TOV_r_surf2);
-    fprintf(fp, "(m02/R)_inf\t%.19g\n", m02/TOV_r_surf2);
+    /* fprintf(fp, "(m02/R)_inf\t%.19g\n", m02/TOV_r_surf2); */
     fprintf(fp, "xin2\t\t%+.19g\n", xin2);
     fprintf(fp, "xmax2\t\t%+.19g\n", Getd("DNSdata_actual_xmax2"));
     fprintf(fp, "xout2\t\t%+.19g\n", xout2);
