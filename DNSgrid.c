@@ -138,6 +138,7 @@ int set_DNS_boxsizes(tGrid *grid)
   TOV_init(P_core1, 1, &rf_surf1, &m1, &Phic1, &Psic1, &m01);
   printf(" rf_surf1=%g: m1=%g Phic1=%g Psic1=%g m01=%g\n",
          rf_surf1, m1, Phic1, Psic1, m01);
+
   if(Getd("DNSdata_qm1")>0.0)
   {
     Setd("DNSdata_m01", m01);
@@ -443,10 +444,10 @@ void m0_VectorFuncP(int n, double *vec, double *fvec, void *p)
   double *par = (double *) p;
   double m0A = par[0];
   int    pr  = par[1];
-  double Pc, m, Phic, Psic, m0;
+  double Pc, rf_surf, m, Phic, Psic, m0;
 
   Pc = vec[1];
-  TOV_init(Pc, 0, &rf_surf1, &m, &Phic, &Psic, &m0);
+  TOV_init(Pc, 0, &rf_surf, &m, &Phic, &Psic, &m0);
   if(pr) printf("   Pc=%+.16e  m0=%.16e\n",Pc,m0);
   fvec[1] = m0-m0A;
 }
