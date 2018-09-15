@@ -3383,7 +3383,7 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM1\t\t%.19g\n", Py_ADM1);
        fprintf(fp, "Pz_ADM1\t\t%.19g\n", Pz_ADM1); */
     fprintf(fp, "\n");
-    fprintf(fp, "M_1\t\t%.19g\n", M_1);
+    /* fprintf(fp, "M_1\t\t%.19g\n", M_1); */
     fprintf(fp, "Px_1\t\t%.19g\n", Px_1);
     fprintf(fp, "Py_1\t\t%.19g\n", Py_1);
     fprintf(fp, "Pz_1\t\t%.19g\n", Pz_1);
@@ -3412,7 +3412,7 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM2\t\t%.19g\n", Py_ADM2);
        fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
     fprintf(fp, "\n");
-    fprintf(fp, "M_2\t\t%.19g\n", M_2);
+    /* fprintf(fp, "M_2\t\t%.19g\n", M_2); */
     fprintf(fp, "Px_2\t\t%.19g\n", Px_2);
     fprintf(fp, "Py_2\t\t%.19g\n", Py_2);
     fprintf(fp, "Pz_2\t\t%.19g\n", Pz_2);
@@ -4493,19 +4493,21 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
     double *MRy = box->v[iIntegy];
     double *MRz = box->v[iIntegz];
     double n[4];
-    double ndPsi, Psim1,Psim2,Psim4,  oom2PI = -1./(2.*PI);
+    double ndPsi, oom2PI = -1./(2.*PI);
     double x1,x2,x3;
+    //double Psim1,Psim2,Psim4;
     int ijk;
 
     forallpoints(box, ijk)
     {
-      Psim1 = 1./Psi[ijk];
-      Psim2 = Psim1*Psim1;
-      Psim4 = Psim2*Psim2;
+      //Psim1 = 1./Psi[ijk];
+      //Psim2 = Psim1*Psim1;
+      //Psim4 = Psim2*Psim2;
       boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
       ndPsi = ( Psix[ijk]*n[1] + Psiy[ijk]*n[2] + Psiz[ijk]*n[3] )*oom2PI;
       /* take out Psi^4 so that mass is correct for Schw. in Isotr. coords */
-      ndPsi = ndPsi * Psim4;
+      //ndPsi = ndPsi * Psim4;
+      // ^ not a good idea because then SurfInt is diff for M and P
       if(setRc)
       {
         x1 = x[ijk] - xCM;
