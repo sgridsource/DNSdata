@@ -50,6 +50,15 @@ void setADMvars(tGrid *grid);
 
 /* more from  DNSdata.c */
 double GetInnerRestMass(tGrid *grid, int star);
+void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
+                                   int iIntegx, int iIntegy, int iIntegz);
+void DNS_set_PJ_star(tGrid *grid, int star,
+                     int iIntegx, int iIntegy, int iIntegz,
+                     double *PJx, double *PJy, double *PJz);
+void DNS_get_Rc_S(double Px, double Py, double Pz,
+                  double Jx, double Jy, double Jz,
+                  double *Rcx, double *Rcy, double *Rcz,
+                  double  *Sx, double  *Sy, double  *Sz);
 
 
 /* funtions from mathematica */

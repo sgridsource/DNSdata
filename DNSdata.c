@@ -3077,6 +3077,10 @@ int DNSdata_analyze(tGrid *grid)
   double Px_ADM,Py_ADM,Pz_ADM;
   /* double rx_1, rx_2;
      double Sx_ADM1,Sy_ADM1,Sz_ADM1, Sx_ADM2,Sy_ADM2,Sz_ADM2; */
+  double Px_1,  Py_1,  Pz_1,  Jx_1, Jy_1, Jz_1;
+  double Rcx_1, Rcy_1, Rcz_1, Sx_1, Sy_1, Sz_1;
+  double Px_2,  Py_2,  Pz_2,  Jx_2, Jy_2, Jz_2;
+  double Rcx_2, Rcy_2, Rcz_2, Sx_2, Sy_2, Sz_2;
   int iX = Ind("X");
   int ix = Ind("x");
   int itemp1 = Ind("DNSdata_temp1");
@@ -3285,6 +3289,23 @@ TOV_m1,TOV_r_surf1, TOV_Psic1);
 printf("TOV_m1=%g TOV_r_surf1=%g TOV_Psis1=%g\n",
 TOV_m1,TOV_r_surf1, TOV_Psis1);
 */
+
+  /* compute star spins from surface integrals */
+  setADMvars(grid);
+  DNS_set_P_J_SurfInt_integrand(grid, 0, itemp1,itemp2,itemp3); // P integ
+  DNS_set_PJ_star(grid, STAR1, itemp1,itemp2,itemp3, &Px_1,&Py_1,&Pz_1);
+  DNS_set_PJ_star(grid, STAR2, itemp1,itemp2,itemp3, &Px_2,&Py_2,&Pz_2);
+  //printf("i2=%g\n", grid->box[1]->v[itemp2][0]);
+  //printf("gxx=%g\n", grid->box[1]->v[Ind("gxx")][0]);
+  //printf("Kxy=%g\n", grid->box[1]->v[Ind("Kxy")][0]);
+  DNS_set_P_J_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // J integ
+  DNS_set_PJ_star(grid, STAR1, itemp1,itemp2,itemp3, &Jx_1,&Jy_1,&Jz_1);
+  DNS_set_PJ_star(grid, STAR2, itemp1,itemp2,itemp3, &Jx_2,&Jy_2,&Jz_2);
+  DNS_get_Rc_S(  Px_1,  Py_1,  Pz_1,  Jx_1, Jy_1, Jz_1,
+               &Rcx_1,&Rcy_1,&Rcz_1, &Sx_1,&Sy_1,&Sz_1);
+  DNS_get_Rc_S(  Px_2,  Py_2,  Pz_2,  Jx_2, Jy_2, Jz_2,
+               &Rcx_2,&Rcy_2,&Rcz_2, &Sx_2,&Sy_2,&Sz_2);
+  
   /* write into file */
   filenamelen = strlen(outdir) + strlen(name) + 200;
   filename = cmalloc(filenamelen+1);
@@ -3344,6 +3365,19 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Py_ADM1\t\t%.19g\n", Py_ADM1);
        fprintf(fp, "Pz_ADM1\t\t%.19g\n", Pz_ADM1); */
     fprintf(fp, "\n");
+    fprintf(fp, "Px_1\t\t%.19g\n", Px_1);
+    fprintf(fp, "Py_1\t\t%.19g\n", Py_1);
+    fprintf(fp, "Pz_1\t\t%.19g\n", Pz_1);
+    fprintf(fp, "Jx_1\t\t%.19g\n", Jx_1);
+    fprintf(fp, "Jy_1\t\t%.19g\n", Jy_1);
+    fprintf(fp, "Jz_1\t\t%.19g\n", Jz_1);
+    fprintf(fp, "Rcx_1\t\t%.19g\n", Rcx_1);
+    fprintf(fp, "Rcy_1\t\t%.19g\n", Rcy_1);
+    fprintf(fp, "Rcz_1\t\t%.19g\n", Rcz_1);
+    fprintf(fp, "Sx_1\t\t%.19g\n", Sx_1);
+    fprintf(fp, "Sy_1\t\t%.19g\n", Sy_1);
+    fprintf(fp, "Sz_1\t\t%.19g\n", Sz_1);
+    fprintf(fp, "\n");
     fprintf(fp, "(m2/R)_inf\t%.19g\n", TOV_m2/TOV_r_surf2);
     fprintf(fp, "(m02/R)_inf\t%.19g\n", m02/TOV_r_surf2);
     fprintf(fp, "xin2\t\t%+.19g\n", xin2);
@@ -3357,6 +3391,19 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
        fprintf(fp, "Px_ADM2\t\t%.19g\n", Px_ADM2);
        fprintf(fp, "Py_ADM2\t\t%.19g\n", Py_ADM2);
        fprintf(fp, "Pz_ADM2\t\t%.19g\n", Pz_ADM2); */
+    fprintf(fp, "\n");
+    fprintf(fp, "Px_2\t\t%.19g\n", Px_2);
+    fprintf(fp, "Py_2\t\t%.19g\n", Py_2);
+    fprintf(fp, "Pz_2\t\t%.19g\n", Pz_2);
+    fprintf(fp, "Jx_2\t\t%.19g\n", Jx_2);
+    fprintf(fp, "Jy_2\t\t%.19g\n", Jy_2);
+    fprintf(fp, "Jz_2\t\t%.19g\n", Jz_2);
+    fprintf(fp, "Rcx_2\t\t%.19g\n", Rcx_2);
+    fprintf(fp, "Rcy_2\t\t%.19g\n", Rcy_2);
+    fprintf(fp, "Rcz_2\t\t%.19g\n", Rcz_2);
+    fprintf(fp, "Sx_2\t\t%.19g\n", Sx_2);
+    fprintf(fp, "Sy_2\t\t%.19g\n", Sy_2);
+    fprintf(fp, "Sz_2\t\t%.19g\n", Sz_2);
     fprintf(fp, "\n");
     fprintf(fp, "DNSdata_b\t%.19g\n", DNSdata_b);
     fprintf(fp, "\n");
@@ -4397,4 +4444,100 @@ void set_DNSdata_actual_xyzmax_pars(tGrid *grid)
   printf(" DNSdata_actual_xmax2 = %.13g\n", Getd("DNSdata_actual_xmax2"));
   printf(" DNSdata_actual_ymax2 = %.13g\n", Getd("DNSdata_actual_ymax2"));
   printf(" DNSdata_actual_zmax2 = %.13g\n", Getd("DNSdata_actual_zmax2"));
+}
+
+/* set integrand for P or J surface integral, set J if setJ=1 */
+void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
+                                   int iIntegx, int iIntegy, int iIntegz)
+{
+  int iK = Ind("Kxx");
+  int ix = Ind("x");
+  double xCM = Getd("DNSdata_x_CM");
+  int b;
+
+  forallboxes(grid,b)
+  {
+    tBox *box = grid->box[b];
+    double *K11 = box->v[iK];
+    double *K12 = box->v[iK+1];
+    double *K13 = box->v[iK+2];
+    double *K22 = box->v[iK+3];
+    double *K23 = box->v[iK+4];
+    double *K33 = box->v[iK+5];
+    double *x   = box->v[ix];
+    double *y   = box->v[ix+1];
+    double *z   = box->v[ix+2];
+    double *PJx = box->v[iIntegx];
+    double *PJy = box->v[iIntegy];
+    double *PJz = box->v[iIntegz];
+    double n[4];
+    double Kn1,Kn2,Kn3, eightPI=8.*PI;
+    double x1,x2,x3, Knphi1,Knphi2,Knphi3;
+    int ijk;
+
+    forallpoints(box, ijk)
+    {
+      boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
+      Kn1 = ( K11[ijk]*n[1] + K12[ijk]*n[2] + K13[ijk]*n[3] )/eightPI;
+      Kn2 = ( K12[ijk]*n[1] + K22[ijk]*n[2] + K23[ijk]*n[3] )/eightPI;
+      Kn3 = ( K13[ijk]*n[1] + K23[ijk]*n[2] + K33[ijk]*n[3] )/eightPI;
+      if(setJ)
+      {
+        x1 = x[ijk] - xCM;
+        x2 = y[ijk];
+        x3 = z[ijk];
+        Knphi1 = x2 * Kn3 - x3 * Kn2;
+        Knphi2 = x3 * Kn1 - x1 * Kn3;
+        Knphi3 = x1 * Kn2 - x2 * Kn1;
+        PJx[ijk] = Knphi1;
+        PJy[ijk] = Knphi2;
+        PJz[ijk] = Knphi3;
+      }
+      else
+      {
+        PJx[ijk] = Kn1;
+        PJy[ijk] = Kn2;
+        PJz[ijk] = Kn3;
+      }
+    } /* end forallpoints */
+  }
+}
+
+/* compute P1/2, J1/2, Rc1/2, S1/2 on star surface */
+/* set P or J by inegrating corresponding integrand */
+void DNS_set_PJ_star(tGrid *grid, int star,
+                     int iIntegx, int iIntegy, int iIntegz,
+                     double *PJx, double *PJy, double *PJz)
+{
+  *PJx = StarSurfaceIntegral(grid, star, iIntegx);
+  *PJy = StarSurfaceIntegral(grid, star, iIntegy);
+  *PJz = StarSurfaceIntegral(grid, star, iIntegz);
+}
+
+/* get center of star Rc and star spin S */
+void DNS_get_Rc_S(double Px, double Py, double Pz,
+                  double Jx, double Jy, double Jz,
+                  double *Rcx, double *Rcy, double *Rcz,
+                  double  *Sx, double  *Sy, double  *Sz)
+{
+  double P2 = Px*Px + Py*Py + Pz*Pz;
+
+  /* Rc = P \times J / P^2 */
+  if(P2!=0.)
+  {
+    *Rcx = (Py * Jz - Pz * Jy) / P2;
+    *Rcy = (Pz * Jx - Px * Jz) / P2;
+    *Rcz = (Px * Jy - Py * Jx) / P2;
+  }
+  else
+  {
+    *Rcx = 0.;
+    *Rcy = 0.;
+    *Rcz = 0.;
+  }
+  
+  /* S = J - Rc /times P */
+  *Sx = Jx - (*Rcy * Pz - *Rcz * Py);
+  *Sy = Jy - (*Rcz * Px - *Rcx * Pz);
+  *Sz = Jz - (*Rcx * Py - *Rcy * Px);
 }
