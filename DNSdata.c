@@ -3308,13 +3308,26 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
   DNS_StarSurfInt_vector(grid, STAR1, itemp1,itemp2,itemp3, &Jx_1,&Jy_1,&Jz_1);
   DNS_StarSurfInt_vector(grid, STAR2, itemp1,itemp2,itemp3, &Jx_2,&Jy_2,&Jz_2);
 
-  DNS_set_MRc_SurfInt_integrand(grid, 0, itemp1,itemp2,itemp3); // M integrand
-  M_1 = StarSurfaceIntegral(grid, STAR1, itemp3);
-  M_2 = StarSurfaceIntegral(grid, STAR2, itemp3);
+  if(Getv("DNSdata_M_Rc_Integrals","volume"))
+  {
+    DNS_set_MRc_VolInt_integrand(grid, 0, itemp1,itemp2,itemp3); // M integr.
+    M_1 = InnerVolumeIntegral(grid, STAR1, itemp3);
+    M_2 = InnerVolumeIntegral(grid, STAR2, itemp3);
 
-  DNS_set_MRc_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // Rc integrand
-  DNS_StarSurfInt_vector(grid,STAR1,itemp1,itemp2,itemp3, &Rcx_1,&Rcy_1,&Rcz_1);
-  DNS_StarSurfInt_vector(grid,STAR2,itemp1,itemp2,itemp3, &Rcx_2,&Rcy_2,&Rcz_2);
+    DNS_set_MRc_VolInt_integrand(grid, 1, itemp1,itemp2,itemp3); // Rc integr.
+    DNS_InnerVolInt_vector(grid,STAR1,itemp1,itemp2,itemp3, &Rcx_1,&Rcy_1,&Rcz_1);
+    DNS_InnerVolInt_vector(grid,STAR2,itemp1,itemp2,itemp3, &Rcx_2,&Rcy_2,&Rcz_2);
+  }
+  else
+  {
+    DNS_set_MRc_SurfInt_integrand(grid, 0, itemp1,itemp2,itemp3); // M integr.
+    M_1 = StarSurfaceIntegral(grid, STAR1, itemp3);
+    M_2 = StarSurfaceIntegral(grid, STAR2, itemp3);
+
+    DNS_set_MRc_SurfInt_integrand(grid, 1, itemp1,itemp2,itemp3); // Rc integr.
+    DNS_StarSurfInt_vector(grid,STAR1,itemp1,itemp2,itemp3, &Rcx_1,&Rcy_1,&Rcz_1);
+    DNS_StarSurfInt_vector(grid,STAR2,itemp1,itemp2,itemp3, &Rcx_2,&Rcy_2,&Rcz_2);
+  }
   Rcx_1 = Rcx_1 / M_1;
   Rcy_1 = Rcy_1 / M_1;
   Rcz_1 = Rcz_1 / M_1;
@@ -4494,6 +4507,77 @@ void set_DNSdata_actual_xyzmax_pars(tGrid *grid)
   printf(" DNSdata_actual_zmax2 = %.13g\n", Getd("DNSdata_actual_zmax2"));
 }
 
+
+/* set integrand for ADM mass or Center Rc volume integral:
+   Rc integrands are in iIntegx, iIntegy, iIntegz if setRc=1, otherwise
+   M  integrand is in iIntegz */
+void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setRc,
+                                  int iIntegx, int iIntegy, int iIntegz)
+{
+  //int iPsi   = Ind("DNSdata_Psi");
+  //int idPsi  = Ind("DNSdata_Psix");
+  int iddPsi = Ind("DNSdata_Psixx");
+  int ix = Ind("x");
+  //double xCM = Getd("DNSdata_x_CM");
+  int b;
+
+  forallboxes(grid,b)
+  {
+    tBox *box = grid->box[b];
+    //double *Psi  = box->v[iPsi];
+    //double *Psix = box->v[idPsi];
+    //double *Psiy = box->v[idPsi+1];
+    //double *Psiz = box->v[idPsi+2];
+    double *Psixx = box->v[iddPsi];
+    double *Psiyy = box->v[iddPsi+3];
+    double *Psizz = box->v[iddPsi+5];
+    double *x   = box->v[ix];
+    double *y   = box->v[ix+1];
+    double *z   = box->v[ix+2];
+    double *MRx = box->v[iIntegx];
+    double *MRy = box->v[iIntegy];
+    double *MRz = box->v[iIntegz];
+    double LapPsi, oom2PI = -1./(2.*PI);
+    double x1,x2,x3;
+    //double Psim1,Psim2,Psim4;
+    int ijk;
+
+    forallpoints(box, ijk)
+    {
+      //Psim1 = 1./Psi[ijk];
+      //Psim2 = Psim1*Psim1;
+      //Psim4 = Psim2*Psim2;
+      LapPsi = ( Psixx[ijk] + Psiyy[ijk] + Psizz[ijk] )*oom2PI;
+      /* take out Psi^4 so that mass is correct for Schw. in Isotr. coords */
+      //LapPsi = LapPsi * Psim4;
+      // ^ not a good idea because then SurfInt is diff for M and P
+      if(setRc)
+      {
+        x1 = x[ijk]; // - xCM;
+        x2 = y[ijk];
+        x3 = z[ijk];
+        MRx[ijk] = x1 * LapPsi;
+        MRy[ijk] = x2 * LapPsi;
+        MRz[ijk] = x3 * LapPsi;
+      }
+      else
+      {
+        MRz[ijk] = LapPsi;
+      }
+    } /* end forallpoints */
+  }
+}
+
+/* set Rc by integrating corresponding integrand */
+void DNS_InnerVolInt_vector(tGrid *grid, int star,
+                            int iIntegx, int iIntegy, int iIntegz,
+                            double *Rcx, double *Rcy, double *Rcz)
+{
+  *Rcx = InnerVolumeIntegral(grid, star, iIntegx);
+  *Rcy = InnerVolumeIntegral(grid, star, iIntegy);
+  *Rcz = InnerVolumeIntegral(grid, star, iIntegz);
+}
+
 /* set integrand for ADM mass or Center Rc surface integral:
    Rc integrands are in iIntegx, iIntegy, iIntegz if setRc=1, otherwise
    M  integrand is in iIntegz */
@@ -4503,7 +4587,7 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
   int iPsi  = Ind("DNSdata_Psi");
   int idPsi = Ind("DNSdata_Psix");
   int ix = Ind("x");
-  double xCM = Getd("DNSdata_x_CM");
+  //double xCM = Getd("DNSdata_x_CM");
   int b;
 
   forallboxes(grid,b)
@@ -4537,7 +4621,7 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
       // ^ not a good idea because then SurfInt is diff for M and P
       if(setRc)
       {
-        x1 = x[ijk] - xCM;
+        x1 = x[ijk]; // - xCM;
         x2 = y[ijk];
         x3 = z[ijk];
         MRx[ijk] = x1 * ndPsi;
@@ -4559,7 +4643,7 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
   int iK = Ind("Kxx");
   int ix = Ind("x");
   int iPsi = Ind("DNSdata_Psi");
-  double xCM = Getd("DNSdata_x_CM");
+  //double xCM = Getd("DNSdata_x_CM");
   int SurfElemFlat = Getv("DNSdata_StarSurfaceIntegral_metric","flat");
   int b;
 
@@ -4601,7 +4685,7 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
       Kn3 = fac*( K13[ijk]*nf[1] + K23[ijk]*nf[2] + K33[ijk]*nf[3] )*oo8PI;
       if(setJ)
       {
-        x1 = x[ijk] - xCM;
+        x1 = x[ijk]; // - xCM;
         x2 = y[ijk];
         x3 = z[ijk];
         Knphi1 = x2 * Kn3 - x3 * Kn2;

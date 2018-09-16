@@ -269,6 +269,8 @@ int sgrid_DNSdata()
   AddPar("DNSdata_mass_shedding2", "1", "mass shedding indicator chi for star 2");
 
   /* pars for integrals */
+  AddPar("DNSdata_M_Rc_Integrals", "volume", "type of integral "
+         "we use to compute M and Rc in each star [volume,surface]");
   AddPar("DNSdata_StarSurfaceIntegral_metric", "flat", "what metric "
          "we use in StarSurfaceIntegral function [flat,gxx]");
 
