@@ -3218,8 +3218,11 @@ int DNSdata_analyze(tGrid *grid)
 
   /* find global max of q in NS1/2 */
   Ymax1=Ymax2=Zmax1=Zmax2=0.0;
-  global_qmax1 = DNSdata_find_position_of_qmax(grid, STAR1, &bi1, &Xmax1, &Ymax1, &Zmax1);
-  global_qmax2 = DNSdata_find_position_of_qmax(grid, STAR2, &bi2, &Xmax2, &Ymax2, &Zmax2);
+  //global_qmax1 = DNSdata_find_position_of_qmax(grid, STAR1, &bi1, &Xmax1, &Ymax1, &Zmax1);
+  //global_qmax2 = DNSdata_find_position_of_qmax(grid, STAR2, &bi2, &Xmax2, &Ymax2, &Zmax2);
+  global_qmax1 = DNSdata_find_xyz_of_qmax(grid, STAR1, &bi1, &Xmax1, &Ymax1, &Zmax1);
+  global_qmax2 = DNSdata_find_xyz_of_qmax(grid, STAR2, &bi2, &Xmax2, &Ymax2, &Zmax2);
+
   if(grid->box[bi1]->x_of_X[1] != NULL)
   {
     glob_xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,Ymax1,Zmax1);
@@ -4270,10 +4273,23 @@ int find_Varmax_along_x_axis_in_star(tGrid *grid, int varind, int star,
   return stat;
 }
 int find_qmax_along_x_axis(tGrid *grid, int star,
-                            int *bi, double *X, double *qmax)
+                           int *bi, double *X, double *qmax)
 {
-  return find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), star,
-                                          bi, X, qmax);
+  int ret = find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), star,
+                                             bi, X, qmax);
+  if( (*bi<0) && (star==STAR2) ) /* treat case where do not have star2 */
+  {
+    int b;
+    forallboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      if( (box->SIDE==STAR2) && (box->COORD==CART) ) break;
+    }
+    *bi = b;
+    *X  = Getd("DNSdata_xmax2");
+    *qmax = 0.;
+  }
+  return ret;
 }
 
 
@@ -4406,7 +4422,13 @@ double DNSdata_find_position_of_Varmax(tGrid *grid, int vi, int star, int *bi,
 
   /* first find max on x-axis, to determine box where we search*/
   find_Varmax_along_x_axis_in_star(grid, vi, star, bi, X, &vmax);
-  if(*bi<0) errorexit("bi<0: couldn't find max along x-axis");
+  if(*bi<0)
+  {
+    printf("DNSdata_find_position_of_Varmax: bi<0: "
+           "couldn't find max along x-axis\n");
+    //errorexit("bi<0: couldn't find max along x-axis");
+    return 0.;
+  }
   box = grid->box[*bi];
 
   /* now look anywhere in this box */
@@ -4432,6 +4454,11 @@ double DNSdata_find_xyz_of_qmax(tGrid *grid, int star, int *bi,
 
   /* for now we assume max is in Cart. box anyway */
   qmax = DNSdata_find_position_of_qmax(grid, star, bi, x,y,z);
+  if(*bi<0)
+  {
+    find_qmax_along_x_axis(grid, star, bi, x, &qmax);
+    *y = *z = 0.;
+  }
   if(grid->box[*bi]->COORD != CART)
     errorexit("qmax should be in a Cartesian box");
   return qmax;
