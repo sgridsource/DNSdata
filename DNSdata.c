@@ -4558,7 +4558,9 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
 {
   int iK = Ind("Kxx");
   int ix = Ind("x");
+  int iPsi = Ind("DNSdata_Psi");
   double xCM = Getd("DNSdata_x_CM");
+  int SurfElemFlat = Getv("DNSdata_StarSurfaceIntegral_metric","flat");
   int b;
 
   forallboxes(grid,b)
@@ -4573,20 +4575,30 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
     double *x   = box->v[ix];
     double *y   = box->v[ix+1];
     double *z   = box->v[ix+2];
+    double *Psi = box->v[iPsi];
     double *PJx = box->v[iIntegx];
     double *PJy = box->v[iIntegy];
     double *PJz = box->v[iIntegz];
-    double n[4];
+    double nf[4];
     double Kn1,Kn2,Kn3, oo8PI=1.0/(8.*PI);
-    double x1,x2,x3, Knphi1,Knphi2,Knphi3;
+    double Psi2, fac, x1,x2,x3, Knphi1,Knphi2,Knphi3;
     int ijk;
 
     forallpoints(box, ijk)
     {
-      boxface_normal_at_ijk(box, 1, ijk, n); /* normal is in n[i] */
-      Kn1 = ( K11[ijk]*n[1] + K12[ijk]*n[2] + K13[ijk]*n[3] )*oo8PI;
-      Kn2 = ( K12[ijk]*n[1] + K22[ijk]*n[2] + K23[ijk]*n[3] )*oo8PI;
-      Kn3 = ( K13[ijk]*n[1] + K23[ijk]*n[2] + K33[ijk]*n[3] )*oo8PI;
+      Psi2 = Psi[ijk] * Psi[ijk];
+      boxface_normal_at_ijk(box, 1, ijk, nf); /* normal is in nf[i] */
+      /* NOTE: nf[i] is normlized wrt. flat metric \delta_ij
+         We need the k in  n^i = k nf[i], 
+         s.t. 1 = n^i n^j g_ij = k^2 nf[i] nf[j] Psi^4 \delta_ij = k^2 Psi^4.
+         Thus k=Psi^{-2}. ==> n^i = Psi^{-2} nf[i]
+         ALSO: if SurfElemFlat=1 we need to muliply by another Psi^4
+               to get the physical surface element! */
+      if(SurfElemFlat) fac = Psi2;
+      else             fac = 1./Psi2;
+      Kn1 = fac*( K11[ijk]*nf[1] + K12[ijk]*nf[2] + K13[ijk]*nf[3] )*oo8PI;
+      Kn2 = fac*( K12[ijk]*nf[1] + K22[ijk]*nf[2] + K23[ijk]*nf[3] )*oo8PI;
+      Kn3 = fac*( K13[ijk]*nf[1] + K23[ijk]*nf[2] + K33[ijk]*nf[3] )*oo8PI;
       if(setJ)
       {
         x1 = x[ijk] - xCM;
