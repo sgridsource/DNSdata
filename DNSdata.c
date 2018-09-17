@@ -4518,7 +4518,7 @@ void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setRc,
   //int idPsi  = Ind("DNSdata_Psix");
   int iddPsi = Ind("DNSdata_Psixx");
   int ix = Ind("x");
-  //double xCM = Getd("DNSdata_x_CM");
+  double xCM = Getd("DNSdata_x_CM");
   int b;
 
   forallboxes(grid,b)
@@ -4553,7 +4553,7 @@ void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setRc,
       // ^ not a good idea because then SurfInt is diff for M and P
       if(setRc)
       {
-        x1 = x[ijk]; // - xCM;
+        x1 = x[ijk] - xCM;
         x2 = y[ijk];
         x3 = z[ijk];
         MRx[ijk] = x1 * LapPsi;
@@ -4587,7 +4587,7 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
   int iPsi  = Ind("DNSdata_Psi");
   int idPsi = Ind("DNSdata_Psix");
   int ix = Ind("x");
-  //double xCM = Getd("DNSdata_x_CM");
+  double xCM = Getd("DNSdata_x_CM");
   int b;
 
   forallboxes(grid,b)
@@ -4621,7 +4621,7 @@ void DNS_set_MRc_SurfInt_integrand(tGrid *grid, int setRc,
       // ^ not a good idea because then SurfInt is diff for M and P
       if(setRc)
       {
-        x1 = x[ijk]; // - xCM;
+        x1 = x[ijk] - xCM;
         x2 = y[ijk];
         x3 = z[ijk];
         MRx[ijk] = x1 * ndPsi;
@@ -4643,7 +4643,7 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
   int iK = Ind("Kxx");
   int ix = Ind("x");
   int iPsi = Ind("DNSdata_Psi");
-  //double xCM = Getd("DNSdata_x_CM");
+  double xCM = Getd("DNSdata_x_CM");
   int SurfElemFlat = Getv("DNSdata_StarSurfaceIntegral_metric","flat");
   int b;
 
@@ -4685,7 +4685,7 @@ void DNS_set_P_J_SurfInt_integrand(tGrid *grid, int setJ,
       Kn3 = fac*( K13[ijk]*nf[1] + K23[ijk]*nf[2] + K33[ijk]*nf[3] )*oo8PI;
       if(setJ)
       {
-        x1 = x[ijk]; // - xCM;
+        x1 = x[ijk] - xCM;
         x2 = y[ijk];
         x3 = z[ijk];
         Knphi1 = x2 * Kn3 - x3 * Kn2;
