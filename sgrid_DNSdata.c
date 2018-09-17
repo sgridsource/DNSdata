@@ -252,11 +252,14 @@ int sgrid_DNSdata()
          "grid from which we interpolate vars when domains change "
          "[grid,grid_bak]");
 
+  /* pars that determine cubed sphere setup */
   AddPar("DNSdata_grid", "36CS_2xyz", "what grid we use [36CS_2xyz]");
   AddPar("DNSdata_CubSph_sigma_continuity", "yes", "make "
          "Coordinates_CubSph_sigma continuous across boxes [yes,no]");
   AddPar("DNSdata_InnerCubesSize", "0.375", "how far inner cubes in stars "
          "extend from center (must be below ~1/sqrt(3))");
+  AddPar("DNSdata_OuterShellStart", "4", "inner radius of outermost shell "
+         "in units of DNSdata_b");
   AddPar("DNSdata_OuterBoundary", "10000", "radius of outer boundary in units "
          "of DNSdata_b");
 

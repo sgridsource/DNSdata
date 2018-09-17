@@ -282,6 +282,7 @@ int DNSdata_setup_boxes(tGrid *grid)
 {
   double dc = Getd("DNSdata_b");
   double csize = Getd("DNSdata_InnerCubesSize");
+  double ssfac = Getd("DNSdata_OuterShellStart");
   double obfac = Getd("DNSdata_OuterBoundary");
   double xc[4];
 
@@ -308,14 +309,14 @@ int DNSdata_setup_boxes(tGrid *grid)
       sphere_around_two_full_cubes_touching_at_x0(grid, 0, dc,
                                                   csize*rf_surf1, rf_surf1,
                                                   csize*rf_surf2, rf_surf2,
-                                                  4.0*dc);
+                                                  ssfac*dc);
       break;
     case 38:
       printf("using: DNSdata_grid = 36CS_2xyz\n");
       two_spheres_around_two_full_cubes(grid, 0, dc,
                                         csize*rf_surf1, rf_surf1,
                                         csize*rf_surf2, rf_surf2,
-                                        4.0*dc, obfac*dc);
+                                        ssfac*dc, obfac*dc);
       break;
     default:
       errorexit("nboxes should be 13, 26, 32, or 38");
