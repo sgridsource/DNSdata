@@ -21,7 +21,27 @@ constvariables = {OmegaCrossR[a], xrdotor[a], omegMOmeg[a], xMxmax[a]}
 (* compute in this order *)
 tocompute = {
 
-  
+  (* get i,j,k and check if they are in current subbox *)
+  Cinstruction == "if(blkinfo!=NULL) {
+    int n1 = box->n1;
+    int n2 = box->n2;
+    int n3 = box->n3;
+    int k = kOfInd_n1n2(ijk,n1,n2);
+    int j = jOfInd_n1n2_k(ijk,n1,n2,k);
+    int i = iOfInd_n1n2_jk(ijk,n1,n2,j,k);
+    int sbi = blkinfo->sbi;
+    int sbj = blkinfo->sbj;
+    int sbk = blkinfo->sbk;
+    int nsb1 = blkinfo->nsb1;
+    int nsb2 = blkinfo->nsb2;
+    int nsb3 = blkinfo->nsb3;
+    int i1,i2, j1,j2, k1,k2;
+    IndexRangesInSubbox(i1,i2, j1,j2, k1,k2, sbi,sbj,sbk, nsb1,nsb2,nsb3);
+    if(i<i1 || i>=i2) continue;
+    if(j<j1 || j>=j2) continue;
+    if(k<k1 || k>=k2) continue;
+  }",
+ 
   (* Omega \times r term *)
   OmegaCrossR1 == - Omega y,
   OmegaCrossR2 == + Omega (x-xC),
