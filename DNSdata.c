@@ -2671,7 +2671,8 @@ exit(99);
     if( (realnormres_old <= realnormres*Getd("DNSdata_extraSigmaSolve_fac")) &&
         (itsSinceExtraSigma >= Geti("DNSdata_extraSigmaSolve_every")) )
     {
-      if(!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside"))
+      if( (!Getv("DNSdata_Sigma_surface_BCs","NoOutsideOnlySolve")) &&
+          (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
       {
         /* solve DNSdata_Sigma completely in outer boxes */
         printf("Setting DNSdata_Sigma outside the stars only...\n");
@@ -2753,6 +2754,7 @@ exit(99);
 
       /* solve completely in outer boxes at first iteration */
       if( (grid->time == 1.0-itmax) &&
+          (!Getv("DNSdata_Sigma_surface_BCs","NoOutsideOnlySolve")) &&
           (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
       {
         printf("Setting DNSdata_Sigma outside the stars only...\n");
@@ -2808,6 +2810,7 @@ exit(99);
     {
       /* solve completely in outer boxes at first iteration */
       if( (grid->time == 1.0-itmax) &&
+          (!Getv("DNSdata_Sigma_surface_BCs","NoOutsideOnlySolve")) &&
           (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
       {
         printf("Setting DNSdata_Sigma outside the stars only...\n");
