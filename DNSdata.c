@@ -351,6 +351,7 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("DNSdata_wBxx"));
   enablevar(grid, Ind("DNSdata_qx"));
   enablevar(grid, Ind("DNSdata_VRx"));
+  enablevar(grid, Ind("DNSdata_rotVx"));
   enablevar(grid, Ind("DNSdata_temp1"));
   enablevar(grid, Ind("DNSdata_temp2"));
   enablevar(grid, Ind("DNSdata_temp3"));
@@ -3082,8 +3083,10 @@ int DNSdata_analyze(tGrid *grid)
      double Sx_ADM1,Sy_ADM1,Sz_ADM1, Sx_ADM2,Sy_ADM2,Sz_ADM2; */
   double Px_1,  Py_1,  Pz_1,  Jx_1, Jy_1, Jz_1, M_1;
   double Rcx_1, Rcy_1, Rcz_1, Sx_1, Sy_1, Sz_1;
+  double rVx_1=0.0, rVy_1=0.0, rVz_1=0.0;
   double Px_2,  Py_2,  Pz_2,  Jx_2, Jy_2, Jz_2, M_2;
   double Rcx_2, Rcy_2, Rcz_2, Sx_2, Sy_2, Sz_2;
+  double rVx_2=0.0, rVy_2=0.0, rVz_2=0.0;
   int iX = Ind("X");
   int ix = Ind("x");
   int itemp1 = Ind("DNSdata_temp1");
@@ -3341,6 +3344,12 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
                Rcx_1,Rcy_1,Rcz_1, &Sx_1,&Sy_1,&Sz_1);
   DNS_get_Spin( Px_2, Py_2, Pz_2,  Jx_2, Jy_2, Jz_2,
                Rcx_2,Rcy_2,Rcz_2, &Sx_2,&Sy_2,&Sz_2);
+
+  /* compute average rotation of VR = V^i */
+  DNS_set_rotV(grid, Ind("DNSdata_VRx"), Ind("DNSdata_rotVx"));
+  DNS_set_MRc_VolInt_integrand(grid, 2, itemp1,itemp2,itemp3); // rotV integr.
+  DNS_InnerVolInt_vector(grid,STAR1,itemp1,itemp2,itemp3, &rVx_1,&rVy_1,&rVz_1);
+  DNS_InnerVolInt_vector(grid,STAR2,itemp1,itemp2,itemp3, &rVx_2,&rVy_2,&rVz_2);
   
   /* write into file */
   filenamelen = strlen(outdir) + strlen(name) + 200;
@@ -3416,6 +3425,10 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     fprintf(fp, "Sy_1\t\t%.19g\n", Sy_1);
     fprintf(fp, "Sz_1\t\t%.19g\n", Sz_1);
     fprintf(fp, "\n");
+    fprintf(fp, "rVx_1\t\t%.19g\n", rVx_1);
+    fprintf(fp, "rVy_1\t\t%.19g\n", rVy_1);
+    fprintf(fp, "rVz_1\t\t%.19g\n", rVz_1);
+    fprintf(fp, "\n");
     fprintf(fp, "(m2)_inf\t%.19g\n", TOV_m2);
     fprintf(fp, "(m2/R)_inf\t%.19g\n", TOV_m2/TOV_r_surf2);
     /* fprintf(fp, "(m02/R)_inf\t%.19g\n", m02/TOV_r_surf2); */
@@ -3444,6 +3457,10 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     fprintf(fp, "Sx_2\t\t%.19g\n", Sx_2);
     fprintf(fp, "Sy_2\t\t%.19g\n", Sy_2);
     fprintf(fp, "Sz_2\t\t%.19g\n", Sz_2);
+    fprintf(fp, "\n");
+    fprintf(fp, "rVx_2\t\t%.19g\n", rVx_2);
+    fprintf(fp, "rVy_2\t\t%.19g\n", rVy_2);
+    fprintf(fp, "rVz_2\t\t%.19g\n", rVz_2);
     fprintf(fp, "\n");
     fprintf(fp, "DNSdata_b\t%.19g\n", DNSdata_b);
     fprintf(fp, "\n");
@@ -4746,7 +4763,7 @@ void DNS_get_Spin(double Px, double Py, double Pz,
 
 
 /* find rotation of V^i = VR[i] */
-void DNS_set_rotV(tGrid *grid, int setRc, int iV, int irotV)
+void DNS_set_rotV(tGrid *grid, int iV, int irotV)
 {
   int b;
 

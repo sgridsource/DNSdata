@@ -66,6 +66,7 @@ void DNS_get_Spin(double Px, double Py, double Pz,
                   double Jx, double Jy, double Jz,
                   double Rcx, double Rcy, double Rcz,
                   double  *Sx, double  *Sy, double  *Sz);
+void DNS_set_rotV(tGrid *grid, int iV, int irotV);
 
 
 /* funtions from mathematica */
