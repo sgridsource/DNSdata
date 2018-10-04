@@ -2554,8 +2554,8 @@ int DNSdata_solve(tGrid *grid)
 
   /* output grid before any iterations are done */
   grid->time  = -itmax;
-  write_grid(grid);
   DNSdata_analyze(grid);
+  write_grid(grid);
   grid->time += 1.0;
 
   /* main iteration loop, do it until res is small enough */
