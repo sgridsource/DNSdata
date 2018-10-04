@@ -35,12 +35,12 @@ int sgrid_DNSdata()
   AddVar("DNSdata_Sigma",   "",     "Sigma is potential for irrot. part of h*u^i");
   AddVar("DNSdata_Sigma",   "i",    "1st deriv of Sigma");
   AddVar("DNSdata_Sigma",   "(ij)", "2nd deriv of Sigma");
-  AddVar("DNSdata_SigmaX",    "",     "1st A-deriv of Sigma");
-  AddVar("DNSdata_SigmaXX",   "",     "2nd A-deriv of Sigma");
-  AddVar("DNSdata_SigmaXXX",  "",     "3rd A-deriv of Sigma");
-  AddVar("DNSdata_lSigmaX",   "",     "1st A-deriv of Sigma");
-  AddVar("DNSdata_lSigmaXX",  "",     "2nd A-deriv of linearized Sigma");
-  AddVar("DNSdata_lSigmaXXX", "",     "3rd A-deriv of linearized Sigma");
+  AddVar("DNSdata_SigmaX",    "",     "1st lambda-deriv of Sigma");
+  AddVar("DNSdata_SigmaXX",   "",     "2nd lambda-deriv of Sigma");
+  AddVar("DNSdata_SigmaXXX",  "",     "3rd lambda-deriv of Sigma");
+  AddVar("DNSdata_lSigmaX",   "",     "1st lambda-deriv of linearized Sigma");
+  AddVar("DNSdata_lSigmaXX",  "",     "2nd lambda-deriv of linearized Sigma");
+  AddVar("DNSdata_lSigmaXXX", "",     "3rd lambda-deriv of linearized Sigma");
   AddVar("DNSdata_rhobar",    "",   "rhobar := rho Psi^8");
 
   AddVar("DNSdata_VR",  "I", "velocity in rotating frame: "
