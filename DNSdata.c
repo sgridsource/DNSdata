@@ -4511,16 +4511,18 @@ void set_DNSdata_actual_xyzmax_pars(tGrid *grid)
 }
 
 
-/* set integrand for ADM mass or Center Rc volume integral:
-   Rc integrands are in iIntegx, iIntegy, iIntegz if setRc=1, otherwise
-   M  integrand is in iIntegz */
-void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setRc,
+/* set integrand for ADM mass or Center Rc volume integral, or ...:
+   M  integrand is in iIntegz if setMRc=0
+   Rc integrands are in iIntegx, iIntegy, iIntegz if setMRc=1
+   rotV integrands are in iIntegx, iIntegy, iIntegz if setMRc=2 */
+void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setMRc,
                                   int iIntegx, int iIntegy, int iIntegz)
 {
   //int iPsi   = Ind("DNSdata_Psi");
   //int idPsi  = Ind("DNSdata_Psix");
   int iddPsi = Ind("DNSdata_Psixx");
   int ix = Ind("x");
+  int irotV  = Ind("DNSdata_rotVx");
   double xCM = Getd("DNSdata_x_CM");
   int b;
 
@@ -4537,6 +4539,9 @@ void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setRc,
     double *x   = box->v[ix];
     double *y   = box->v[ix+1];
     double *z   = box->v[ix+2];
+    double *rotVx = box->v[irotV];
+    double *rotVy = box->v[irotV+1];
+    double *rotVz = box->v[irotV+2];
     double *MRx = box->v[iIntegx];
     double *MRy = box->v[iIntegy];
     double *MRz = box->v[iIntegz];
@@ -4554,18 +4559,26 @@ void DNS_set_MRc_VolInt_integrand(tGrid *grid, int setRc,
       /* take out Psi^4 so that mass is correct for Schw. in Isotr. coords */
       //LapPsi = LapPsi * Psim4;
       // ^ not a good idea because then SurfInt is diff for M and P
-      if(setRc)
+      switch(setMRc)
       {
+      case 0: /* set mass M integrand */
+        MRz[ijk] = LapPsi;
+        break;
+      case 1: /* set Rc integrands */
         x1 = x[ijk] - xCM;
         x2 = y[ijk];
         x3 = z[ijk];
         MRx[ijk] = x1 * LapPsi;
         MRy[ijk] = x2 * LapPsi;
         MRz[ijk] = x3 * LapPsi;
-      }
-      else
-      {
-        MRz[ijk] = LapPsi;
+        break;
+      case 2: /* set rotV integrands */
+        MRx[ijk] = rotVx[ijk] * LapPsi;
+        MRy[ijk] = rotVy[ijk] * LapPsi;
+        MRz[ijk] = rotVz[ijk] * LapPsi;
+        break;
+      default:
+        errorexit("can do only cases 0,1,2.");
       }
     } /* end forallpoints */
   }
@@ -4729,4 +4742,53 @@ void DNS_get_Spin(double Px, double Py, double Pz,
   *Sx = Jx - (Rcy * Pz - Rcz * Py);
   *Sy = Jy - (Rcz * Px - Rcx * Pz);
   *Sz = Jz - (Rcx * Py - Rcy * Px);
+}
+
+
+/* find rotation of V^i = VR[i] */
+void DNS_set_rotV(tGrid *grid, int setRc, int iV, int irotV)
+{
+  int b;
+
+  forallboxes(grid,b)
+  {
+    tBox *box = grid->box[b];
+    double *V1 = box->v[iV];
+    double *V2 = box->v[iV+1];
+    double *V3 = box->v[iV+2];
+    double *rotV1 = box->v[irotV];
+    double *rotV2 = box->v[irotV+1];
+    double *rotV3 = box->v[irotV+2];
+    double *u1 = malloc((box->nnodes)*sizeof(double));
+    double *u2 = malloc((box->nnodes)*sizeof(double));
+    double *u3 = malloc((box->nnodes)*sizeof(double));
+    int ijk;
+
+    /* place pieces d_2 V1 and d_3 V1 into right places and initialize */
+    cart_partials(box, V1, u1,u2,u3); /* u has derivs of V1 */
+    forallpoints(box, ijk)
+    {
+      rotV1[ijk] = 0.;
+      rotV2[ijk] = +u3[ijk] * 0.5;
+      rotV3[ijk] = -u2[ijk] * 0.5;
+    }        
+    /* place pieces d_1 V2 and d_3 V2 into right places */
+    cart_partials(box, V2, u1,u2,u3); /* u has derivs of V2 */
+    forallpoints(box, ijk)
+    {
+      rotV1[ijk] -= u3[ijk] * 0.5;
+      rotV3[ijk] += u1[ijk] * 0.5;
+    }        
+    /* place pieces d_1 V3 and d_2 V3 into right places */
+    cart_partials(box, V3, u1,u2,u3); /* u has derivs of V3 */
+    forallpoints(box, ijk)
+    {
+      rotV1[ijk] += u2[ijk] * 0.5;
+      rotV2[ijk] -= u1[ijk] * 0.5;
+    }        
+
+    free(u3);
+    free(u2);
+    free(u1);
+  }
 }

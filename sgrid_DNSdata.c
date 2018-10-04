@@ -52,6 +52,7 @@ int sgrid_DNSdata()
   AddVar("DNSdata_q",   "",  "q := h-1");
   AddVar("DNSdata_wB",  "Ij","1st deriv of wB");
   AddVar("DNSdata_q",   "i", "1st deriv of q");
+  AddVar("DNSdata_rotV","i", "rot. of V^k: rotV_i = 0.5*eps_{ijk} d_j V^k");
 
   /* q we get from DNS_compute_new_q, with neg. values kept in boxes around stars */
   AddVar("DNSdata_qg", "", "global smooth q with neg. values kept");
