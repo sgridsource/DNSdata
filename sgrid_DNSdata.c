@@ -18,7 +18,6 @@ int sgrid_DNSdata()
   AddFun(PRE_INITIALDATA, DNSdata_startup, "initialize DNSdata");
   AddFun(INITIALDATA, setDNSdata, "set the DNS data");
   AddFun(ANALYZE, DNSdata_analyze, "compute properties of DNS data");
-  AddFun(ANALYZE, DNS_compute_chi, "Compute chi");
   AddFun(OUTPUT, DNS_Interpolate_ADMvars,
          "interpolate ADM initial data using BNSdata_Interpolate_pointsfile");
 

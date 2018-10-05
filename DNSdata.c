@@ -3103,8 +3103,7 @@ int DNSdata_analyze(tGrid *grid)
   double TOV_rf_surf1, TOV_m1, TOV_Phic1, TOV_Psic1, TOV_m01;  /* for TOV */
   double TOV_rf_surf2, TOV_m2, TOV_Phic2, TOV_Psic2, TOV_m02;  /* for TOV */
   double TOV_r_surf1, TOV_r_surf2, TOV_Psis1, TOV_Psis2;
-  double chi1 = Getd("DNSdata_mass_shedding1");
-  double chi2 = Getd("DNSdata_mass_shedding2");
+  double chi1, chi2;
   FILE *fp;
   char *outdir = Gets("outdir");
   char name[] = "DNSdata_properties.txt";
@@ -3115,9 +3114,14 @@ int DNSdata_analyze(tGrid *grid)
 
   /* do nothing if BNSdata_Interpolate_pointsfile exists */
   if(GetsLax("BNSdata_Interpolate_pointsfile")!=0) return 0;
-  
+
   printf("DNSdata_analyze: computing properties of DNS data\n");
   prTimeIn_s("WallTime: ");
+
+  /* get mass shedding indicators */
+  DNS_compute_chi(grid);
+  chi1 = Getd("DNSdata_mass_shedding1");
+  chi2 = Getd("DNSdata_mass_shedding2");
 
   /* get inner and outer edges of both stars */
   {
