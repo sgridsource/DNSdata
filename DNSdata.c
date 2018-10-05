@@ -3352,6 +3352,12 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
                          &rotVx_1,&rotVy_1,&rotVz_1);
   DNS_InnerVolInt_vector(grid, STAR2, itemp1,itemp2,itemp3, 
                          &rotVx_2,&rotVy_2,&rotVz_2);
+  rotVx_1 = rotVx_1 / M_1;
+  rotVy_1 = rotVy_1 / M_1;
+  rotVz_1 = rotVz_1 / M_1;
+  rotVx_2 = rotVx_2 / M_2;
+  rotVy_2 = rotVy_2 / M_2;
+  rotVz_2 = rotVz_2 / M_2;
 
   /* write into file */
   filenamelen = strlen(outdir) + strlen(name) + 200;
