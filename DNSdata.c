@@ -3141,15 +3141,15 @@ int DNSdata_analyze(tGrid *grid)
       {
         if(box->CI->dom==0)
         {
-          double xin = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
-          if(box->SIDE==STAR1) xin1 = xin;
-          if(box->SIDE==STAR2) xin2 = xin;
+          double x1 = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
+          if(box->SIDE==STAR1) xin1  = x1;
+          if(box->SIDE==STAR2) xout2 = x1;
         }
         if(box->CI->dom==1) 
         {
-          double xout = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
-          if(box->SIDE==STAR1) xout1 = xout;
-          if(box->SIDE==STAR2) xout2 = xout;
+          double x1 = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
+          if(box->SIDE==STAR1) xout1 = x1;
+          if(box->SIDE==STAR2) xin2  = x1;
         }
       }
     }
