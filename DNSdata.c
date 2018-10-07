@@ -2777,7 +2777,14 @@ exit(99);
       restres = GridL2Norm_of_vars_in_string(grid,  
                                       Gets("DNSdata_CTS_Eqs_Iteration_order"));
       printf(" realSigmares=%g  restres=%g\n", realSigmares, restres);
-      if( realSigmares >= restres * Getd("DNSdata_SigmaSolve_tolFac") )
+      if( realSigmares < Getd("DNSdata_SigmaSolve_Shutdowntol") )
+      {
+        Sets("DNSdata_SigmaSolve","no");
+        printf(" Setting: DNSdata_SigmaSolve = %s\n",
+               Gets("DNSdata_SigmaSolve"));
+      }
+      if( (realSigmares >= restres * Getd("DNSdata_SigmaSolve_tolFac")) &&
+          (!Getv("DNSdata_SigmaSolve","no")) )
       {
         /* solve the ell. eqn for Sigma alone */
         DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 

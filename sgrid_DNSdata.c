@@ -235,6 +235,9 @@ int sgrid_DNSdata()
          "solve for Sigma if res_old/res <= fac");
   AddPar("DNSdata_extraSigmaSolve_every", "10",
          "how often we do the extra Sigma solve");
+  AddPar("DNSdata_SigmaSolve", "yes", "whether we solve Sigma [yes,no]");
+  AddPar("DNSdata_SigmaSolve_Shutdowntol", "0", "when residual in Sigma drops "
+         "to this value we set \"DNSdata_SigmaSolve=no\" to end Sigma solves");
   AddPar("DNSdata_SigmaSolve_tolFac", "0",
          "use solver for Sigma if norm(Sigma_Err) >= norm(Rest_Err) * tolFac");
   AddPar("DNSdata_FinalEllSolveVars", "", "vars for which do another elliptic "
