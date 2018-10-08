@@ -2670,7 +2670,8 @@ exit(99);
     printf(" realnormres=%g   realnormres_old=%g\n",
            realnormres, realnormres_old);
     if( (realnormres_old <= realnormres*Getd("DNSdata_extraSigmaSolve_fac")) &&
-        (itsSinceExtraSigma >= Geti("DNSdata_extraSigmaSolve_every")) )
+        (itsSinceExtraSigma >= Geti("DNSdata_extraSigmaSolve_every")) &&
+        (!Getv("DNSdata_SigmaSolve","no")) )
     {
       if( (!Getv("DNSdata_Sigma_surface_BCs","NoOutsideOnlySolve")) &&
           (!Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside")) )
