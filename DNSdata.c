@@ -70,7 +70,8 @@ void make_vl_vlDeriv_vlF_vld_vldDerivs_vlJd_forComponent(tGrid *grid,
 void free_vl_vlDeriv_vlF_vld_vldDerivs_vlJd(
      tVarList *vlw,  tVarList *vlwDerivs,  tVarList *vlFw,
      tVarList *vldw, tVarList *vldwDerivs, tVarList *vlJdw);
-double GridL2Norm_of_vars_in_string(tGrid *grid, char *str);
+double GridL2Norm_of_vars_in_string(tGrid *grid, char *str, int nonlin);
+double GridL2Norm_of_vars_in_string_nonlin(tGrid *grid, char *str);
 double GridL2Norm_of_vars_in_string_withZeroErr_outside(tGrid *grid, char *str);
 int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax, 
   double tol, double *normres, 
@@ -80,6 +81,14 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
 	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
 	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
   int pr, char *str);
+int DNS_solve_only_DNSdata_Sigma(tGrid *grid, int itmax, 
+  double tol, double *normres, 
+  int (*linear_solver)(tVarList *x, tVarList *b, 
+            tVarList *r, tVarList *c1,tVarList *c2,
+	    int itmax, double tol, double *normres,
+	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
+	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
+  int pr);
 int DNS_ordered_Eqn_Iterator(tGrid *grid, int itmax, 
   double tol, double *normres, 
   int (*linear_solver)(tVarList *x, tVarList *b, 
@@ -2679,21 +2688,21 @@ exit(99);
         /* solve DNSdata_Sigma completely in outer boxes */
         printf("Setting DNSdata_Sigma outside the stars only...\n");
         Sets("DNSdata_KeepInnerSigma", "yes");
-        DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol,
-             &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
+        DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol,
+             &normresnonlin, linear_solver, 1);
         Sets("DNSdata_KeepInnerSigma", "no");
         totalerr1 = average_current_and_old(1, grid,vlFu,vlu,vluDerivs, vlJdu);
         /* reset Sigmaold to take into account new Sigma in outer boxes */
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
 
         /* reset Newton_tol, use only other vars */
-        normresnonlin = GridL2Norm_of_vars_in_string(grid, 
+        normresnonlin = GridL2Norm_of_vars_in_string_nonlin(grid, 
                                       Gets("DNSdata_CTS_Eqs_Iteration_order"));
         Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
       }
       /* solve the ell. eqn for Sigma alone */
-      DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
-             &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
+      DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol, 
+             &normresnonlin, linear_solver, 1);
       totalerr1 = average_current_and_old(Sigma_esw, 
                                           grid,vlFu,vlu,vluDerivs, vlJdu);
       if(Sigma_esw<1.0 && it>=allow_Sigma_esw1_it && allow_Sigma_esw1_it>=0)
@@ -2729,10 +2738,10 @@ exit(99);
         printf("Setting DNSdata_Sigma outside the stars only (using UMFPACK)...\n");
         /* do not touch Sigma in inner boxes, but solve in outer */
         Sets("DNSdata_KeepInnerSigma", "yes");
-        DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
-               &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
-        // DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
-        //       &normresnonlin, UMFPACK_solve_wrapper, 1, "DNSdata_Sigma");
+        DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol, 
+               &normresnonlin, linear_solver, 1);
+        // DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol, 
+        //       &normresnonlin, UMFPACK_solve_wrapper, 1);
         Sets("DNSdata_KeepInnerSigma", "no");
         totalerr1 = average_current_and_old(1, grid,vlFu,vlu,vluDerivs, vlJdu);
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
@@ -2751,7 +2760,7 @@ exit(99);
     else if(Getv("DNSdata_EllSolver_method", "DNS_ordered_Eqn_Iterator"))
     {
       // /* reset Newton_tol, so that we always solve for Sigma */
-      // normresnonlin = GridL2Norm_of_vars_in_string(grid, "DNSdata_Sigma");
+      // normresnonlin = GridL2Norm_of_vars_in_string_nonlin(grid, "DNSdata_Sigma");
       // Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
 
       /* solve completely in outer boxes at first iteration */
@@ -2762,8 +2771,8 @@ exit(99);
         printf("Setting DNSdata_Sigma outside the stars only...\n");
         /* do not touch Sigma in inner boxes, but solve in outer */
         Sets("DNSdata_KeepInnerSigma", "yes");
-        DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
-               &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
+        DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol, 
+               &normresnonlin, linear_solver, 1);
         Sets("DNSdata_KeepInnerSigma", "no");
         totalerr1 = average_current_and_old(1, grid,vlFu,vlu,vluDerivs, vlJdu);
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
@@ -2775,7 +2784,7 @@ exit(99);
       /* do we want to solve for Sigma? */
       realSigmares =
        GridL2Norm_of_vars_in_string_withZeroErr_outside(grid, "DNSdata_Sigma");
-      restres = GridL2Norm_of_vars_in_string(grid,  
+      restres = GridL2Norm_of_vars_in_string_nonlin(grid,  
                                       Gets("DNSdata_CTS_Eqs_Iteration_order"));
       printf(" realSigmares=%g  restres=%g\n", realSigmares, restres);
       if( realSigmares < Getd("DNSdata_SigmaSolve_Shutdowntol") )
@@ -2788,8 +2797,8 @@ exit(99);
           (!Getv("DNSdata_SigmaSolve","no")) )
       {
         /* solve the ell. eqn for Sigma alone */
-        DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
-               &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
+        DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol, 
+               &normresnonlin, linear_solver, 1);
         totalerr1 = average_current_and_old(Sigma_esw, 
                                             grid,vlFu,vlu,vluDerivs, vlJdu);
         if(Sigma_esw<1.0 && it>=allow_Sigma_esw1_it && allow_Sigma_esw1_it>=0)
@@ -2807,7 +2816,7 @@ exit(99);
       }
 
       /* reset Newton_tol */
-      normresnonlin = GridL2Norm_of_vars_in_string(grid, 
+      normresnonlin = GridL2Norm_of_vars_in_string_nonlin(grid, 
                                       Gets("DNSdata_CTS_Eqs_Iteration_order"));
       Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
 
@@ -2825,8 +2834,8 @@ exit(99);
         printf("Setting DNSdata_Sigma outside the stars only...\n");
         /* do not touch Sigma in inner boxes, but solve in outer */
         Sets("DNSdata_KeepInnerSigma", "yes");
-        DNS_Eqn_Iterator_for_vars_in_string(grid, Newton_itmax, Newton_tol, 
-               &normresnonlin, linear_solver, 1, "DNSdata_Sigma");
+        DNS_solve_only_DNSdata_Sigma(grid, Newton_itmax, Newton_tol, 
+               &normresnonlin, linear_solver, 1);
         Sets("DNSdata_KeepInnerSigma", "no");
         totalerr1 = average_current_and_old(1, grid,vlFu,vlu,vluDerivs, vlJdu);
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
@@ -2838,7 +2847,7 @@ exit(99);
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
       }
       /* reset Newton_tol */
-      normresnonlin = GridL2Norm_of_vars_in_string(grid, 
+      normresnonlin = GridL2Norm_of_vars_in_string_nonlin(grid, 
                                       Gets("DNSdata_CTS_Eqs_Iteration_order"));
       Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
 
@@ -3670,7 +3679,7 @@ void free_vl_vlDeriv_vlF_vld_vldDerivs_vlJd(
 /* this works only it the string contains at most
    "DNSdata_Psi DNSdata_Bx DNSdata_By DNSdata_Bz DNSdata_alphaP DNSdata_Sigma" 
    */
-double GridL2Norm_of_vars_in_string(tGrid *grid, char *str)
+double GridL2Norm_of_vars_in_string(tGrid *grid, char *str, int nonlin)
 {
   int pos;
   char *word;
@@ -3686,8 +3695,12 @@ double GridL2Norm_of_vars_in_string(tGrid *grid, char *str)
     /* make new vlw, ... for var in string word */
     make_vl_vlDeriv_vlF_vld_vldDerivs_vlJd_forComponent(grid,
              &vlw,&vlwDerivs,&vlFw,  &vldw,&vldwDerivs,&vlJdw,  word);
-      
-    F_oneComp(vlFw, vlw, vlwDerivs, NULL);
+
+    if(nonlin)
+      F_oneComp(vlFw, vlw, vlwDerivs, NULL);
+    else
+      J_oneComp(vlJdw, vldw, vldwDerivs, vlw);
+
     norm = GridL2Norm(vlFw);
     sum += norm;
     //printf("%s: residual = %g\n", word, norm);
@@ -3698,6 +3711,11 @@ double GridL2Norm_of_vars_in_string(tGrid *grid, char *str)
   //printf(" => total residual = %g\n", sum);
   free(word);
   return sum;
+}
+/* return nonlin residual for vars listed in string */
+double GridL2Norm_of_vars_in_string_nonlin(tGrid *grid, char *str)
+{
+  return GridL2Norm_of_vars_in_string(grid, str, 1);
 }
 
 /* find residual of vars listed in string, but set Err to zero outside 
@@ -3780,7 +3798,7 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
     int Newton_ret, Newton_err=0;
 
     /* compute error */
-    *normres = GridL2Norm_of_vars_in_string(grid, str);
+    *normres = GridL2Norm_of_vars_in_string_nonlin(grid, str);
 
     if(pr)
     {
@@ -3823,7 +3841,7 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
         //^Don't update rhobar, since this triggers non-conv. it. if m0=2.2
 
         /* compute current error, after resetting rhobar */
-        normresnonlin = GridL2Norm_of_vars_in_string(grid, word);
+        normresnonlin = GridL2Norm_of_vars_in_string_nonlin(grid, word);
 
         /* signal error if Newton_ret>Newton_itmax */
         if(Newton_ret>=Newton_itmax) Newton_err=1;
@@ -3845,7 +3863,7 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
   /* warn if we didn't converge */
   if (it >= itmax)
   {
-    *normres = GridL2Norm_of_vars_in_string(grid, str);
+    *normres = GridL2Norm_of_vars_in_string_nonlin(grid, str);
     prdivider(1);
     printf("DNS_Eqn_Iterator_for_vars_in_string:\n  *** Too many steps! ");
     if(*normres <= tol) printf("*** \n");
@@ -3854,6 +3872,99 @@ int DNS_Eqn_Iterator_for_vars_in_string(tGrid *grid, int itmax,
            "  residual = %e\n", it, *normres);
   }
   return it;
+}
+
+/* solve for DNSdata_Sigma alone */
+int DNS_solve_only_DNSdata_Sigma(tGrid *grid, int itmax, 
+  double tol, double *normres, 
+  int (*linear_solver)(tVarList *x, tVarList *b, 
+            tVarList *r, tVarList *c1,tVarList *c2,
+	    int itmax, double tol, double *normres,
+	    void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *), 
+	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)),
+  int pr)
+{
+  char Sigstr[] = "DNSdata_Sigma";
+  int ret;
+
+  /* case where only boxes with and near stars are active */
+  if(Getv("DNSdata_SigmaSolve","OuterBoxesOff"))
+  {
+    int b;
+    intList *bl = alloc_intList(); 
+    tVarList *vldSigma = vlalloc(grid);
+
+    /* make sure DNS_CTS is called to set all derivs */
+    activate_allboxes(grid);
+    GridL2Norm_of_vars_in_string(grid, Sigstr, 1);
+
+    /* set linearized Sigma called dSigma=0 and then compute all its derivs */
+    vlpush(vldSigma, Ind("DNSdata_Sigma_l"));
+    vlsetconstant(vldSigma, 0.);
+    GridL2Norm_of_vars_in_string(grid, Sigstr, 0);
+
+    if(!Getv("DNSdata_KeepInnerSigma", "yes"))
+    {
+      /* deactivate all but boxes in STAR1 */
+      clear_intList(bl);
+      forallActiveAndInactiveboxes(grid, b)
+      {
+        tBox *box = grid->box[b];
+        if((box->SIDE != STAR1) || (box->MATTR != INSIDE)) push_intList(bl, b);
+      }
+      deactivate_boxes(grid, bl);
+      printf("Solving %s inside star1:\n", Sigstr);
+      ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                              linear_solver, 1, Sigstr);
+      activate_allboxes(grid);
+
+      /* deactivate all but boxes in STAR2 */
+      clear_intList(bl);
+      forallActiveAndInactiveboxes(grid, b)
+      {
+        tBox *box = grid->box[b];
+        if((box->SIDE != STAR2) || (box->MATTR != INSIDE)) push_intList(bl, b);
+      }
+      deactivate_boxes(grid, bl);
+      printf("Solving %s inside star2:\n", Sigstr);
+      ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                              linear_solver, 1, Sigstr);
+      activate_allboxes(grid);
+    }
+
+    /* deactivate all but boxes around STAR1 */
+    clear_intList(bl);
+    forallActiveAndInactiveboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      if((box->SIDE != STAR1) || (box->MATTR != TOUCH)) push_intList(bl, b);
+    }
+    deactivate_boxes(grid, bl);
+    printf("Solving %s outside star1:\n", Sigstr);
+    ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                            linear_solver, 1, Sigstr);
+    activate_allboxes(grid);
+
+    /* deactivate all but boxes around STAR2 */
+    clear_intList(bl);
+    forallActiveAndInactiveboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      if((box->SIDE != STAR2) || (box->MATTR != TOUCH)) push_intList(bl, b);
+    }
+    deactivate_boxes(grid, bl);
+    printf("Solving %s outside star2:\n", Sigstr);
+    ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                            linear_solver, 1, Sigstr);
+    activate_allboxes(grid);
+    
+    vlfree(vldSigma);
+    free_intList(bl);
+  }
+  else /* case where all boxes are active */
+    ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                            linear_solver, 1, Sigstr);
+  return ret;
 }
 
 /* solve the coupled ell. eqns one after an other (in a particular order), 
