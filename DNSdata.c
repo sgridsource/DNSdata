@@ -4000,6 +4000,10 @@ int DNS_solve_only_DNSdata_Sigma(tGrid *grid, int itmax,
   char Sigstr[] = "DNSdata_Sigma";
   int ret;
 
+  /* choose linear solver */
+  if(Getv("DNSdata_Sigma_linSolver", "UMFPACK"))
+    linear_solver=UMFPACK_solve_wrapper;
+
   /* case where only boxes with and near stars are active */
   if(Getv("DNSdata_SigmaSolve","OuterBoxesOff"))
   {

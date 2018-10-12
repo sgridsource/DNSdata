@@ -244,6 +244,8 @@ int sgrid_DNSdata()
          "to this value we set \"DNSdata_SigmaSolve=no\" to end Sigma solves");
   AddPar("DNSdata_SigmaSolve_tolFac", "0",
          "use solver for Sigma if norm(Sigma_Err) >= norm(Rest_Err) * tolFac");
+  AddPar("DNSdata_Sigma_linSolver", "", "special linear solver for just "
+         "DNSdata_Sigma [UMFPACK]");
   AddPar("DNSdata_FinalEllSolveVars", "", "vars for which do another elliptic "
          "solve after all other iterations are done. E.g. DNSdata_Psi");
   AddPar("DNSdata_linSolver", "UMFPACK", 
