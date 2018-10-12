@@ -1388,7 +1388,7 @@ void DNS_add_const_to_CubSph_sigma(tGrid *grid, double dsig, int star)
   int sigi = Ind("Coordinates_CubedSphere_sigma01");
   int b, i;
 
-  if(star!=STAR1 || star!=STAR2)
+  if(star!=STAR1 && star!=STAR2)
     errorexit("DNS_add_const_to_CubSph_sigma: star is not 1 or 2");
 
   /* do nothing if dsig=0 */  
