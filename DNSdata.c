@@ -1490,7 +1490,7 @@ void smooth_DNSdata_Sigma_NearBoundary(tGrid *grid, int itmax, double tol,
   printf(" -> xin1=%g xout1=%g  xin2=%g xout2=%g\n", xin1,xout1, xin2, xout2);
 
   /* do not touch DNSdata_Sigma in inner boxes, but solve in outer */
-  printf("set DNSdata_Sigma by extrapolation outside skrunk star boxes...\n");
+  printf("set DNSdata_Sigma by extrapolation outside newly shrunk star boxes...\n");
   Sets("DNSdata_KeepInnerSigma", "yes");
   DNS_solve_only_DNSdata_Sigma(grid, itmax, tol, 
                                &normresnonlin, linear_solver, 1);
