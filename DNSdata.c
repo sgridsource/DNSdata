@@ -1380,8 +1380,137 @@ int adjust_C1_C2_q_keep_m0_or_qmax(tGrid *grid, int it, double tol)
 
 
 
+/* add a const to sigma to change the box boundaries */
+void DNS_add_const_to_CubSph_sigma(tGrid *grid, double dsig, int star)
+{
+  tGrid *grid2;
+  int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
+  int sigi = Ind("Coordinates_CubedSphere_sigma01");
+  int b, i;
 
+  if(star!=STAR1 || star!=STAR2)
+    errorexit("DNS_add_const_to_CubSph_sigma: star is not 1 or 2");
 
+  /* do nothing if dsig=0 */  
+  if(dsig==0.0) return;
+
+  printf(" DNS_add_const_to_CubSph_sigma:  dsig=%f  star=%d\n", dsig, star);
+
+  /* make new grid2, which is an exact copy of grid */
+  grid2 = make_empty_grid(grid->nvariables, 0);
+  copy_grid(grid, grid2, 0);
+
+  /* loop over boxes */
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    double *surf;
+    double *surf2;
+
+    /* do nothing if we are in the wrong box */
+    if(box->SIDE!=star || box->BOUND!=SSURF) continue;
+
+    surf  = box->v[sigi];
+    surf2 = grid2->box[b]->v[sigi];
+
+    /* add dsig on grid2 to */      
+    forallpoints(box, i)  surf2[i] = surf[i] + dsig;
+  }
+
+  /* initialize coords of grid2 on side of star */
+  DNSgrid_init_Coords_for_star(grid2, star);
+
+  /* interpolate some vars from grid onto new grid2 */
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_q"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_Psi"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_alphaP"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_Bx"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_By"),star);
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_Bz"),star);
+  if( (star==STAR1 && !Getv("DNSdata_rotationstate1","corotation")) ||
+      (star==STAR2 && !Getv("DNSdata_rotationstate2","corotation"))   )
+  {
+    Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_Sigma"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_wBx"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_wBy"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_wBz"),star);
+  }
+  if(interp_qgold)
+  {
+    Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_qg"),star);
+    Interp_Var_From_Grid1_To_Grid2_star(grid, grid2, Ind("DNSdata_qgold"),star);
+  }
+  /* copy grid2 back into grid, and free grid2 */
+  copy_grid(grid2, grid, 0);
+  free_grid(grid2);
+}
+
+/* smooth DNSdata_Sigma, by contracting inner boxes */
+void smooth_DNSdata_Sigma_NearBoundary(tGrid *grid, int itmax, double tol,
+     int (*linear_solver)(tVarList *x, tVarList *b,
+              tVarList *r, tVarList *c1,tVarList *c2,
+              int itmax, double tol, double *normres,
+              void (*lop)(tVarList *, tVarList *, tVarList *, tVarList *),
+              void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *)))
+{
+  tGrid *grid_bak;
+  tParameter *pdb_bak;
+  double dsig_ch = Getd("DNSdata_SmoothSigmaRegion");
+  int iSigma = Ind("DNSdata_Sigma");
+  double normresnonlin;
+  double xout1, xin1, xout2, xin2;
+  double dsig1, dsig2;
+
+  /* do nothing if no change */
+  if(dsig_ch==0.0) return;
+  if(Getv("DNSdata_SmoothSigma", "no")) return;
+
+  /* set change we make in sigma */
+  DNS_find_xin_xout(grid, &xin1, &xout1, &xin2, &xout2);
+  dsig1 = -0.5*(xout1-xin1) * dsig_ch;
+  dsig2 = -0.5*(xin2-xout2) * dsig_ch;
+
+  prdivider(1);
+  printf("smooth_DNSdata_Sigma_NearBoundary:  dsig1=%g  dsig2=%g\n",
+         dsig1, dsig2);
+
+  /* make exact copies of grid and pdb */
+  grid_bak = make_empty_grid(grid->nvariables, 0);
+  copy_grid(grid, grid_bak, 0);
+  pdb_bak  = make_empty_pdb(npdbmax);
+  copy_pdb(pdb, npdb, pdb_bak);
+
+  /* now change Coordinates_CubedSphere_sigma01 on grid, so that boundaries
+     move inwards */
+  DNS_add_const_to_CubSph_sigma(grid, dsig1, STAR1);
+  DNS_add_const_to_CubSph_sigma(grid, dsig2, STAR2);
+
+  /* get inner and outer edges of both stars */
+  DNS_find_xin_xout(grid, &xin1, &xout1, &xin2, &xout2);
+  printf(" -> xin1=%g xout1=%g  xin2=%g xout2=%g\n", xin1,xout1, xin2, xout2);
+
+  /* do not touch DNSdata_Sigma in inner boxes, but solve in outer */
+  printf("set DNSdata_Sigma by extrapolation outside skrunk star boxes...\n");
+  Sets("DNSdata_KeepInnerSigma", "yes");
+  DNS_solve_only_DNSdata_Sigma(grid, itmax, tol, 
+                               &normresnonlin, linear_solver, 1);
+  Sets("DNSdata_KeepInnerSigma", "no");
+
+  /* interpolate new DNSdata_Sigma to grid_bak */
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid_bak, iSigma, STAR1);
+  Interp_Var_From_Grid1_To_Grid2_star(grid, grid_bak, iSigma, STAR2);
+  printf("smooth_DNSdata_Sigma_NearBoundary: modified DNSdata_Sigma.\n");
+
+  /* copy grid_bak and pdb_bak back into grid and pdb */
+  copy_grid(grid_bak, grid, 0);
+  copy_pdb(pdb_bak, npdb, pdb);
+  /* free grid_bak pdb_bak */
+  free_grid(grid_bak);
+  free_pdb(pdb_bak, npdb); 
+
+  DNS_find_xin_xout(grid, &xin1, &xout1, &xin2, &xout2);
+  printf(" -> xin1=%g xout1=%g  xin2=%g xout2=%g\n", xin1,xout1, xin2, xout2);
+}
 
 
 
@@ -3141,29 +3270,7 @@ int DNSdata_analyze(tGrid *grid)
   chi2 = Getd("DNSdata_mass_shedding2");
 
   /* get inner and outer edges of both stars */
-  {
-    int b;
-    forallboxes(grid, b)
-    {
-      tBox *box = grid->box[b];
-      /* find boxes with matter and star surfaces */
-      if(box->MATTR==INSIDE && box->BOUND==SSURF)
-      {
-        if(box->CI->dom==0)
-        {
-          double x1 = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
-          if(box->SIDE==STAR1) xin1  = x1;
-          if(box->SIDE==STAR2) xout2 = x1;
-        }
-        if(box->CI->dom==1) 
-        {
-          double x1 = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
-          if(box->SIDE==STAR1) xout1 = x1;
-          if(box->SIDE==STAR2) xin2  = x1;
-        }
-      }
-    }
-  }
+  DNS_find_xin_xout(grid, &xin1, &xout1, &xin2, &xout2);
 
   /* compute rest masses m01, m02 */
   m01 = GetInnerRestMass(grid, STAR1);

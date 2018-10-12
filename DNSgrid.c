@@ -454,6 +454,34 @@ void m0_VectorFuncP(int n, double *vec, double *fvec, void *p)
 }
 
 
+/* get inner and outer edges of both stars */
+void DNS_find_xin_xout(tGrid *grid, double *xin1, double *xout1,
+                                    double *xin2, double *xout2)
+{
+  int b;
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    /* find boxes with matter and star surfaces */
+    if(box->MATTR==INSIDE && box->BOUND==SSURF)
+    {
+      if(box->CI->dom==0)
+      {
+        double x1 = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
+        if(box->SIDE==STAR1) *xin1  = x1;
+        if(box->SIDE==STAR2) *xout2 = x1;
+      }
+      if(box->CI->dom==1) 
+      {
+        double x1 = box->x_of_X[1]((void *) box, -1, 1.0,0.0,0.0);
+        if(box->SIDE==STAR1) *xout1 = x1;
+        if(box->SIDE==STAR2) *xin2  = x1;
+      }
+    }
+  }
+}
+
+
 /*****************************/
 /* functions to to avoid q<0 */
 /*****************************/

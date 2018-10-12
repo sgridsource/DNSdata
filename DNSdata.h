@@ -142,6 +142,8 @@ void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi,
 void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val);
 int set_DNSdata_CoordFac(tGrid *grid);
 void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star);
+void DNS_find_xin_xout(tGrid *grid, double *xin1, double *xout1,
+                                    double *xin2, double *xout2);
 
 /* from DNS_Interpolate_ADMvars.c */
 int DNS_Interpolate_ADMvars(tGrid *grid);
