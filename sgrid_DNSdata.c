@@ -185,6 +185,9 @@ int sgrid_DNSdata()
   AddPar("DNSdata_desired_VolAvSigma2", "0", "desired value of VolAvSigma "
          "(i.e. InnerVolInt or InnerSum) in Sigma surface BC for star2");
   AddPar("DNSdata_KeepInnerSigma", "no", "keep Sigma in inner boxes [no,yes]");
+  AddPar("DNSdata_SmoothSigma", "no", "whether we apply extra smoothing after "
+         "elliptic solve for Sigma [no,yes]");
+  AddPar("DNSdata_SmoothSigmaRegion", "0", "size of smoothing region");
   AddPar("DNSdata_itmax", "10", "max. number of iterations in DNSdata_solve");
   AddPar("DNSdata_break_if_err_below_tol", "at_iterationend after_ell_solve",
          "which if clauses we use to break out of main iteration loop "

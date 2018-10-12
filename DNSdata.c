@@ -2844,6 +2844,8 @@ exit(99);
           totalerr = average_current_and_old(Sigma_esw/Sigma_esw1, 
                                              grid,vlFu,vlu,vluDerivs,vlJdu);
       }
+      /* try to smooth BNSdata_Sigma near the boundary */
+      smooth_DNSdata_Sigma_NearBoundary(grid, 2, tol, linear_solver);
 
       /* reset Newton_tol, use error norm of all vars in vlu */
       F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
@@ -2940,6 +2942,10 @@ exit(99);
             totalerr = average_current_and_old(Sigma_esw/Sigma_esw1, 
                                                grid,vlFu,vlu,vluDerivs,vlJdu);
         }
+        /* try to smooth DNSdata_Sigma near the boundary, recomp Err */
+        smooth_DNSdata_Sigma_NearBoundary(grid, 2, tol, linear_solver);
+        F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
+
         /* reset Sigmaold so that Sigma does not change when we average later */
         varcopy(grid, Ind("DNSdata_Sigmaold"),  Ind("DNSdata_Sigma"));
       }
