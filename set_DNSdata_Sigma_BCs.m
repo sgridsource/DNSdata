@@ -138,7 +138,8 @@ tocompute = {
                                                  1.,AA,BB, &rr, &drdlamin);",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
       LoLin == drdlam/drdlamin,
-      FSigma == nv[a] (dSig[a] - dSigin[a] LoLin OuterSigmaTransitionD1),
+      fTrans == LoLin OuterSigmaTransitionD1,
+      FSigma == nv[a] (dSig[a] - dSigin[a] fTrans),
       Cinstruction == "} /* endfor */",
 
       (* set n^i n^j d^2Sigma/(dx^i dx^j) equal at star surfaces, 
@@ -166,7 +167,8 @@ tocompute = {
                                                  1.,AA,BB, &rr, &drdlamin);",
       Cinstruction == "ijk=Index(2,j,k); /* set index to i=2 */",
       LoLin == drdlam/drdlamin,
-      FSigma == nv[a] nv[b] (ddSig[a,b] - ddSigin[a,b] LoLin OuterSigmaTransitionD2),
+      fTrans == LoLin LoLin OuterSigmaTransitionD2,
+      FSigma == nv[a] nv[b] (ddSig[a,b] - ddSigin[a,b] fTrans),
       Cinstruction == "} /* endfor */",
 
     Cif == else,   (* linear case *)
@@ -209,7 +211,8 @@ tocompute = {
                                                  1.,AA,BB, &rr, &drdlamin);",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
       LoLin == drdlam/drdlamin,
-      FlSigma == nv[a] (dlSig[a] - dlSigin[a] LoLin OuterSigmaTransitionD1),
+      fTrans == LoLin OuterSigmaTransitionD1,
+      FlSigma == nv[a] (dlSig[a] - dlSigin[a] fTrans),
       Cinstruction == "} /* endfor */",
 
       (* set n^i n^j d^2Sigma/(dx^i dx^j) equal at star surfaces, 
@@ -237,7 +240,8 @@ tocompute = {
       ddlSigin[a,b] == ddlSigmain[a,b],
       Cinstruction == "ijk=Index(2,j,k); /* set index to i=2 */",
       LoLin == drdlam/drdlamin,
-      FlSigma == nv[a] nv[b] (ddlSig[a,b] - ddlSigin[a,b] LoLin OuterSigmaTransitionD2),
+      fTrans == LoLin LoLin OuterSigmaTransitionD2,
+      FlSigma == nv[a] nv[b] (ddlSig[a,b] - ddlSigin[a,b] fTrans),
       Cinstruction == "} /* endfor */",
 
     Cif == end, (* end linear case *)
