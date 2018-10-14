@@ -976,6 +976,82 @@ void copy_Var_Box1ATlam1_to_Box2ATlam0(tGrid *grid, int vind, int b1, int b2)
 }
 
 
+/* extrapolate Sigma to outside pof star in a very simple way.
+   This will cause jumps in Sigma's derivs! But Sigma should be C0 */
+void set_outside_DNSdata_Sigma_by_S0Extrap(tGrid *grid, int star)
+{
+  int b;
+  int iSig = Ind("DNSdata_Sigma");
+  int iX   = Ind("X");
+  int iY   = Ind("Y");
+  int iZ   = Ind("Z");
+
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    int n1 = grid->box[b]->n1;
+    int n2 = grid->box[b]->n2;
+    int n3 = grid->box[b]->n3;
+    double *X   = box->v[iX];
+    double *Y   = box->v[iY];
+    double *Z   = box->v[iZ];
+    double *Sig = box->v[iSig];
+    double *Sig_in;
+    int b_in, ijk, ijk_in;
+    tBox *box_in;
+    int n1_in, n2_in, n3_in;
+
+    /* do nothing if we are away from our star */
+    if((box->SIDE != STAR1) || (box->MATTR == AWAY)) continue;
+
+    /* here we could find val of Sigma in center of cube inside star,
+       if we need it */
+    //if(box->COORD == CART) Sigc=...;
+
+    /* do nothing more if we are not in a box that touches the star */
+    if(!(box->MATTR == TOUCH)) continue;
+
+    b_in = b-6; /* works only for my CubSph arrangement */
+    box_in = grid->box[b_in];
+    n1_in = box_in->n1;
+    n2_in = box_in->n2;
+    n3_in = box_in->n3;
+
+    if(n2_in!=n2 || n3_in!=n3)
+      errorexit("(n2,n3) has to be equal in both boxes");
+
+    Sig_in = box_in->v[iSig];
+
+    forallpoints(box, ijk)
+    {
+      int k = kOfInd_n1n2(ijk,n1,n2);
+      int j = jOfInd_n1n2_k(ijk,n1,n2,k);
+      double Si1, Si2, a,b, lam,A,B, r, drdlam, drdlam_in;
+
+      /* our coords in box */
+      lam = X[ijk];
+      A   = Y[ijk];
+      B   = Z[ijk];
+
+      /* get Sigma at both ends of inner box */
+      ijk_in = Ind_n1n2(0,j,k, n1_in,n2_in);
+      Si1 = Sig_in[ijk_in];
+      ijk_in = Ind_n1n2(n1_in-1,j,k, n1_in,n2_in);
+      Si2 = Sig_in[ijk_in];
+
+      /* get drdlam, drdlam_in at star surface */
+      r_dr_dlam_of_lamAB_CubSph(box, Index(0,j,k), 0.,A,B, &r, &drdlam);
+      r_dr_dlam_of_lamAB_CubSph(box_in, ijk_in, 1.,A,B, &r, &drdlam_in);
+
+      /* get slope and intercept */
+      a = (Si2 - Si1);        /* dlam here is 1 */
+      a *= drdlam/drdlam_in;  /* we want d/dr to be the same in both sides */
+      b = Si2;
+      Sig[ijk] = a * lam + b;
+    }
+  }
+}
+
 
 /* set a coord. dependent factor that we can use to multiply eqns that go to
    zero because dX^i/dx^j goes to zero */

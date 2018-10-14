@@ -177,7 +177,7 @@ int sgrid_DNSdata()
   AddPar("DNSdata_FakeMatterType", "rhoEQ-1", "[rhoEQ-lam,rhoEQ-1,"
          "LaplaceSigmaOutside]");
   AddPar("DNSdata_InnerToOuterSigmaTransition", "C1",
-         "smoothness (at A=0) as we go from inner to outer box [C2,C1,C0]");
+         "smoothness as we go from inner to outer box [C2,C1,C0,S0]");
   AddPar("DNSdata_set_desired_VolAvSigmas", "no",
          "whether we set desired_VolAvSigma1/2 before ell. solves [no,yes]");
   AddPar("DNSdata_desired_VolAvSigma1", "0", "desired value of VolAvSigma "

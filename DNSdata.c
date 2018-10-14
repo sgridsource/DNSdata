@@ -4084,38 +4084,47 @@ int DNS_solve_only_DNSdata_Sigma(tGrid *grid, int itmax,
       activate_allboxes(grid);
     }
 
-    /* deactivate all but boxes around STAR1 */
-    clear_intList(bl);
-    forallActiveAndInactiveboxes(grid, b)
+    if(!Getv("DNSdata_InnerToOuterSigmaTransition", "S0"))
     {
-      tBox *box = grid->box[b];
-      if((box->SIDE != STAR1) || (box->MATTR != TOUCH)) push_intList(bl, b);
-    }
-    deactivate_boxes(grid, bl);
-    printf("Solving %s outside star1:\n", Sigstr);
-    ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
-                                            linear_solver, 1, Sigstr);
-    activate_allboxes(grid);
+      /* deactivate all but boxes around STAR1 */
+      clear_intList(bl);
+      forallActiveAndInactiveboxes(grid, b)
+      {
+        tBox *box = grid->box[b];
+        if((box->SIDE != STAR1) || (box->MATTR != TOUCH)) push_intList(bl, b);
+      }
+      deactivate_boxes(grid, bl);
+      printf("Solving %s outside star1:\n", Sigstr);
+      ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                              linear_solver, 1, Sigstr);
+      activate_allboxes(grid);
 
-    /* deactivate all but boxes around STAR2 */
-    clear_intList(bl);
-    forallActiveAndInactiveboxes(grid, b)
-    {
-      tBox *box = grid->box[b];
-      if((box->SIDE != STAR2) || (box->MATTR != TOUCH)) push_intList(bl, b);
-    }
-    deactivate_boxes(grid, bl);
-    printf("Solving %s outside star2:\n", Sigstr);
-    ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
-                                            linear_solver, 1, Sigstr);
-    activate_allboxes(grid);
-    
+      /* deactivate all but boxes around STAR2 */
+      clear_intList(bl);
+      forallActiveAndInactiveboxes(grid, b)
+      {
+        tBox *box = grid->box[b];
+        if((box->SIDE != STAR2) || (box->MATTR != TOUCH)) push_intList(bl, b);
+      }
+      deactivate_boxes(grid, bl);
+      printf("Solving %s outside star2:\n", Sigstr);
+      ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
+                                              linear_solver, 1, Sigstr);
+      activate_allboxes(grid);
+    }    
     vlfree(vldSigma);
     free_intList(bl);
   }
   else /* case where all boxes are active */
     ret=DNS_Eqn_Iterator_for_vars_in_string(grid, itmax, tol, normres,
                                             linear_solver, 1, Sigstr);
+  /* check if we do a simple extrapolation */
+  if(Getv("DNSdata_InnerToOuterSigmaTransition", "S0"))
+  {
+    printf("Setting %s outside stars by S0Extrap:\n", Sigstr);
+    set_outside_DNSdata_Sigma_by_S0Extrap(grid, STAR1);
+    set_outside_DNSdata_Sigma_by_S0Extrap(grid, STAR2);
+  }
   return ret;
 }
 

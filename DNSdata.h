@@ -144,6 +144,7 @@ int set_DNSdata_CoordFac(tGrid *grid);
 void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star);
 void DNS_find_xin_xout(tGrid *grid, double *xin1, double *xout1,
                                     double *xin2, double *xout2);
+void set_outside_DNSdata_Sigma_by_S0Extrap(tGrid *grid, int star);
 
 /* from DNS_Interpolate_ADMvars.c */
 int DNS_Interpolate_ADMvars(tGrid *grid);
