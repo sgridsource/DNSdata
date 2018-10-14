@@ -592,6 +592,41 @@ if(i==0) printf("b=%d r=%g S=%g\n", b, r, DNSdata_Sigma[i]);
   return 0;
 }
 
+/* copy var near one star from grid1 to grid2 */
+void DNS_copy_gridvar_star(int iv, tGrid *grid1, tGrid *grid2, int star)
+{
+  int b, i;
+  forallboxes(grid2, b)
+  {
+    tBox *box1 = grid1->box[b];
+    tBox *box2 = grid2->box[b];
+    double *v1 = box1->v[iv];
+    double *v2 = box2->v[iv];
+    
+    /* continue with next box if on wrong side */
+    if(box1->SIDE!=star) continue;
+    if(box2->SIDE!=star) continue;
+
+    forallpoints(box2, i) v2[i] = v1[i];
+  }
+}   
+
+/* copy var isrc into idest near one star */
+void DNS_copy_var_star(tGrid *grid, int isrc, int idest, int star)
+{
+  int b, i;
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    double *s = box->v[isrc];
+    double *d = box->v[idest];
+    
+    /* continue with next box if on wrong side */
+    if(box->SIDE!=star) continue;
+
+    forallpoints(box, i) d[i] = s[i];
+  }
+}   
 
 /* functions to shift/translate a field/var */
 void DNS_translate_var_in_box(tBox *box, int iv, int ivx,
@@ -4262,6 +4297,7 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   tGrid *grid2;
   int iq = Ind("DNSdata_q");
   int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
+  int interp_Sigma = Getv("DNSdata_adjust_Sigma", "interp");
   int outerdom;
 
   if(star>STAR2 || star<STAR1)
@@ -4300,7 +4336,14 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   if( (star==STAR1 && !Getv("DNSdata_rotationstate1","corotation")) ||
       (star==STAR2 && !Getv("DNSdata_rotationstate2","corotation"))   )
   {
-    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_Sigma"),star);
+    if(interp_Sigma)
+      Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_Sigma"),
+                                          star);
+    else /* copy DNSdata_Sigma to grid2 */
+      DNS_copy_gridvar_star(Ind("DNSdata_Sigma"), grid0, grid2, star);
+      /* Since grid0 and grid2 have different domain shapes, this copy causes
+         an additional error in Sigma! But the inner Sigma may not suffer
+         from interpolation kinks then. */
     Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBx"),star);
     Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBy"),star);
     Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBz"),star);
@@ -4310,7 +4353,14 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 //quick_Vars_output(grid->box[2], "DNSdata_Psi",3,3);
 //quick_Vars_output(grid2->box[2],"DNSdata_Psi",4,4);
 
-  DNS_compute_new_centered_q(grid2, star);
+  /* if Sigma was interpolated we can safely recompute q and qg */
+  if(interp_Sigma) 
+    DNS_compute_new_centered_q(grid2, star);
+  else /* get qg and q by interpolating from grid0 */
+  {
+    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_qg"),star);
+    DNS_copy_var_star(grid, Ind("DNSdata_qg"), iq, star); /* set q=qg */
+  }
 //quick_Vars_output(grid->box[2], "DNSdata_q",5,5);
 //quick_Vars_output(grid2->box[2],"DNSdata_q",6,6);
 //quick_Vars_output(grid->box[2], "Coordinates_CubedSphere_dsigma01_dA",7,7);
