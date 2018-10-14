@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 14.10.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 7.9.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -46,7 +46,6 @@ double VolAvSigma2 = Getd("DNSdata_desired_VolAvSigma2");
 double VolAvSigma, VolAvSigma0, VolAvlSigma;
 double OuterSigmaTransitionD1 = 1.0;
 double OuterSigmaTransitionD2 = 1.0;
-double rr, drdlam, drdlamin;
 
 tGrid *grid = vlu->grid;
 int bi;
@@ -246,12 +245,6 @@ int index_y = Ind("y");
 double *y = box->v[index_y + 0];
 int index_z = Ind("z");
 double *z = box->v[index_z + 0];
-int index_X = Ind("X");
-double *X = box->v[index_X + 0];
-int index_Y = Ind("Y");
-double *Y = box->v[index_Y + 0];
-int index_Z = Ind("Z");
-double *Z = box->v[index_Z + 0];
 int index_DNSdata_q = Ind("DNSdata_q");
 double *q = box->v[index_DNSdata_q + 0];
 int index_DNSdata_wBx = Ind("DNSdata_wBx");
@@ -281,10 +274,8 @@ double *dddlSigmadlam3 = box->v[index_DNSdata_lSigmaXXX + 0];
 
 
 /* Jetzt geht's los! */
-double AA;
 double alpha;
 double alpha2;
-double BB;
 double beta1;
 double beta2;
 double beta3;
@@ -348,7 +339,6 @@ double dSigmaUp2;
 double DSigmaUp2;
 double dSigmaUp3;
 double DSigmaUp3;
-double fTrans;
 double h;
 double h2;
 double L2;
@@ -359,7 +349,6 @@ double lhuzeroPsi4beta2;
 double lhuzeroPsi4beta3;
 double lL2;
 double lLnh;
-double LoLin;
 double lq;
 double luzero;
 double luzerosqr;
@@ -642,19 +631,6 @@ dSig3
 dSigma3[ijk]
 ;
 
-AA
-=
-Y[ijk]
-;
-
-BB
-=
-Z[ijk]
-;
-
-
-r_dr_dlam_of_lamAB_CubSph(box, ijk,                                       
-                                                 0.,AA,BB, &rr, &drdlam);
 
 ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */ 
 
@@ -674,25 +650,13 @@ dSigmain3[ijk]
 ;
 
 
-r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,                             
-                                                 1.,AA,BB, &rr, &drdlamin);
-
 ijk=Index(0,j,k); /* set index to i=0 */ 
-
-LoLin
-=
-drdlam/drdlamin
-;
-
-fTrans
-=
-LoLin*OuterSigmaTransitionD1
-;
 
 FSigma[ijk]
 =
-(dSig1 - dSigin1*fTrans)*nv1 + (dSig2 - dSigin2*fTrans)*nv2 + 
-  (dSig3 - dSigin3*fTrans)*nv3
+nv1*(dSig1 - dSigin1*OuterSigmaTransitionD1) + 
+  nv2*(dSig2 - dSigin2*OuterSigmaTransitionD1) + 
+  nv3*(dSig3 - dSigin3*OuterSigmaTransitionD1)
 ;
 
 
@@ -761,19 +725,6 @@ nv3
 nv3/nvm
 ;
 
-AA
-=
-Y[ijk]
-;
-
-BB
-=
-Z[ijk]
-;
-
-
-r_dr_dlam_of_lamAB_CubSph(box, ijk,                                       
-                                                 0.,AA,BB, &rr, &drdlam);
 ddSig11
 =
 ddSigma11[ijk]
@@ -838,28 +789,16 @@ ddSigmain33[ijk]
 ;
 
 
-r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,                             
-                                                 1.,AA,BB, &rr, &drdlamin);
-
 ijk=Index(2,j,k); /* set index to i=2 */ 
-
-LoLin
-=
-drdlam/drdlamin
-;
-
-fTrans
-=
-OuterSigmaTransitionD2*pow2(LoLin)
-;
 
 FSigma[ijk]
 =
-2.*((ddSig23*nv2 - fTrans*(ddSigin13*nv1 + ddSigin23*nv2))*nv3 + 
-     nv1*((ddSig12 - ddSigin12*fTrans)*nv2 + ddSig13*nv3)) + 
-  (ddSig11 - ddSigin11*fTrans)*pow2(nv1) + 
-  (ddSig22 - ddSigin22*fTrans)*pow2(nv2) + 
-  (ddSig33 - ddSigin33*fTrans)*pow2(nv3)
+2.*(ddSig23*nv2*nv3 + nv1*(ddSig12*nv2 + ddSig13*nv3) - 
+     (ddSigin23*nv2*nv3 + nv1*(ddSigin12*nv2 + ddSigin13*nv3))*
+      OuterSigmaTransitionD2) + 
+  (ddSig11 - ddSigin11*OuterSigmaTransitionD2)*pow2(nv1) + 
+  (ddSig22 - ddSigin22*OuterSigmaTransitionD2)*pow2(nv2) + 
+  (ddSig33 - ddSigin33*OuterSigmaTransitionD2)*pow2(nv3)
 ;
 
 
@@ -970,19 +909,6 @@ dlSig3
 dlSigma3[ijk]
 ;
 
-AA
-=
-Y[ijk]
-;
-
-BB
-=
-Z[ijk]
-;
-
-
-r_dr_dlam_of_lamAB_CubSph(box, ijk,                                       
-                                                 0.,AA,BB, &rr, &drdlam);
 
 ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */ 
 
@@ -1002,25 +928,13 @@ dlSigmain3[ijk]
 ;
 
 
-r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,                             
-                                                 1.,AA,BB, &rr, &drdlamin);
-
 ijk=Index(0,j,k); /* set index to i=0 */ 
-
-LoLin
-=
-drdlam/drdlamin
-;
-
-fTrans
-=
-LoLin*OuterSigmaTransitionD1
-;
 
 FlSigma[ijk]
 =
-(dlSig1 - dlSigin1*fTrans)*nv1 + (dlSig2 - dlSigin2*fTrans)*nv2 + 
-  (dlSig3 - dlSigin3*fTrans)*nv3
+nv1*(dlSig1 - dlSigin1*OuterSigmaTransitionD1) + 
+  nv2*(dlSig2 - dlSigin2*OuterSigmaTransitionD1) + 
+  nv3*(dlSig3 - dlSigin3*OuterSigmaTransitionD1)
 ;
 
 
@@ -1119,25 +1033,9 @@ ddlSig33
 ddlSigma33[ijk]
 ;
 
-AA
-=
-Y[ijk]
-;
-
-BB
-=
-Z[ijk]
-;
-
-
-r_dr_dlam_of_lamAB_CubSph(box, ijk,                                       
-                                                 0.,AA,BB, &rr, &drdlam);
 
 ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */ 
 
-
-r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,                             
-                                                 1.,AA,BB, &rr, &drdlamin);
 ddlSigin11
 =
 ddlSigmain11[ijk]
@@ -1171,23 +1069,14 @@ ddlSigmain33[ijk]
 
 ijk=Index(2,j,k); /* set index to i=2 */ 
 
-LoLin
-=
-drdlam/drdlamin
-;
-
-fTrans
-=
-OuterSigmaTransitionD2*pow2(LoLin)
-;
-
 FlSigma[ijk]
 =
-2.*((ddlSig23*nv2 - fTrans*(ddlSigin13*nv1 + ddlSigin23*nv2))*nv3 + 
-     nv1*((ddlSig12 - ddlSigin12*fTrans)*nv2 + ddlSig13*nv3)) + 
-  (ddlSig11 - ddlSigin11*fTrans)*pow2(nv1) + 
-  (ddlSig22 - ddlSigin22*fTrans)*pow2(nv2) + 
-  (ddlSig33 - ddlSigin33*fTrans)*pow2(nv3)
+2.*(ddlSig23*nv2*nv3 + nv1*(ddlSig12*nv2 + ddlSig13*nv3) - 
+     (ddlSigin23*nv2*nv3 + nv1*(ddlSigin12*nv2 + ddlSigin13*nv3))*
+      OuterSigmaTransitionD2) + 
+  (ddlSig11 - ddlSigin11*OuterSigmaTransitionD2)*pow2(nv1) + 
+  (ddlSig22 - ddlSigin22*OuterSigmaTransitionD2)*pow2(nv2) + 
+  (ddlSig33 - ddlSigin33*OuterSigmaTransitionD2)*pow2(nv3)
 ;
 
 
@@ -2273,4 +2162,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 127, n* = 597,  n/ = 297,  n+ = 389, n = 1283, O = 1 */
+/* nvars = 124, n* = 594,  n/ = 293,  n+ = 379, n = 1266, O = 1 */
