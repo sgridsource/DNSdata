@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 7.9.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 14.10.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -539,7 +539,7 @@ spec_Deriv1(box, 1, ddSigmadlam2, dddSigmadlam3);
 spec_Deriv1(box, 1, Sigma, dSigmadlam); 
 
 
-forplane1(i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k); 
+forinnerplaneN(1, i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k); 
 
 
 ind0   = Ind_n1n2(0,j,k,n1,n2);                                 
@@ -576,7 +576,7 @@ cxmax2
 
 
 
-forplane1(i,j,k, n1,n2,n3, 0){ 
+forinnerplaneN(1, i,j,k, n1,n2,n3, 0){ 
 
 
 ijk=Index(0,j,k); /* set index to i=0 */ 
@@ -685,7 +685,7 @@ cxmax2
 
 
 
-forplane1(i,j,k, n1,n2,n3, 2){ 
+forinnerplaneN(1, i,j,k, n1,n2,n3, 2){ 
 
 
 ijk=Index(0,j,k); /* set index to i=0 */ 
@@ -817,7 +817,7 @@ spec_Deriv1(box, 1, ddlSigmadlam2, dddlSigmadlam3);
 spec_Deriv1(box, 1, lSigma, dlSigmadlam); 
 
 
-forplane1(i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k); 
+forinnerplaneN(1, i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k); 
 
 
 ind0   = Ind_n1n2(0,j,k,n1,n2);                                 
@@ -854,7 +854,7 @@ cxmax2
 
 
 
-forplane1(i,j,k, n1,n2,n3, 0){ 
+forinnerplaneN(1, i,j,k, n1,n2,n3, 0){ 
 
 
 ijk=Index(0,j,k); /* set index to i=0 */ 
@@ -963,7 +963,7 @@ cxmax2
 
 
 
-forplane1(i,j,k, n1,n2,n3, 2){ 
+forinnerplaneN(1, i,j,k, n1,n2,n3, 2){ 
 
 
 ijk=Index(0,j,k); /* set index to i=0 */ 
