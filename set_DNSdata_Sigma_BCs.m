@@ -10,7 +10,7 @@ variables = {Psi, B[a], alphaP, Sigma, FPsi, FB[a], FalphaP, FSigma,
 	     lPsi,lB[a],lalphaP,lSigma, FlPsi,FlB[a],FlalphaP,FlSigma,
               dlPsi[a],   dlB[a,b],   dlalphaP[a],    dlSigma[a],
              ddlPsi[a,b],ddlB[a,b,c],ddlalphaP[a,b], ddlSigma[a,b],
-             q, wB[a], dq[a], dlam[a], x, y, z, dSigmadlam,dlSigmadlam,
+             q, wB[a], dq[a], dlam[a], x,y,z, X,Y,Z, dSigmadlam,dlSigmadlam,
              ddSigmadlam2,ddlSigmadlam2, dddSigmadlam3,dddlSigmadlam3,
              dSigmain[a], dlSigmain[a], ddSigmain[a,b], ddlSigmain[a,b]}
 
@@ -128,10 +128,17 @@ tocompute = {
       nvm == Sqrt[nv1*nv1 + nv2*nv2 + nv3*nv3],
       nv[a] == nv[a]/nvm,
       dSig[a] == dSigma[a],
+      AA == Y, (* get A,B coords *)
+      BB == Z,
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(box, ijk,
+                                                 0.,AA,BB, &rr, &drdlam);",
       Cinstruction == "ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */",
       dSigin[a] == dSigmain[a],
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,
+                                                 1.,AA,BB, &rr, &drdlamin);",
       Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
-      FSigma == nv[a] (dSig[a] - dSigin[a] OuterSigmaTransitionD1),
+      LoLin == drdlam/drdlamin,
+      FSigma == nv[a] (dSig[a] - dSigin[a] LoLin OuterSigmaTransitionD1),
       Cinstruction == "} /* endfor */",
 
       (* set n^i n^j d^2Sigma/(dx^i dx^j) equal at star surfaces, 
@@ -148,11 +155,18 @@ tocompute = {
       nv3 == z,
       nvm == Sqrt[nv1*nv1 + nv2*nv2 + nv3*nv3],
       nv[a] == nv[a]/nvm,
+      AA == Y, (* get A,B coords *)
+      BB == Z,
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(box, ijk,
+                                                 0.,AA,BB, &rr, &drdlam);",
       ddSig[a,b] == ddSigma[a,b],
       Cinstruction == "ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */",
       ddSigin[a,b] == ddSigmain[a,b],
-      Cinstruction == "ijk=Index(2,j,k); /* set index to i=2 */",        
-      FSigma == nv[a] nv[b] (ddSig[a,b] - ddSigin[a,b] OuterSigmaTransitionD2),
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,
+                                                 1.,AA,BB, &rr, &drdlamin);",
+      Cinstruction == "ijk=Index(2,j,k); /* set index to i=2 */",
+      LoLin == drdlam/drdlamin,
+      FSigma == nv[a] nv[b] (ddSig[a,b] - ddSigin[a,b] LoLin OuterSigmaTransitionD2),
       Cinstruction == "} /* endfor */",
 
     Cif == else,   (* linear case *)
@@ -185,10 +199,17 @@ tocompute = {
       nvm == Sqrt[nv1*nv1 + nv2*nv2 + nv3*nv3],
       nv[a] == nv[a]/nvm,
       dlSig[a] == dlSigma[a],
+      AA == Y, (* get A,B coords *)
+      BB == Z,
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(box, ijk,
+                                                 0.,AA,BB, &rr, &drdlam);",
       Cinstruction == "ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */",
       dlSigin[a] == dlSigmain[a],
-      Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",        
-      FlSigma == nv[a] (dlSig[a] - dlSigin[a] OuterSigmaTransitionD1),
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,
+                                                 1.,AA,BB, &rr, &drdlamin);",
+      Cinstruction == "ijk=Index(0,j,k); /* set index to i=0 */",
+      LoLin == drdlam/drdlamin,
+      FlSigma == nv[a] (dlSig[a] - dlSigin[a] LoLin OuterSigmaTransitionD1),
       Cinstruction == "} /* endfor */",
 
       (* set n^i n^j d^2Sigma/(dx^i dx^j) equal at star surfaces, 
@@ -206,10 +227,17 @@ tocompute = {
       nvm == Sqrt[nv1*nv1 + nv2*nv2 + nv3*nv3],
       nv[a] == nv[a]/nvm,
       ddlSig[a,b] == ddlSigma[a,b],
+      AA == Y, (* get A,B coords *)
+      BB == Z,
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(box, ijk,
+                                                 0.,AA,BB, &rr, &drdlam);",
       Cinstruction == "ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */",
+      Cinstruction == "r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,
+                                                 1.,AA,BB, &rr, &drdlamin);",
       ddlSigin[a,b] == ddlSigmain[a,b],
-      Cinstruction == "ijk=Index(2,j,k); /* set index to i=2 */",        
-      FlSigma == nv[a] nv[b] (ddlSig[a,b] - ddlSigin[a,b] OuterSigmaTransitionD2),
+      Cinstruction == "ijk=Index(2,j,k); /* set index to i=2 */",
+      LoLin == drdlam/drdlamin,
+      FlSigma == nv[a] nv[b] (ddlSig[a,b] - ddlSigin[a,b] LoLin OuterSigmaTransitionD2),
       Cinstruction == "} /* endfor */",
 
     Cif == end, (* end linear case *)
@@ -582,6 +610,7 @@ BeginCFunction[] := Module[{},
   pr["double VolAvSigma, VolAvSigma0, VolAvlSigma;\n"];
   pr["double OuterSigmaTransitionD1 = 1.0;\n"];
   pr["double OuterSigmaTransitionD2 = 1.0;\n"];
+  pr["double rr, drdlam, drdlamin;\n"];
   pr["\n"];
 
   pr["tGrid *grid = vlu->grid;\n"];
@@ -646,6 +675,10 @@ variabledeclarations[] := Module[{},
   prdecvarname[{x},      "x"];
   prdecvarname[{y},      "y"];
   prdecvarname[{z},      "z"];
+
+  prdecvarname[{X},      "X"];
+  prdecvarname[{Y},      "Y"];
+  prdecvarname[{Z},      "Z"];
 
   (* prdecvarname[{g[a,b]}, "gxx"]; prdecvarname[{K[a,b]}, "Kxx"]; *)
   prdecvarname[{q},       "DNSdata_q"];
