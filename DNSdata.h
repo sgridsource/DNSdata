@@ -85,6 +85,9 @@ void DNS_set_P_ADM_VolInt_integrand(tGrid *grid, int iIntegx, int iIntegy, int i
 void set_DNSdata_Sigma_BC(tVarList *vlFu, tVarList *vlu,
                           tVarList *vlJdu, tVarList *vldu,
                           tVarList *vlduDerivs, int nonlin);
+void set_DNSdata_Sigma_BC_dSigdrTrans(tVarList *vlFu, tVarList *vlu,  
+                                      tVarList *vlJdu, tVarList *vldu,
+                                      tVarList *vlduDerivs, int nonlin);
 void DNS_set_dlnIntegEuler(tGrid *grid, int ilnIntegEuler,
                            int idlnIntegEuler, double Om, double xcm);
 
