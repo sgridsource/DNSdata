@@ -171,7 +171,10 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
 void set_physical_Sigma_BC(tVarList *vlFu, tVarList *vlu, tVarList *vlJdu,
                            tVarList *vldu, tVarList *vlduDerivs, int nonlin)
 {
-  set_DNSdata_Sigma_BC(vlFu, vlu, vlJdu, vldu, vlduDerivs, nonlin);
+  if(Getv("DNSdata_InnerToOuterSigmaTransition","dSigma_dr"))
+    set_DNSdata_Sigma_BC(vlFu, vlu, vlJdu, vldu, vlduDerivs, nonlin);
+  else
+    set_DNSdata_Sigma_BC(vlFu, vlu, vlJdu, vldu, vlduDerivs, nonlin);
 }
 
 
