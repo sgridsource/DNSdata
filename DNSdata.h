@@ -151,6 +151,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid);
 
 /* from DNS_BCs.c */
 void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs, int nonlin);
+void set_physical_Sigma_BC(tVarList *vlFu, tVarList *vlu, tVarList *vlJdu,
+                           tVarList *vldu, tVarList *vlduDerivs, int nonlin);
 void set_Sigma_Omega_r_y_BC(tVarList *vlFu, tVarList *vlu,
                             tVarList *vluDerivs, int nonlin);
 void set_Sigma_0_ATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,

@@ -167,6 +167,14 @@ void set_DNSdata_BCs(tVarList *vlFu, tVarList *vlu, tVarList *vluDerivs,
 }
 
 
+/* function that allows us to select and set the physical Sigma BC we want */
+void set_physical_Sigma_BC(tVarList *vlFu, tVarList *vlu, tVarList *vlJdu,
+                           tVarList *vldu, tVarList *vlduDerivs, int nonlin)
+{
+  set_DNSdata_Sigma_BC(vlFu, vlu, vlJdu, vldu, vlduDerivs, nonlin);
+}
+
+
 /* impose: DNSdata_Sigma[i] = Omega*(xc1-xCM) * y
    or:     DNSdata_Sigma[i] = Omega*(xc2-xCM) * y
    on outside (lam=1) of TOUCH boxes */

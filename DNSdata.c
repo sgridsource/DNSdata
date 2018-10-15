@@ -3662,7 +3662,7 @@ void F_DNSdata(tVarList *vlFu, tVarList *vlu,
     //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlFu, vlu, vluDerivs, 1);
   }
   else
-    set_DNSdata_Sigma_BC(vlFu,vlu,  vlc2,vlc2,vluDerivs, 1);
+    set_physical_Sigma_BC(vlFu,vlu,  vlc2,vlc2,vluDerivs, 1);
 }
 
 /* evaluate linearized DNSdata eqns */
@@ -3680,7 +3680,7 @@ void J_DNSdata(tVarList *vlJdu, tVarList *vldu,
     //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlJdu, vldu, vlduDerivs, 0);
   }
   else
-    set_DNSdata_Sigma_BC(vlJdu,vlu,  vlJdu,vldu,vlduDerivs, 0);
+    set_physical_Sigma_BC(vlJdu,vlu,  vlJdu,vldu,vlduDerivs, 0);
 }
 
 
@@ -3712,7 +3712,7 @@ void F_oneComp(tVarList *vlFw, tVarList *vlw,
     //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlFw, vlw, vlwDerivs, 1);
   }
   else
-    set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 1);
+    set_physical_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 1);
   
   /* free local varlists */
   vlfree(lvlFu);
@@ -3751,7 +3751,7 @@ void J_oneComp(tVarList *vlJdw, tVarList *vldw,
     //set_Sigma_0_in1TOUCHATlam1A0B0_BC(vlJdw, vldw, vldwDerivs, 0);
   }
   else
-    set_DNSdata_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 0);
+    set_physical_Sigma_BC(lvlFu,lvlu,  lvlJdu,lvldu,lvlduDerivs, 0);
 
   /* free local varlists */
   vlfree(lvlFu);
