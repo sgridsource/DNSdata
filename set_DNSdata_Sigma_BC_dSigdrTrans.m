@@ -12,7 +12,7 @@ variables = {Psi, B[a], alphaP, Sigma, FPsi, FB[a], FalphaP, FSigma,
              ddlPsi[a,b],ddlB[a,b,c],ddlalphaP[a,b], ddlSigma[a,b],
              q, wB[a], dq[a], dlam[a], x,y,z, X,Y,Z, dSigmadlam,dlSigmadlam,
              ddSigmadlam2,ddlSigmadlam2, dddSigmadlam3,dddlSigmadlam3,
-             dSigmain[a], dlSigmain[a], ddSigmain[a,b], ddlSigmain[a,b]}
+             dSigmaindlam, dlSigmaindlam, ddSigmaindlam2, ddlSigmaindlam2}
 
 constvariables = {OmegaCrossR[a], xrdotor[a]}
 

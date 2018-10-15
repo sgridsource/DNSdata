@@ -546,7 +546,7 @@ ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */
 
 dSigin
 =
-dSigmaindlam
+dSigmaindlam[ijk]
 ;
 
 
@@ -602,7 +602,7 @@ ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */
 
 ddSigin
 =
-ddSigmaindlam2
+ddSigmaindlam2[ijk]
 ;
 
 
@@ -685,7 +685,7 @@ ijk=Ind_n1n2(n1in-1,j,k,n1in,n2in); /* ijk for other box */
 
 dlSigin
 =
-dlSigmaindlam
+dlSigmaindlam[ijk]
 ;
 
 
@@ -744,7 +744,7 @@ r_dr_dlam_of_lamAB_CubSph(grid->box[biin], ijk,
                                                  1.,AA,BB, &rr, &drdlamin);
 ddlSigin
 =
-ddlSigmaindlam2
+ddlSigmaindlam2[ijk]
 ;
 
 
@@ -1848,4 +1848,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BC_dSigdrTrans.c */
-/* nvars = 127, n* = 519,  n/ = 261,  n+ = 308, n = 1088, O = 1 */
+/* nvars = 113, n* = 519,  n/ = 261,  n+ = 308, n = 1088, O = 1 */
