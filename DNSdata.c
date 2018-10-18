@@ -1420,7 +1420,7 @@ void DNS_add_const_to_CubSph_sigma(tGrid *grid, double dsig, int star)
 {
   tGrid *grid2;
   int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
-  int sigi = Ind("Coordinates_CubedSphere_sigma01");
+  int sigi = Ind("Coordinates_CubedSphere_sigma01_def");
   int b, i;
 
   if(star!=STAR1 && star!=STAR2)
@@ -1515,7 +1515,7 @@ void smooth_DNSdata_Sigma_NearBoundary(tGrid *grid, int itmax, double tol,
   pdb_bak  = make_empty_pdb(npdbmax);
   copy_pdb(pdb, npdb, pdb_bak);
 
-  /* now change Coordinates_CubedSphere_sigma01 on grid, so that boundaries
+  /* now change Coordinates_CubedSphere_sigma01_def on grid, so that boundaries
      move inwards */
   DNS_add_const_to_CubSph_sigma(grid, dsig1, STAR1);
   DNS_add_const_to_CubSph_sigma(grid, dsig2, STAR2);
