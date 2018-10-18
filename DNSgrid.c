@@ -287,9 +287,9 @@ int DNSdata_setup_boxes(tGrid *grid)
   double xc[4];
 
   /* enable the vars for sigma01, so they get used in CI set below */
-  enablevar(grid, Ind("Coordinates_CubedSphere_sigma01"));
-  enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dA"));
-  enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dB"));
+  enablevar(grid, Ind("Coordinates_CubedSphere_sigma01_def"));
+  //enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dA"));
+  //enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dB"));
 
   /* set cubed spheres, for now we disregard the par DNSdata_grid */
   switch(grid->nboxes)
@@ -590,8 +590,8 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
     /* find new boxes also on new grid */
     boxnew   = gridnew->box[outerdom];
     boxnewin = gridnew->box[innerdom];
-    isigma0 = boxnew->CI->iSurf[0];
-    isigma1 = boxnewin->CI->iSurf[1];
+    isigma0 = boxnew->CI->iFS[0];
+    isigma1 = boxnewin->CI->iFS[1];
     //isigma0_dA = boxnew->CI->idSurfdX[0][2];
     //isigma0_dB = boxnew->CI->idSurfdX[0][3];
     //isigma1_dA = boxnewin->CI->idSurfdX[1][2];
@@ -714,40 +714,28 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
     DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
 
   /* compute sigma derives on gridnew */
-  compute_sigma01_derivs(gridnew, star);
+  DNS_set_sigma01_and_derivs(gridnew, star);
 }
 
 /* compute sigma_dA, sigma_dB for all boxes with star surface */
-void compute_sigma01_derivs(tGrid *grid, int star)
+void DNS_set_sigma01_and_derivs(tGrid *grid, int star)
 {
   int b;
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
-    int isigma, isigma_dA, isigma_dB;
+    int si;
 
     /* do nothing for other star and all boxes that do not touch surface */
     if(box->SIDE != star || box->BOUND != SSURF) continue;
 
-    /* find index of sigma in this box */
-    if(box->CI->type==innerCubedSphere)
-    {
-      isigma    = box->CI->iSurf[0];
-      isigma_dA = box->CI->idSurfdX[0][2];
-      isigma_dB = box->CI->idSurfdX[0][3];
-    }
-    else if(box->CI->type==outerCubedSphere)
-    {
-      isigma    = box->CI->iSurf[1];
-      isigma_dA = box->CI->idSurfdX[1][2];
-      isigma_dB = box->CI->idSurfdX[1][3];
-    }
-    else
-      errorexit("there should only be outer or inner Cubed Spheres");
+    /* find index si sigma in this box */
+    if(box->CI->type==innerCubedSphere)      si=0;
+    else if(box->CI->type==outerCubedSphere) si=1;
+    else errorexit("there should only be outer or inner Cubed Spheres");
 
-    /* compute derivs of sigma in both domains */
-    spec_Deriv1(box, 2, box->v[isigma], box->v[isigma_dA]); // optimize to deriv on plane0
-    spec_Deriv1(box, 3, box->v[isigma], box->v[isigma_dB]);
+    /* set sigma and its derivs */
+    init_CubedSphere_from_CI_iFS(box, si);
   }
 }
 
@@ -1322,50 +1310,40 @@ void DNSgrid_scale_Coordinates_CubSph_sigma(tGrid *grid, double fac, int star)
     tBox *boxin;
     int innerdom;
     int i,j,k, n1,n2,n3;
-    int isigma0,isigma0_dA,isigma0_dB, isigma1,isigma1_dA,isigma1_dB;
-    double *sigma, *sigma_dA, *sigma_dB;
+    int isigdef0, isigdef1;
+    double *sigdef;
 
     if(box->SIDE!=star || box->MATTR!=TOUCH) continue;
 
     innerdom = b-6; /* works only for my CubSph arrangement */
     boxin = grid->box[innerdom];
-    isigma0    = box->CI->iSurf[0];
-    isigma0_dA = box->CI->idSurfdX[0][2];
-    isigma0_dB = box->CI->idSurfdX[0][3];
-    isigma1    = boxin->CI->iSurf[1];
-    isigma1_dA = boxin->CI->idSurfdX[1][2];
-    isigma1_dB = boxin->CI->idSurfdX[1][3];
+    isigdef0    = box->CI->iFS[0];
+    isigdef1    = boxin->CI->iFS[1];
 
-    /* scale sigma in outer box b */
-    sigma      =  box->v[isigma0];
-    sigma_dA   =  box->v[isigma0_dA];
-    sigma_dB   =  box->v[isigma0_dB];
+    /* scale sigdef in outer box b */
+    sigdef      =  box->v[isigdef0];
     n1=box->n1;
     n2=box->n2;
     n3=box->n3;
     forplane1(i,j,k, n1,n2,n3, 0)
     {
       int ind = Index(i,j,k);
-      sigma[ind] *= fac;
-      sigma_dA[ind] *= fac;
-      sigma_dB[ind] *= fac;
+      sigdef[ind] *= fac;
     }
 
-    /* scale sigma in innerdom */
-    sigma      =  boxin->v[isigma1];
-    sigma_dA   =  boxin->v[isigma1_dA];
-    sigma_dB   =  boxin->v[isigma1_dB];
+    /* scale sigdef in innerdom */
+    sigdef      =  boxin->v[isigdef1];
     n1=boxin->n1;
     n2=boxin->n2;
     n3=boxin->n3;
     forplane1(i,j,k, n1,n2,n3, n1-1)
     {
       int ind = Index(i,j,k);
-      sigma[ind] *= fac;
-      sigma_dA[ind] *= fac;
-      sigma_dB[ind] *= fac;
+      sigdef[ind] *= fac;
     }
   }
+  /* set sigma and its derivs */
+  DNS_set_sigma01_and_derivs(grid, star);
 }
 
 /* ensure that sigma is continuous between boxes on gridnew */
@@ -1392,9 +1370,9 @@ void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star)
 
     /* find index of sigma in this box */
     if(box->CI->type==innerCubedSphere)
-      isigma    = box->CI->iSurf[0];
+      isigma    = box->CI->iFS[0];
     else if(box->CI->type==outerCubedSphere)
-      isigma    = box->CI->iSurf[1];
+      isigma    = box->CI->iFS[1];
     else
       errorexit("there should only be outer or inner Cubed Spheres");
 
@@ -1422,9 +1400,9 @@ void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star)
 
       /* find index and poiters of sigma in other box */
       if(obox->CI->type==innerCubedSphere)
-        iosigma    = obox->CI->iSurf[0];
+        iosigma    = obox->CI->iFS[0];
       else if(obox->CI->type==outerCubedSphere)
-        iosigma    = obox->CI->iSurf[1];
+        iosigma    = obox->CI->iFS[1];
       else
         continue;
       osigma    = obox->v[iosigma];

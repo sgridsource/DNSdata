@@ -123,7 +123,7 @@ int pr_DNS_box_attribs(tGrid *grid);
 int set_sigma_pm_vars(tGrid *grid);
 void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
                                            int star);
-void compute_sigma01_derivs(tGrid *grid, int star);
+void DNS_set_sigma01_and_derivs(tGrid *grid, int star);
 double InnerVolumeIntegral(tGrid *grid, int star, int vind);
 double StarSurfaceIntegral(tGrid *grid, int star, int vind);
 tGrid *make_grid_with_sigma_pm(tGrid *grid, int nAB, int nphi, int nxyz);
