@@ -713,7 +713,7 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
   if(Getv("DNSdata_CubSph_sigma_continuity","yes"))
     DNSgrid_Coordinates_CubSph_sigma_continuity(gridnew, star);
 
-  /* compute sigma derives on gridnew */
+  /* compute sigma and its derives from sigma_def (from CI->iFS) on gridnew */
   DNS_set_sigma01_and_derivs(gridnew, star);
 }
 
