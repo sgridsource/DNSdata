@@ -1157,7 +1157,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
   vlpush(varlist, Ind("DNSdata_alphaP"));
   vlpush(varlist, Ind("DNSdata_Sigma"));
   vlpush(varlist, Ind("DNSdata_q"));
-  vlpush(varlist, Ind("Coordinates_CubedSphere_sigma01"));
+  vlpush(varlist, Ind("Coordinates_CubedSphere_sigma01_def"));
 
 //printVarList(varlist);
 
