@@ -729,13 +729,9 @@ void DNS_set_sigma01_and_derivs(tGrid *grid, int star)
     /* do nothing for other star and all boxes that do not touch surface */
     if(box->SIDE != star || box->BOUND != SSURF) continue;
 
-    /* find index si sigma in this box */
-    if(box->CI->type==innerCubedSphere)      si=0;
-    else if(box->CI->type==outerCubedSphere) si=1;
-    else errorexit("there should only be outer or inner Cubed Spheres");
-
-    /* set sigma and its derivs */
-    init_CubedSphere_from_CI_iFS(box, si);
+    /* set sigma and its derivs once we or in dom5 */
+    if(box->CI->dom==5)
+      init_6CubedSphereBoxes_from_CI_iFS(grid, b-5);
   }
 }
 
