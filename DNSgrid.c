@@ -288,8 +288,7 @@ int DNSdata_setup_boxes(tGrid *grid)
 
   /* enable the vars for sigma01, so they get used in CI set below */
   enablevar(grid, Ind("Coordinates_CubedSphere_sigma01_def"));
-  //enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dA"));
-  //enablevar(grid, Ind("Coordinates_CubedSphere_dsigma01_dB"));
+  //enablevar(grid, Ind("Coordinates_CubedSphere_sigma01_co"));
 
   /* set cubed spheres, for now we disregard the par DNSdata_grid */
   switch(grid->nboxes)
