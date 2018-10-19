@@ -428,7 +428,31 @@ int set_DNS_useF_flags(tGrid *grid)
 {
   int useF = Getv("DNSdata_CubSph_sigma_func","yes");
   int b;
+/*
+//test sigma with one Ylm
+for(b=1; b<=6; b++)
+{
+tBox *box = grid->box[b];
+int n1=box->n1;
+int n2=box->n2;
+int n3=box->n3;
+int i,j,k, p;
+double *sig = box->v[box->CI->iFS[1]];
+double *Y = box->v[Ind("Y")];
+double *Z = box->v[Ind("Z")];
 
+forplane1(i,j,k, n1,n2,n3, n1-1)
+{
+double th,ph;
+int ijk = Index(i,j,k);
+
+ThetaPhi_of_AB_CubSph(box, Y[ijk],Z[ijk], &th,&ph);
+
+//sig[ijk] += sqrt(15./(8*PI))*sin(th)*cos(th)*cos(ph);
+sig[ijk] += sqrt(15./(8*PI))*sin(th)*sin(th)*sin(2*ph);
+}
+}
+*/
   /* do nothing if DNSdata_CubSph_sigma_func = no */
   if(useF==0) return 0;
 
@@ -439,7 +463,11 @@ int set_DNS_useF_flags(tGrid *grid)
   }
   /* init Coords again to take all into account */
   DNSgrid_init_Coords(grid);
-
+/*
+quick_Vars_output(grid->box[4],
+"Coordinates_CubedSphere_sigma01_def Coordinates_CubedSphere_sigma01",1,1);
+exit(9);
+*/
   return 0;
 }
 
