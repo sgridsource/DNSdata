@@ -118,8 +118,8 @@ int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
 double DNS_find_P_core(double m0, int pr);
 int set_DNS_boxsizes(tGrid *grid);
 int DNSdata_setup_boxes(tGrid *grid);
-int set_DNS_box_attribs(tGrid *grid);
-int pr_DNS_box_attribs(tGrid *grid);
+int set_DNS_box_properties(tGrid *grid);
+int pr_DNS_box_properties(tGrid *grid);
 int set_sigma_pm_vars(tGrid *grid);
 void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
                                            int star);

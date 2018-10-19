@@ -424,16 +424,44 @@ int set_DNS_box_attribs(tGrid *grid)
   return 0;
 }
 
-/* print attributes in DNS boxes */
-int pr_DNS_box_attribs(tGrid *grid)
+/* set surface function flag */
+int set_DNS_useF_flags(tGrid *grid)
 {
+  int useF = Getv("DNSdata_CubSph_sigma_func","yes");
   int b;
-  printf("pr_DNS_box_attribs:\n");
+
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
-    printf("  b=%d:  box  ->SIDE=%d  ->MATTR=%d  ->BOUND=%d  ->COORD=%d\n",
+    if(box->BOUND==SSURF && useF) box->CI->useF = 1;
+  }
+  return 0;
+}
+
+/* set some box properties */
+int set_DNS_box_properties(tGrid *grid)
+{
+  set_DNS_box_attribs(grid);
+  set_DNS_useF_flags(grid);
+
+  /* init Coords again to take all into account */
+//  DNSgrid_init_Coords(grid);
+
+  pr_DNS_box_properties(grid);
+  return 0;
+}
+
+/* print important properties of DNS boxes */
+int pr_DNS_box_properties(tGrid *grid)
+{
+  int b;
+  printf("pr_DNS_box_properties:\n");
+  forallboxes(grid, b)
+  {
+    tBox *box = grid->box[b];
+    printf("  b=%d:  box->  SIDE=%d  MATTR=%d  BOUND=%d  COORD=%d\n",
            b, box->SIDE, box->MATTR, box->BOUND, box->COORD);
+    if(box->BOUND==SSURF) printCI(box);
   }
   return 0;
 }

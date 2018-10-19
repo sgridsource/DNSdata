@@ -13,8 +13,7 @@ int sgrid_DNSdata()
   /* functions */
   AddFun(PRE_GRID, set_DNS_boxsizes, "setup initial box sizes");
   AddFun(PRE_COORDINATES, DNSdata_setup_boxes, "setup boxes e.g. place Cub. Sph.");
-  AddFun(PRE_INITIALDATA, set_DNS_box_attribs, "set box Attribs for DNSdata");
-  AddFun(PRE_INITIALDATA, pr_DNS_box_attribs, "print box Attribs for DNSdata");
+  AddFun(PRE_INITIALDATA, set_DNS_box_properties, "set box props for DNSdata");
   AddFun(PRE_INITIALDATA, DNSdata_startup, "initialize DNSdata");
   AddFun(INITIALDATA, setDNSdata, "set the DNS data");
   AddFun(ANALYZE, DNSdata_analyze, "compute properties of DNS data");
@@ -265,6 +264,8 @@ int sgrid_DNSdata()
 
   /* pars that determine cubed sphere setup */
   AddPar("DNSdata_grid", "36CS_2xyz", "what grid we use [36CS_2xyz]");
+  AddPar("DNSdata_CubSph_sigma_func", "no", "use surface func CI->FSurf "
+         "to set Coordinates_CubSph_sigma [yes,no]");
   AddPar("DNSdata_CubSph_sigma_continuity", "yes", "make "
          "Coordinates_CubSph_sigma continuous across boxes [yes,no]");
   AddPar("DNSdata_InnerCubesSize", "0.375", "how far inner cubes in stars "
