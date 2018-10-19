@@ -430,11 +430,17 @@ int set_DNS_useF_flags(tGrid *grid)
   int useF = Getv("DNSdata_CubSph_sigma_func","yes");
   int b;
 
+  /* do nothing if DNSdata_CubSph_sigma_func = no */
+  if(useF==0) return 0;
+
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
     if(box->BOUND==SSURF && useF) box->CI->useF = 1;
   }
+  /* init Coords again to take all into account */
+  DNSgrid_init_Coords(grid);
+
   return 0;
 }
 
@@ -444,8 +450,8 @@ int set_DNS_box_properties(tGrid *grid)
   set_DNS_box_attribs(grid);
   set_DNS_useF_flags(grid);
 
-  /* init Coords again to take all into account */
-//  DNSgrid_init_Coords(grid);
+  ///* init Coords again to take all into account */
+  //DNSgrid_init_Coords(grid);
 
   pr_DNS_box_properties(grid);
   return 0;
