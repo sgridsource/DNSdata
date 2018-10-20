@@ -465,7 +465,8 @@ sig[ijk] += sqrt(15./(8*PI))*sin(th)*sin(th)*sin(2*ph);
   DNSgrid_init_Coords(grid);
 /*
 quick_Vars_output(grid->box[4],
-"Coordinates_CubedSphere_sigma01_def Coordinates_CubedSphere_sigma01",1,1);
+"Coordinates_CubedSphere_sigma01_def Coordinates_CubedSphere_sigma01_co Coordinates_CubedSphere_sigma01"
+,1,1);
 exit(9);
 */
   return 0;
