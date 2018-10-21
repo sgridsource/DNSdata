@@ -2,6 +2,8 @@
 # This one has:  iterate_parameter4 = DNSdata_SigmaSolve yes no no no no
 # I.e. it only solves for DNSdata_Sigma at low res to avoid the instability
 # in dSigma/dx at the star surface.
+# NOTE HOWEVER: In this example the CM drifts away!!!
+# Better use: K123m01.4sm.1.par
 physics = ADMvars DNSdata
 
 ################################# eos ##############################################
