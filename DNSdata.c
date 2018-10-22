@@ -2352,9 +2352,8 @@ void Py_ADM_of_xCM_VectorFuncP(int n, double *vec, double *fvec, void *p)
 
   /* compute ADM mom. Py_ADM */
   DNS_set_P_ADM_VolInt_integrand_Om_xcm(grid, itemp1,itemp2,itemp3, Omega,xcm);
-errorexit("need other boxes, not 0 and 3");
-  Py_ADM1 = InnerVolumeIntegral(grid, 0, itemp2);
-  Py_ADM2 = InnerVolumeIntegral(grid, 3, itemp2);
+  Py_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp2);
+  Py_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp2);
   Py_ADM = Py_ADM1 + Py_ADM2;
 
   printf("Py_ADM_of_xCM_VectorFuncP: xcm=%.12g  Py_ADM=%.12g\n", xcm, Py_ADM);
@@ -2366,7 +2365,7 @@ errorexit("need other boxes, not 0 and 3");
    from force balance */
 int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
 {
-  int check, stat, bi, bi1,bi2, i;
+  int check, stat, bi1,bi2;
   double xcmvec[2];
   double OmxCMvec[3];
   double Omega, x_CM, Om1,Om2;
@@ -2401,12 +2400,10 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
   prdivider(0);
 
   /* set Xqm1 and Xqm2, i.e. find max in DNSdata_q */
-  bi1=0;  bi2=3;
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR1,
                                    &bi1, &Xqm1, &qm1);
   find_Varmax_along_x_axis_in_star(grid, Ind("DNSdata_q"), STAR2,
                                    &bi2, &Xqm2, &qm2);
-
   if(bi1<0 || bi2<0)
   {
     printf("adjust_xCM_Omega_Py0_forcebalance: failed to find Xqm1 or "
