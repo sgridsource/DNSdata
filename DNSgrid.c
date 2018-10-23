@@ -562,6 +562,31 @@ void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi,
       if( Var[i]<lim || box->MATTR!=INSIDE )  Var[i] = Val;
   }
 }
+/* set q (or other Var) to zero if q<0 inside the stars */
+void set_Var_to_Val_if_below_limit_inside(tGrid *grid, int vi, 
+                                          double Val, double lim)
+{
+  int b;
+  forallboxes(grid, b)
+  {
+    int i;
+    tBox *box = grid->box[b];
+    double *Var = box->v[vi];
+    forallpoints(box, i)
+      if( Var[i]<lim && box->MATTR==INSIDE )  Var[i] = Val;
+  }
+}
+/* set q to floor in DNSdata_q_floor inside if it is below floor */
+void set_DNS_q_floor_inside_0_outside(tGrid *grid)
+{
+  int iq = Ind("DNSdata_q");
+  double qmax1 = Getd("DNSdata_qmax1");
+  double qmax2 = Getd("DNSdata_qmax2");
+  double floor = Getd("DNSdata_q_floor") * (qmax1+qmax2)*0.5;
+
+  set_Var_to_Val_if_below_limit_or_outside(grid, iq, 0.,0.);
+  set_Var_to_Val_if_below_limit_inside(grid, iq, floor,floor);
+}
 /* set q (or other Var) to zero at star surface */
 void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val)
 {
@@ -581,12 +606,24 @@ void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val)
     if(box->MATTR==INSIDE) i=n1-1;
     else                   i=0;
 
+    /* do nothing if no matter in this box */
+    if(box->MATTR!=INSIDE) continue;
+
     for(k=0; k<n3; k++)
     for(j=0; j<n2; j++)  
       Var[Index(i,j,k)] = Val;
   }
 }
+/* set q to floor in DNSdata_q_floor at star surfaces */
+void set_DNS_q_floor_atSurface(tGrid *grid)
+{
+  int iq = Ind("DNSdata_q");
+  double qmax1 = Getd("DNSdata_qmax1");
+  double qmax2 = Getd("DNSdata_qmax2");
+  double floor = Getd("DNSdata_q_floor") * (qmax1+qmax2)*0.5;
 
+  set_Var_to_Val_atSurface(grid, iq, floor);
+}
 
 /*************************************/
 /* functions to adjust star surfaces */
@@ -1229,7 +1266,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
   if(Coordinates_verbose) Sets("Coordinates_verbose", "yes");
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   if(strcmp(DNSdata_b_sav, Gets("DNSdata_b"))==0)
   {

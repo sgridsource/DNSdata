@@ -225,6 +225,7 @@ int sgrid_DNSdata()
   AddPar("DNSdata_dx_CM_fac",  "0.1", "dx_CM = b*dx_CM_fac");
   AddPar("DNSdata_set_Surface_q", "zero", "what to do with q at surface [no,zero]");
   AddPar("DNSdata_set_negative_q", "zero", "what to do with q<0 [no,zero]");
+  AddPar("DNSdata_q_floor", "0", "set q to floor*qmax if q<floor*qmax");
   AddPar("DNSdata_adjust_Sigma", "interp", "how we get Sigma when domain "
          "shapes are adjusted [interp,copy]");
   AddPar("DNSdata_EllSolver_method", "DNS_Eqn_Iterator",

@@ -536,7 +536,7 @@ int DNSdata_startup(tGrid *grid)
       compute_new_q_and_adjust_domainshapes(grid, STAR1);
 
       /* set q to zero if q<0, and also in region 1 & 2 */
-      set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+      set_DNS_q_floor_inside_0_outside(grid);
     }
   } /* end intialization using TOV data */
 
@@ -554,7 +554,7 @@ int DNSdata_startup(tGrid *grid)
     compute_new_q_and_adjust_domainshapes(grid, STAR2);
   
     /* set q to zero if q<0, and also in region 1 & 2 */
-    set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+    set_DNS_q_floor_inside_0_outside(grid);
   }
 
   /* set qg=q, qgold=qg */
@@ -752,7 +752,7 @@ int DNSdata_center_fields_if_desired(tGrid *grid, int it)
       }
 
       /* set q to zero if q<0 or in region 1 and 2 */
-      set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+      set_DNS_q_floor_inside_0_outside(grid);
     }
    
     /* set actual positions of maxima again */
@@ -954,7 +954,7 @@ int DNSdata_center_q_if_desired(tGrid *grid, int it)
     }
     Sets("DNSdata_center_new_q_flag", "no");  /* deactivate centering of q */
     /* set q to zero if q<0 or in region 1 and 2 */
-    set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+    set_DNS_q_floor_inside_0_outside(grid);
 
     /* set actual positions of maxima again ? */
     if(Getv("DNSdata_center_new_q", "set_DNSdata_actual_xyzmax"))
@@ -1276,7 +1276,7 @@ int adjust_C1_C2_q_keep_restmasses(tGrid *grid, int it, double tol)
   }
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   /* print new masses */
   m01 = GetInnerRestMass(grid, STAR1);
@@ -1389,7 +1389,7 @@ int adjust_C1_C2_q_keep_qmax(tGrid *grid, int it, double tol)
   }
   
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   /* print new qm */
   /* find max q locations xmax1/2 in NS1/2 */
@@ -1739,7 +1739,7 @@ int adjust_Omega_xCM_keep_xmax(tGrid *grid, int it, double tol)
   }
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   return 0;
 }
@@ -1942,7 +1942,7 @@ errorexit("need other boxes, not 0 and 3");
   }
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   return 0;
 }
@@ -2129,7 +2129,7 @@ int adjust_Omega_xCM_keep_dFuncdxfm_eq_0(tGrid *grid, int it, double tol)
   prdivider(0);
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   return 0;
 }
@@ -2325,7 +2325,7 @@ int adjust_Omega_xCM_forcebalance(tGrid *grid, int it, double tol)
   prdivider(0);
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   return 0;
 }
@@ -2469,7 +2469,7 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
   prdivider(0);
 
   /* set q to zero if q<0, and also in region 1 & 2 */
-  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+  set_DNS_q_floor_inside_0_outside(grid);
 
   return 0;
 }
@@ -2782,9 +2782,9 @@ int DNSdata_solve(tGrid *grid)
 
     /* what to do with q at A=0 and q<0 */
     if(Getv("DNSdata_set_negative_q", "zero"))
-      set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+      set_DNS_q_floor_inside_0_outside(grid);
     if(Getv("DNSdata_set_Surface_q", "zero"))
-      set_Var_to_Val_atSurface(grid, Ind("DNSdata_q"), 0.0);
+      set_DNS_q_floor_atSurface(grid);
 
     /* center q first, then solve and adjust C1/2, Omega, xCM. */
     if(Getv("DNSdata_center_new_q_timebin", "before_ell_solve"))
@@ -4375,7 +4375,7 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
 //quick_Vars_output(grid2->box[2],"Coordinates_CubedSphere_dsigma01_dB",8,8);
 
 //  /* set q to zero if q<0 or in region 1 and 2 */
-//  set_Var_to_Val_if_below_limit_or_outside(grid, Ind("DNSdata_q"), 0.0, 0.0);
+//  set_DNS_q_floor_inside_0_outside(grid);
 
   /* copy grid2 back into grid, and free grid2 */
   copy_grid(grid2, grid, 0);

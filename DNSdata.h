@@ -142,7 +142,9 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc);
 void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename);
 void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi, 
                                               double Val, double lim);
+void set_DNS_q_floor_inside_0_outside(tGrid *grid);
 void set_Var_to_Val_atSurface(tGrid *grid, int vi, double Val);
+void set_DNS_q_floor_atSurface(tGrid *grid);
 int set_DNSdata_CoordFac(tGrid *grid);
 void DNSgrid_Coordinates_CubSph_sigma_continuity(tGrid *grid, int star);
 void DNS_find_xin_xout(tGrid *grid, double *xin1, double *xout1,
