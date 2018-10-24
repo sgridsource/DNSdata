@@ -236,6 +236,10 @@ int sgrid_DNSdata()
          "DNSdata_Psi DNSdata_Bx DNSdata_By DNSdata_Bz DNSdata_alphaP",
          "Order we use in function DNS_ordered_Eqn_Iterator. "
          "This par has to contain all we solve for!");
+  AddPar("DNSdata_SigmaMod_eps", "0", "modify principal part of Sigma eqn:"
+          " rho0 LapSigma -> "
+          "[rho0 + eps rho0max ((rho0max - rho0)/rho0max)^pow] LapSigma");
+  AddPar("DNSdata_SigmaMod_pow", "4", "pow in principal part mod of Sigma");
   AddPar("DNSdata_extraSigmaSolve_fac", "0",
          "solve for Sigma if res_old/res <= fac");
   AddPar("DNSdata_extraSigmaSolve_every", "10",

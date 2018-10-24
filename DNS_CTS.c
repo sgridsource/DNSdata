@@ -1,5 +1,5 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 17.9.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 24.10.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -37,6 +37,11 @@ double omegax2 = Getd("DNSdata_omegax2");
 double omegay2 = Getd("DNSdata_omegay2");
 double omegaz2 = Getd("DNSdata_omegaz2");
 double CTSmod = Getv("DNSdata_CTSmod","yes");
+double rhMeps = Getd("DNSdata_SigmaMod_eps");
+double rhMpow = Getd("DNSdata_SigmaMod_pow");
+double rhMpowm1 = rhMpow - 1.;
+double qmax1 = Getd("DNSdata_qmax1");
+double qmax2 = Getd("DNSdata_qmax2");
 int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
 int FakeT0 = Getv("DNSdata_FakeMatterType","rhoEQ-lam");
 int LapSig = Getv("DNSdata_FakeMatterType","LaplaceSigmaOutside");
@@ -326,6 +331,7 @@ double *CoordFac = box->v[index_DNSdata_CoordFac + 0];
 
 double xmax, xC;
 double omegMOmeg1, omegMOmeg2, omegMOmeg3;
+double rho0max, Pmax, rhoEmax, drho0dhm1max;
 if(blkinfo!=NULL) if(bi!=blkinfo->bi) continue;
 if(nonlin) {
 D_and_DD_of_S(box, index_Psi,          Ind("DNSdata_Psix"), Ind("DNSdata_Psixx"));
@@ -373,6 +379,7 @@ xmax = xmax1;
 omegMOmeg1 = omegax1;
 omegMOmeg2 = omegay1;
 omegMOmeg3 = omegaz1 - Omega;
+DNS_polytrope_EoS_of_hm1(qmax1, &rho0max,                                   &Pmax, &rhoEmax, &drho0dhm1max);
 } else {
 if(corot2)    corot = 1;
 if(VwApprox2) VwApprox = 1;
@@ -380,6 +387,7 @@ xmax = xmax2;
 omegMOmeg1 = omegax2;
 omegMOmeg2 = omegay2;
 omegMOmeg3 = omegaz2 - Omega;
+DNS_polytrope_EoS_of_hm1(qmax2, &rho0max,                                   &Pmax, &rhoEmax, &drho0dhm1max);
 } /* end if */
 xC = xCM + ecc * (xmax - xCM);
 SGRID_LEVEL3_Pragma(omp parallel for)
@@ -401,6 +409,7 @@ double dbeta23;
 double dbeta31;
 double dbeta32;
 double dbeta33;
+double ddSigCoef;
 double divbeta;
 double divlbeta;
 double divlwB;
@@ -518,6 +527,7 @@ double LBdo31;
 double LBdo32;
 double LBdo33;
 double LBLB;
+double lddSigCoef;
 double ldL21;
 double ldL22;
 double ldL23;
@@ -1525,16 +1535,21 @@ Sigma[ijk]
 
 if(MATTRinside) { 
 
+ddSigCoef
+=
+rho0 + rhMeps*Power(1. - rho0/rho0max,rhMpow)*rho0max
+;
+
 FSigma[ijk]
 =
 drho0PLUSrho0dLnalphaPsi2oh1*dSigmaUp1 + 
   drho0PLUSrho0dLnalphaPsi2oh2*dSigmaUp2 + 
-  drho0PLUSrho0dLnalphaPsi2oh3*dSigmaUp3 - 
+  drho0PLUSrho0dLnalphaPsi2oh3*dSigmaUp3 + 
+  rho0*(divwB*Psim2 - divbeta*h*Psi4*uzero) - 
   h*Psi4*uzero*(drho0PLUSrho0dLnalphaPsi6uz1*beta1[ijk] + 
      drho0PLUSrho0dLnalphaPsi6uz2*beta2[ijk] + 
      drho0PLUSrho0dLnalphaPsi6uz3*beta3[ijk]) + 
-  rho0*(divwB*Psim2 - divbeta*h*Psi4*uzero + ddSigma11[ijk] + 
-     ddSigma22[ijk] + ddSigma33[ijk]) + 
+  ddSigCoef*(ddSigma11[ijk] + ddSigma22[ijk] + ddSigma33[ijk]) + 
   Psim2*(drho0PLUSrho0dLnalphaoh1*wB1[ijk] + 
      drho0PLUSrho0dLnalphaoh2*wB2[ijk] + drho0PLUSrho0dLnalphaoh3*wB3[ijk])
 ;
@@ -2652,6 +2667,16 @@ ldrho0PLUSrho0dLnalphaPsi6uz3
 ldrho03 + dLnalphaPsi6uz3*lrho0 + ldLnalphaPsi6uz3*rho0
 ;
 
+ddSigCoef
+=
+rho0 + rhMeps*Power(1. - rho0/rho0max,rhMpow)*rho0max
+;
+
+lddSigCoef
+=
+lrho0 - lrho0*rhMeps*rhMpow*Power(1. - (1.*rho0)/rho0max,rhMpowm1)
+;
+
 FlSigma[ijk]
 =
 dlSigmaUp1*drho0PLUSrho0dLnalphaPsi2oh1 + 
@@ -2664,16 +2689,15 @@ dlSigmaUp1*drho0PLUSrho0dLnalphaPsi2oh1 +
   lhuzeroPsi4*(drho0PLUSrho0dLnalphaPsi6uz1*beta1[ijk] + 
      drho0PLUSrho0dLnalphaPsi6uz2*beta2[ijk] + 
      drho0PLUSrho0dLnalphaPsi6uz3*beta3[ijk]) + 
-  lrho0*(ddSigma11[ijk] + ddSigma22[ijk] + ddSigma33[ijk]) - 
+  ddSigCoef*(ddlSigma11[ijk] + ddlSigma22[ijk] + ddlSigma33[ijk]) + 
+  lddSigCoef*(ddSigma11[ijk] + ddSigma22[ijk] + ddSigma33[ijk]) - 
   h*Psi4*uzero*(divlbeta*rho0 + ldrho0PLUSrho0dLnalphaPsi6uz1*beta1[ijk] + 
      ldrho0PLUSrho0dLnalphaPsi6uz2*beta2[ijk] + 
      ldrho0PLUSrho0dLnalphaPsi6uz3*beta3[ijk] + 
      drho0PLUSrho0dLnalphaPsi6uz1*lB1[ijk] + 
      drho0PLUSrho0dLnalphaPsi6uz2*lB2[ijk] + 
-     drho0PLUSrho0dLnalphaPsi6uz3*lB3[ijk]) + 
-  rho0*(ddlSigma11[ijk] + ddlSigma22[ijk] + ddlSigma33[ijk] - 
-     2.*divwB*Psim3*lPsi[ijk]) - 
-  2.*Psim3*lPsi[ijk]*(drho0PLUSrho0dLnalphaoh1*wB1[ijk] + 
+     drho0PLUSrho0dLnalphaPsi6uz3*lB3[ijk]) - 
+  2.*Psim3*lPsi[ijk]*(divwB*rho0 + drho0PLUSrho0dLnalphaoh1*wB1[ijk] + 
      drho0PLUSrho0dLnalphaoh2*wB2[ijk] + drho0PLUSrho0dLnalphaoh3*wB3[ijk]) \
 + Psim2*(divwB*lrho0 + drho0PLUSrho0dLnalphaoh1*lwB1 + 
      drho0PLUSrho0dLnalphaoh2*lwB2 + drho0PLUSrho0dLnalphaoh3*lwB3 + 
@@ -3090,4 +3114,4 @@ CoordFac[ijk]*FlSigma[ijk]
 }  /* end of function */
 
 /* DNS_CTS.c */
-/* nvars = 182, n* = 1467,  n/ = 219,  n+ = 1204, n = 2890, O = 1 */
+/* nvars = 182, n* = 1474,  n/ = 222,  n+ = 1211, n = 2907, O = 1 */

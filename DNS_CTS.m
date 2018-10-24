@@ -213,7 +213,8 @@ tocompute = {
     (****************)
     Cif == else,
       Cinstruction == "if(MATTRinside) {", (* inside stars *)
-        FSigma == rho0 delta[b,c] ddSigma[b,c] + 
+        ddSigCoef == rho0 + rhMeps rho0max ((rho0max - rho0)/rho0max)^rhMpow,
+        FSigma == ddSigCoef delta[b,c] ddSigma[b,c] + 
                   dSigmaUp[c] drho0PLUSrho0dLnalphaPsi2oh[c] +
                   Psim2 (wB[c] drho0PLUSrho0dLnalphaoh[c] + rho0 divwB) -
                   h uzero Psi4 (rho0 divbeta +
@@ -474,12 +475,15 @@ tocompute = {
         ldrho0PLUSrho0dLnalphaPsi6uz[a] == ldrho0[a] +
                                            lrho0 dLnalphaPsi6uz[a] +
                                            rho0 ldLnalphaPsi6uz[a],
-        FlSigma == rho0 delta[b,c] ddlSigma[b,c] + 
+        ddSigCoef == rho0 + rhMeps rho0max ((rho0max - rho0)/rho0max)^rhMpow,
+        lddSigCoef== lrho0 *
+                     (1 - rhMeps rhMpow ((rho0max - rho0)/rho0max)^rhMpowm1),
+        FlSigma == ddSigCoef delta[b,c] ddlSigma[b,c] + 
                   dlSigmaUp[c] drho0PLUSrho0dLnalphaPsi2oh[c] +
                   Psim2 (lwB[c] drho0PLUSrho0dLnalphaoh[c] + rho0 divlwB) -
                   h uzero Psi4 (rho0 divlbeta +
                                 lB[c] drho0PLUSrho0dLnalphaPsi6uz[c]) +
-                  lrho0 delta[b,c] ddSigma[b,c] +
+                  lddSigCoef delta[b,c] ddSigma[b,c] +
                   dSigmaUp[c] ldrho0PLUSrho0dLnalphaPsi2oh[c] +
                   Psim2 (wB[c] ldrho0PLUSrho0dLnalphaoh[c] + lrho0 divwB) -
                   2 Psim3 lPsi (wB[c] drho0PLUSrho0dLnalphaoh[c] + rho0 divwB) -
@@ -638,6 +642,11 @@ BeginCFunction[] := Module[{},
   pr["double omegay2 = Getd(\"DNSdata_omegay2\");\n"];
   pr["double omegaz2 = Getd(\"DNSdata_omegaz2\");\n"];
   pr["double CTSmod = Getv(\"DNSdata_CTSmod\",\"yes\");\n"];
+  pr["double rhMeps = Getd(\"DNSdata_SigmaMod_eps\");\n"];
+  pr["double rhMpow = Getd(\"DNSdata_SigmaMod_pow\");\n"];
+  pr["double rhMpowm1 = rhMpow - 1.;\n"];
+  pr["double qmax1 = Getd(\"DNSdata_qmax1\");\n"];
+  pr["double qmax2 = Getd(\"DNSdata_qmax2\");\n"];
   pr["int FakeMatterOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"FakeMatterOutside\");\n"];
   pr["int FakeT0 = Getv(\"DNSdata_FakeMatterType\",\"rhoEQ-lam\");\n"];
   pr["int LapSig = Getv(\"DNSdata_FakeMatterType\",\"LaplaceSigmaOutside\");\n"];
@@ -719,6 +728,7 @@ InitializationCommands[] := Module[{},
   (* some thread global C vars we already need here *)
   pr["double xmax, xC;\n"];
   pr["double omegMOmeg1, omegMOmeg2, omegMOmeg3;\n"];
+  pr["double rho0max, Pmax, rhoEmax, drho0dhm1max;\n"];
 
   (* do nothing and continue if block is not in box bi *)
   pr["if(blkinfo!=NULL) if(bi!=blkinfo->bi) continue;\n"];
@@ -794,7 +804,8 @@ InitializationCommands[] := Module[{},
     pr["omegMOmeg1 = omegax1;\n"];
     pr["omegMOmeg2 = omegay1;\n"];
     pr["omegMOmeg3 = omegaz1 - Omega;\n"];
-
+    pr["DNS_polytrope_EoS_of_hm1(qmax1, &rho0max, 
+                                 &Pmax, &rhoEmax, &drho0dhm1max);\n"];
   pr["} else {\n"];
     pr["if(corot2)    corot = 1;\n"];
     pr["if(VwApprox2) VwApprox = 1;\n"];
@@ -802,6 +813,8 @@ InitializationCommands[] := Module[{},
     pr["omegMOmeg1 = omegax2;\n"];
     pr["omegMOmeg2 = omegay2;\n"];
     pr["omegMOmeg3 = omegaz2 - Omega;\n"];
+    pr["DNS_polytrope_EoS_of_hm1(qmax2, &rho0max, 
+                                 &Pmax, &rhoEmax, &drho0dhm1max);\n"];
   pr["} /* end if */\n"];
 
   (* center of circle *)

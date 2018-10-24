@@ -2571,20 +2571,20 @@ double normresnonlin_without_DNSdata_Sigma_outside(tGrid *grid)
 {
   int b;
   int iSig = Ind("DNSdata_Sigma_Err");
+  char *BCsav  = strdup(Gets("DNSdata_Sigma_surface_BCs")); /* save pars */
+  char *epssav = strdup(Gets("DNSdata_SigmaMod_eps"));
 
-  /* should we switch off all special Sigma BCs when computing vlFu? */
+  /* should we switch off some special Sigma BCs and mods when 
+     computing vlFu? */
   if(Getv("DNSdata_Sigma_surface_BCs","OutputSurfaceBCres"))
-  {
-    char *BCsav;
-    BCsav = strdup(Gets("DNSdata_Sigma_surface_BCs"));
-    Sets("DNSdata_Sigma_surface_BCs", "");
-    F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
-    Sets("DNSdata_Sigma_surface_BCs", BCsav);
-    free(BCsav);
-  }
-  else
-    F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
+     Sets("DNSdata_Sigma_surface_BCs", "");
+  if(Getd("DNSdata_SigmaMod_eps") != 0.)
+     Sets("DNSdata_SigmaMod_eps", "0");
 
+  /* get res */
+  F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
+
+  /* zero Sigma res outside */
   forallboxes(grid, b)
   {
     tBox *box = grid->box[b];
@@ -2592,6 +2592,12 @@ double normresnonlin_without_DNSdata_Sigma_outside(tGrid *grid)
     if(box->MATTR==INSIDE) continue; /* do nothing inside stars */
     forallpoints(box, i)  box->v[iSig][i] = 0.0;
   }
+
+  /* restore pars */
+  Sets("DNSdata_Sigma_surface_BCs", BCsav);
+  Sets("DNSdata_SigmaMod_eps", epssav);
+  free(epssav);
+  free(BCsav);
   return GridL2Norm(vlFu);
 }
 
