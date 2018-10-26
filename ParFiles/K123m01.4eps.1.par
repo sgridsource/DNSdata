@@ -1,9 +1,7 @@
 # Binary neutron star ID for polytropic EoS
-# This one has:  iterate_parameter4 = DNSdata_SigmaSolve yes no no no no
-# I.e. it only solves for DNSdata_Sigma at low res to avoid the instability
-# in dSigma/dx at the star surface.
-# NOTE HOWEVER: In this example the CM drifts away!!!
-# Better use: K123m01.4eps.1.par
+# Here we modify the velocity potential eqn:  DNSdata_SigmaMod_eps = 0.1
+# This smoothes smoothes DNSdata_Sigma to avoid the instability in
+# dSigma/dx at the star surface.
 physics = ADMvars DNSdata
 
 ################################# eos ##############################################
@@ -59,7 +57,7 @@ DNSdata_Sigma_esw               = 0.2 # 0.4
 DNSdata_Sigma_esw1              = 1
 DNSdata_allow_Sigma_esw1_first_at = -1 # 0
 DNSdata_adjust_first_at         = 0 # 8
-DNSdata_adjust                  = forcebalance always ## reset_xmax_if_problem print_current_xmax
+DNSdata_adjust                  = forcebalance always # Py0_forcebalance always # forcebalance always
 DNSdata_adjust_mintol           = 1e-4
 DNSdata_itmax                   = 25 # 40 # 199 # 30
 DNSdata_tol                     = 1e-8
@@ -71,6 +69,9 @@ DNSdata_Sigma_surface_BCs       = InnerVolIntZero # ZeroAtPoint # FakeMatterOuts
 DNSdata_drho0_inBC              = dlam # dq # dlam
 #DNSdata_new_q                  = Fromqgold
 #DNSdata_q_derivs               = dqg
+DNSdata_SmoothSigma             = no
+DNSdata_SmoothSigmaRegion       = 0.1
+DNSdata_SigmaMod_eps            = 1e-1
 
 DNSdata_CubSph_sigma_func       = yes
 DNSdata_CubSph_sigma_continuity = yes
@@ -91,7 +92,6 @@ iterate_parameters = yes
 iterate_parameter1 = n1  10 14 18 22 26
 iterate_parameter2 = n2  10 14 18 22 26
 iterate_parameter3 = n3  10 14 18 22 26
-iterate_parameter4 = DNSdata_SigmaSolve yes no no no no
 
 finaltime = 0
 
