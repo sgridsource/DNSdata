@@ -2475,6 +2475,86 @@ int adjust_xCM_Omega_Py0_forcebalance(tGrid *grid, int it, double tol)
 }
 
 
+/* for newton_linesrch_itsP: compute Px_ADM and Py_ADM */
+void Pxy_ADM_of_Omega_xCM_VectorFuncP(int n, double *vec, double *fvec, void *p)
+{
+  tGrid *grid;
+  double Om, xcm;
+  t_grid_bXYZ1_bXYZ2_struct *pars;
+  int itemp1 = Ind("DNSdata_temp1");
+  int itemp2 = Ind("DNSdata_temp2");
+  int itemp3 = Ind("DNSdata_temp3");
+  double Px_ADM1, Px_ADM2, Px_ADM;
+  double Py_ADM1, Py_ADM2, Py_ADM;
+
+  /* get pars */
+  pars = (t_grid_bXYZ1_bXYZ2_struct *) p;
+  grid = pars->grid;
+
+  /* set Omega & x_CM */
+  Om  = vec[1];
+  xcm = vec[2];
+
+  /* compute ADM mom. */
+  DNS_set_P_ADM_VolInt_integrand_Om_xcm(grid, itemp1,itemp2,itemp3, Om,xcm);
+  Px_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp1);
+  Px_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp1);
+  Px_ADM  = Px_ADM1 + Px_ADM2;
+  Py_ADM1 = InnerVolumeIntegral(grid, STAR1, itemp2);
+  Py_ADM2 = InnerVolumeIntegral(grid, STAR2, itemp2);
+  Py_ADM  = Py_ADM1 + Py_ADM2;
+
+  printf("Pxy_ADM_of_Omega_xCM_VectorFuncP: Om=%.12g xcm=%.12g\n"
+         " => Px_ADM=%.12g Py_ADM=%.12g\n", Om,xcm, Px_ADM,Py_ADM);
+  fflush(stdout);
+  fvec[1] = Px_ADM;
+  fvec[2] = Py_ADM;
+}
+
+/* Adjust Omega and x_CM, s.t. Px_ADM = 0 = Py_ADM. */
+int adjust_xCM_Omega_Pxy0(tGrid *grid, int it, double tol)
+{
+  int check, stat, bi1,bi2;
+  double OmxCMvec[3];
+  double Omega, x_CM, Om1,Om2;
+  double Xqm1,qm1, Xqm2,qm2;
+  t_grid_bXYZ1_bXYZ2_struct pars[1];
+
+  /* save old Omega, x_CM */
+  Omega = Getd("DNSdata_Omega");
+  x_CM  = Getd("DNSdata_x_CM");
+  prdivider(0);
+  printf("adjust_xCM_Omega_Pxy0: in DNSdata_solve step %d\n"
+         "  old Omega=%g x_CM=%g tol=%g  WallTime=%gs\n",
+         it, Omega, x_CM, tol, getTimeIn_s());
+  prdivider(0);
+
+  /* find Omega, x_CM */
+  pars->grid  = grid; /* set grid in pars */
+  /**************************************/
+  /* do newton_linesrch_itsP iterations */
+  /**************************************/
+  OmxCMvec[1] = Omega;
+  OmxCMvec[2] = x_CM;
+  stat = newton_linesrch_itsP(OmxCMvec,2, &check, 
+                              Pxy_ADM_of_Omega_xCM_VectorFuncP,
+                              (void *) pars, 1000, tol*0.5);
+  if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
+
+  /* Nobody has touched the par DNSdata_x_CM so far.
+     Now set it to what we found */
+  Setd("DNSdata_Omega", OmxCMvec[1]);
+  Setd("DNSdata_x_CM",  OmxCMvec[2]);
+  printf("adjust_xCM_Omega_Pxy0: new Omega=%g x_CM=%g\n",
+         Getd("DNSdata_Omega"), Getd("DNSdata_x_CM"));
+  prdivider(0);
+
+  /* set q to zero if q<0, and also outside */
+  set_DNS_q_floor_inside_0_outside(grid);
+
+  return 0;
+}
+
 
 /* adjust m01 and m02 to let them e.g. grow during iterations */
 void adjust_DNSdata_m01_m02(void)
@@ -3099,6 +3179,11 @@ exit(99);
       else if(Getv("DNSdata_adjust", "Py0_forcebalance"))
       { /* use Py_ADM = 0 and forcebalance */
         adjust_xCM_Omega_Py0_forcebalance(grid, it, adjusttol);
+        adjust_C1_C2_q_keep_m0_or_qmax(grid, it, adjusttol*100.0); /* *100 because adjust_C1_C2_q_keep_m0_or_qmax multiplies its tol with 0.01 */
+      }
+      else if(Getv("DNSdata_adjust", "Pxy0"))
+      { /* use Px_ADM = 0 = Py_ADM */
+        adjust_xCM_Omega_Pxy0(grid, it, adjusttol);
         adjust_C1_C2_q_keep_m0_or_qmax(grid, it, adjusttol*100.0); /* *100 because adjust_C1_C2_q_keep_m0_or_qmax multiplies its tol with 0.01 */
       }
       else /* adjust C1/2, q while keeping restmasses, Omega and xCM */

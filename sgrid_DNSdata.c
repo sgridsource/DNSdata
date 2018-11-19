@@ -216,7 +216,7 @@ int sgrid_DNSdata()
          "after ell. solve. E.g. \"forcebalance always\" adjusts Omega "
          "and x_CM to keep xmax1 and xmax2 in place. "
          "[nothing,forcebalance [always],"
-         "Py0_forcebalance"
+         "Py0_forcebalance,Pxy0"
          "]");
   AddPar("DNSdata_adjust_first_at", "0", 
          "first iteration when we use DNSdata_adjust. -1 means never");
