@@ -2555,6 +2555,44 @@ int adjust_xCM_Omega_Pxy0(tGrid *grid, int it, double tol)
   return 0;
 }
 
+/* Adjust only x_CM. Find x_CM s.t. Py_ADM = 0. */
+int adjust_xCM_Py0(tGrid *grid, int it, double tol)
+{
+  int check, stat;
+  double xcmvec[2];
+  double x_CM;
+  t_grid_bXYZ1_bXYZ2_struct pars[1];
+
+  /* save old x_CM */
+  x_CM = Getd("DNSdata_x_CM");
+  prdivider(0);
+  printf("adjust_xCM_Py0: in DNSdata_solve step %d\n"
+         "  old x_CM=%g tol=%g  WallTime=%gs\n",
+         it, x_CM, tol, getTimeIn_s());
+  prdivider(0);
+
+  /* find x_CM */
+  pars->grid  = grid; /* set grid in pars */
+  /****************************************************************/
+  /* do newton_linesrch_itsP iterations until xcm is what we want */
+  /****************************************************************/
+  xcmvec[1] = x_CM;
+  stat = newton_linesrch_itsP(xcmvec, 1, &check, Py_ADM_of_xCM_VectorFuncP,
+                             (void *) pars, 1000, tol*0.5);
+  if(check || stat<0) printf("  --> check=%d stat=%d\n", check, stat);
+
+  /* Nobody has touched the par DNSdata_x_CM so far.
+     Now set it to what we found */
+  Setd("DNSdata_x_CM",  xcmvec[1]);
+  printf("adjust_xCM_Py0: setting x_CM=%g\n", Getd("DNSdata_x_CM"));
+  prdivider(0);
+
+  /* set q to zero if q<0, and also outside stars */
+  set_DNS_q_floor_inside_0_outside(grid);
+
+  return 0;
+}
+
 
 /* adjust m01 and m02 to let them e.g. grow during iterations */
 void adjust_DNSdata_m01_m02(void)
@@ -3184,6 +3222,11 @@ exit(99);
       else if(Getv("DNSdata_adjust", "Pxy0"))
       { /* use Px_ADM = 0 = Py_ADM */
         adjust_xCM_Omega_Pxy0(grid, it, adjusttol);
+        adjust_C1_C2_q_keep_m0_or_qmax(grid, it, adjusttol*100.0); /* *100 because adjust_C1_C2_q_keep_m0_or_qmax multiplies its tol with 0.01 */
+      }
+      else if(Getv("DNSdata_adjust", "Py0"))
+      { /* use Py_ADM = 0 to set xCM only */
+        adjust_xCM_Py0(grid, it, adjusttol);
         adjust_C1_C2_q_keep_m0_or_qmax(grid, it, adjusttol*100.0); /* *100 because adjust_C1_C2_q_keep_m0_or_qmax multiplies its tol with 0.01 */
       }
       else /* adjust C1/2, q while keeping restmasses, Omega and xCM */
