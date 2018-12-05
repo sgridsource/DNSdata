@@ -1,5 +1,5 @@
 /* DNS_set_dlnIntegEuler.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 10.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 5.12.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -24,6 +24,7 @@ int VwApprox2 = Getv("DNSdata_rotationstate2","VwApproximation");
 int corot1 = VwApprox1 || Getv("DNSdata_rotationstate1","corotation");
 int corot2 = VwApprox2 || Getv("DNSdata_rotationstate2","corotation");
 int VwApprox, corot;
+int wB0outside = Getv("DNSdata_wB_outside","0");
 double Omega = Getd("DNSdata_Omega");
 double xCM = Getd("DNSdata_x_CM");
 double ecc = Getd("DNSdata_ecc");
@@ -167,7 +168,7 @@ FirstDerivsOf_S(box,index_DNSdata_Sigma,
 
 
 /* conditional */
-if (MATTRtouch) {
+if (MATTRtouch && !wB0outside) {
 
 
 int biin = bi - 6; /* only if CubSp are arranged my way */                   
@@ -183,7 +184,7 @@ int biin = bi - 6; /* only if CubSp are arranged my way */
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBy"), biin,bi);
 
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBz"), biin,bi);}
-/* if (MATTRtouch) */
+/* if (MATTRtouch && !wB0outside) */
 
 
 

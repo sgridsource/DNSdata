@@ -16,7 +16,7 @@ tocompute = {
 
   Cinstruction == "FirstDerivsOf_S(box,index_DNSdata_Sigma,
                                    Ind(\"DNSdata_Sigmax\"));",
-  Cif == (MATTRtouch),
+  Cif == (MATTRtouch && (!wB0outside)),
     Cinstruction == "int biin = bi - 6; /* only if CubSp are arranged my way */\n
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), biin,bi);\n
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), biin,bi);\n
@@ -231,6 +231,7 @@ BeginCFunction[] := Module[{},
   pr["int corot1 = VwApprox1 || Getv(\"DNSdata_rotationstate1\",\"corotation\");\n"];
   pr["int corot2 = VwApprox2 || Getv(\"DNSdata_rotationstate2\",\"corotation\");\n"];
   pr["int VwApprox, corot;\n"];
+  pr["int wB0outside = Getv(\"DNSdata_wB_outside\",\"0\");\n"];
   pr["double Omega = Getd(\"DNSdata_Omega\");\n"];
   pr["double xCM = Getd(\"DNSdata_x_CM\");\n"];
   pr["double ecc = Getd(\"DNSdata_ecc\");\n"];  

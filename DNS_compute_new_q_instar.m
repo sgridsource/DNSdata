@@ -16,7 +16,7 @@ tocompute = {
 
   Cinstruction == "FirstDerivsOf_S(box,index_DNSdata_Sigma,
                                    Ind(\"DNSdata_Sigmax\"));",
-  Cif == (MATTRtouch),
+  Cif == (MATTRtouch && (!wB0outside)),
     Cinstruction == "int biin = bi-6; /* works only for my CubSph setup */ \n
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmax\"), biin,bi);\n
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind(\"DNSdata_Sigmay\"), biin,bi);\n
@@ -209,6 +209,7 @@ BeginCFunction[] := Module[{},
   pr["int corot2 = VwApprox2 || Getv(\"DNSdata_rotationstate2\",\"corotation\");\n"];
   pr["int VwApprox, corot;\n"];
   pr["int qFromFields = Getv(\"DNSdata_new_q\",\"FromFields\");\n"];
+  pr["int wB0outside  = Getv(\"DNSdata_wB_outside\",\"0\");\n"];
   pr["double C1 = Getd(\"DNSdata_C1\");\n"];
   pr["double C2 = Getd(\"DNSdata_C2\");\n"];
   pr["double Omega = Getd(\"DNSdata_Omega\");\n"];

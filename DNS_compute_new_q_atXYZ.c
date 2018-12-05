@@ -1,5 +1,5 @@
 /* DNS_compute_new_q_atXYZ.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 10.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 5.12.2018 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -24,6 +24,7 @@ int corot1 = VwApprox1 || Getv("DNSdata_rotationstate1","corotation");
 int corot2 = VwApprox2 || Getv("DNSdata_rotationstate2","corotation");
 int VwApprox, corot;
 int qFromFields = Getv("DNSdata_new_q","FromFields");
+int wB0outside  = Getv("DNSdata_wB_outside","0");
 double C1 = Getd("DNSdata_C1");
 double C2 = Getd("DNSdata_C2");
 double Omega = Getd("DNSdata_Omega");
@@ -135,7 +136,7 @@ FirstDerivsOf_S(box,index_DNSdata_Sigma,
 
 
 /* conditional */
-if (MATTRtouch) {
+if (MATTRtouch && !wB0outside) {
 
 
 int biin = bi-6; /* works only for my CubSph setup */                        
@@ -151,7 +152,7 @@ int biin = bi-6; /* works only for my CubSph setup */
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBy"), biin,bi);
 
     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBz"), biin,bi);}
-/* if (MATTRtouch) */
+/* if (MATTRtouch && !wB0outside) */
 
 
 
