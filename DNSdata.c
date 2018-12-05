@@ -144,6 +144,7 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
   int wBfac_Psi6    = Getv("DNSdata_wB_factor","Psi6");
   int wBfac_h       = Getv("DNSdata_wB_factor","h");
   int wBfac_ooalpha = Getv("DNSdata_wB_factor","1/alpha");
+  int wB0outside    = Getv("DNSdata_wB_outside","0");
   int b;
   double omegax1   = Getd("DNSdata_omegax1");
   double omegay1   = Getd("DNSdata_omegay1");
@@ -183,6 +184,10 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
     double *DNSdata_Psi = box->v[Ind("DNSdata_Psi")];
     double *DNSdata_alphaP = box->v[Ind("DNSdata_alphaP")];
     double *DNSdata_q = box->v[Ind("DNSdata_q")];
+    //int isSTAR1     = (box->SIDE == STAR1);
+    //int MATTRinside = (box->MATTR== INSIDE);
+    int MATTRtouch  = (box->MATTR== TOUCH);
+    int MATTRaway   = (box->MATTR== AWAY);
 
     if( box->SIDE!=star ) continue;
     
@@ -212,8 +217,12 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
         double Att1, wBfac;
         double lam = pX[i];
 
-        if(box->MATTR==AWAY) Att1=0.0; //1.0-Attenuation01((lam-0.1)/0.8, 2.0, 0.5);
-        else                 Att1=1.0;
+        if(MATTRaway)
+          Att1=0.0; //1.0-Attenuation01((lam-0.1)/0.8, 2.0, 0.5);
+        else if(MATTRtouch && wB0outside)
+          Att1=0.0;
+        else
+          Att1=1.0;
 
         /* omega cross r-rc */
         vx = ( omegay* (z-zc) - omegaz* (y-yc) )*Att1;
@@ -4438,6 +4447,8 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
   int iq = Ind("DNSdata_q");
   int interp_qgold = !Getv("DNSdata_new_q", "FromFields");
   int interp_Sigma = Getv("DNSdata_adjust_Sigma", "interp");
+  int wB0outside   = Getv("DNSdata_wB_outside","0");
+  int interp_wB    = Getv("DNSdata_adjust_wB", "interp") && (!wB0outside);
   int outerdom;
 
   if(star>STAR2 || star<STAR1)
@@ -4484,9 +4495,19 @@ void compute_new_q_and_adjust_domainshapes_InterpFromGrid0(tGrid *grid,
       /* Since grid0 and grid2 have different domain shapes, this copy causes
          an additional error in Sigma! But the inner Sigma may not suffer
          from interpolation kinks then. */
-    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBx"),star);
-    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBy"),star);
-    Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBz"),star);
+    if(interp_wB)
+    {
+      Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBx"),star);
+      Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBy"),star);
+      Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_wBz"),star);
+    }
+    else
+    {
+      double xc;
+      if(star==STAR1) xc = Getd("DNSdata_actual_xmax1");
+      else            xc = Getd("DNSdata_actual_xmax2");
+      DNS_set_wB(grid2, star, xc, 0., 0.);
+    }
   }
   if(interp_qgold)
     Interp_Var_From_Grid1_To_Grid2_star(grid0, grid2, Ind("DNSdata_qgold"),star);

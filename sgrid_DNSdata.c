@@ -76,6 +76,8 @@ int sgrid_DNSdata()
          "rotation state of NS2 [corotation,VwApproximation,rotation");
   AddPar("DNSdata_wB_factor", "Psi6",
          "wB = DNSdata_omega cross (r-r_c) * factor [1,Psi6,h,1/alpha]");
+  AddPar("DNSdata_wB_outside", "same",
+         "how we continue wB outside the stars [same,0]");
   AddPar("DNSdata_omegax1", "0", "x-comp of angular velocity of NS1");
   AddPar("DNSdata_omegay1", "0", "y-comp of angular velocity of NS1");
   AddPar("DNSdata_omegaz1", "0", "z-comp of angular velocity of NS1");
@@ -228,6 +230,8 @@ int sgrid_DNSdata()
   AddPar("DNSdata_q_floor", "0", "set q to floor*qmax if q<floor*qmax");
   AddPar("DNSdata_adjust_Sigma", "interp", "how we get Sigma when domain "
          "shapes are adjusted [interp,copy]");
+  AddPar("DNSdata_adjust_wB", "interp", "how we get wB when domain shapes are "
+         "adjusted [interp,recompute]");
   AddPar("DNSdata_EllSolver_method", "DNS_Eqn_Iterator",
          "how we solve for Psi,B^i,alphaP,Sigma "
          "[allatonce, DNS_Eqn_Iterator, DNS_ordered_Eqn_Iterator,"
