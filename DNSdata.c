@@ -145,6 +145,7 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
   int wBfac_h       = Getv("DNSdata_wB_factor","h");
   int wBfac_ooalpha = Getv("DNSdata_wB_factor","1/alpha");
   int wB0outside    = Getv("DNSdata_wB_outside","0");
+  int wBAttoutside  = Getv("DNSdata_wB_outside","attenuate");
   int b;
   double omegax1   = Getd("DNSdata_omegax1");
   double omegay1   = Getd("DNSdata_omegay1");
@@ -219,8 +220,12 @@ void DNS_set_wB(tGrid *grid, int star, double xc,double yc,double zc)
 
         if(MATTRaway)
           Att1=0.0; //1.0-Attenuation01((lam-0.1)/0.8, 2.0, 0.5);
-        else if(MATTRtouch && wB0outside)
-          Att1=0.0;
+        else if(MATTRtouch)
+        {
+          if(wB0outside)        Att1=0.0;
+          else if(wBAttoutside) Att1=1.0-Attenuation01((lam-0.1)/0.8, 3.0, 0.2);
+          else                  Att1=1.0;
+        }
         else
           Att1=1.0;
 

@@ -77,7 +77,7 @@ int sgrid_DNSdata()
   AddPar("DNSdata_wB_factor", "Psi6",
          "wB = DNSdata_omega cross (r-r_c) * factor [1,Psi6,h,1/alpha]");
   AddPar("DNSdata_wB_outside", "same",
-         "how we continue wB outside the stars [same,0]");
+         "how we continue wB outside the stars [same,0,attenuate]");
   AddPar("DNSdata_omegax1", "0", "x-comp of angular velocity of NS1");
   AddPar("DNSdata_omegay1", "0", "y-comp of angular velocity of NS1");
   AddPar("DNSdata_omegaz1", "0", "z-comp of angular velocity of NS1");
