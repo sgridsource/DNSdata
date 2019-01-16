@@ -437,6 +437,8 @@ int DNSdata_startup(tGrid *grid)
       Sets("DNSdata_Omega", Gets("DNSdata_Omega_init"));
     if(strstr(OmegaStr,"keep")!=NULL)
       Sets("DNSdata_Omega", OmegaStr);
+    printf("done loading.\n");
+    printf("DNSdata_startup: DNSdata_Omega = %s\n", Gets("DNSdata_Omega"));
     free(OmegaStr);
   }
   else /* use some TOV data */
