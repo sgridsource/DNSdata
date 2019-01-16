@@ -432,8 +432,11 @@ int DNSdata_startup(tGrid *grid)
     printf("loading initial guess from %s\n", filename);
     DNSgrid_load_initial_guess_from_checkpoint(grid, filename);
     /* DNSgrid_load_initial_guess_from_checkpoint overwrites DNSdata_Omega,
-       but maybe we want to keep the old one */
-    if(strstr(OmegaStr,"keep")!=NULL) Sets("DNSdata_Omega", OmegaStr);
+       but maybe we want DNSdata_Omega_init or to keep the old one */
+    if(!Getv("DNSdata_Omega_init","DNSdata_Omega"))
+      Sets("DNSdata_Omega", Gets("DNSdata_Omega_init"));
+    if(strstr(OmegaStr,"keep")!=NULL)
+      Sets("DNSdata_Omega", OmegaStr);
     free(OmegaStr);
   }
   else /* use some TOV data */
