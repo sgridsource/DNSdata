@@ -148,7 +148,7 @@ int sgrid_DNSdata()
   AddPar("DNSdata_x_CM_init", "DNSdata_x_CM",
          "initial center of mass in x-direction [#,estimate,DNSdata_x_CM]");
   AddPar("DNSdata_Omega", "estimate",  "orbital angular velocity "
-         "[#,estimate,estimate_from_desired_m0]");
+         "[#,estimate,estimate_from_desired_m0,# keep]");
   AddPar("DNSdata_b",     "1",  "separation parameter (distance=2b)");
   AddPar("DNSdata_n",     "1",  "polytropic index n, Gamma = 1 + 1/n");
   AddPar("DNSdata_kappa", "1",  "kappa in EOS: P = kappa rho0^Gamma");

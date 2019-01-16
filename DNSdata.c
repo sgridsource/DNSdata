@@ -425,11 +425,16 @@ int DNSdata_startup(tGrid *grid)
   }
   else if(initFromChkp && strlen(Gets("DNSdata_initfile"))>0)
   {
+    char *OmegaStr = strdup(Gets("DNSdata_Omega")); /* save DNSdata_Omega */
     char filename[10000];
     snprintf(filename, 9999, "%s", Gets("DNSdata_initfile"));
     prdivider(1);
     printf("loading initial guess from %s\n", filename);
     DNSgrid_load_initial_guess_from_checkpoint(grid, filename);
+    /* DNSgrid_load_initial_guess_from_checkpoint overwrites DNSdata_Omega,
+       but maybe we want to keep the old one */
+    if(strstr(OmegaStr,"keep")!=NULL) Sets("DNSdata_Omega", OmegaStr);
+    free(OmegaStr);
   }
   else /* use some TOV data */
   {

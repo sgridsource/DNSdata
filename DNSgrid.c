@@ -86,6 +86,7 @@ int set_DNS_boxsizes(tGrid *grid)
   double DoM, nu; /* distance over total rest mass, and rest mass ratio */
   double DoM3, DoM4, DoM5; /* powers of DoM */
   double xCM, Omega;
+  char OmegaStr[1000];
   double Fc, qc, Cc, oouzerosqr;
 
   printf("set_DNS_boxsizes: setting box sizes and coordinates used ...\n");
@@ -212,11 +213,16 @@ int set_DNS_boxsizes(tGrid *grid)
     xCM = (m01*xc1 + m02*xc2)/(m01+m02);
   else
     xCM = Getd("DNSdata_x_CM");
+
+  /* set C vars Omega and OmegaStr according to par DNSdata_Omega */
+  Omega = Getd("DNSdata_Omega");
+  snprintf(OmegaStr,999, "%s", Gets("DNSdata_Omega"));
   if(Getv("DNSdata_Omega", "estimate"))
   {
     Omega = sqrt( 64*DoM3/pow(1 + 2*DoM, 6) +nu/DoM4 +
                  (-5*nu + 8*nu*nu)/(8*DoM5)            )/(m01+m02);
     if(nu<=0.0) Omega=0.0;
+    snprintf(OmegaStr,999, "%g", Omega);
   }
   else if(Getv("DNSdata_Omega", "estimate_from_desired_m0"))
   {
@@ -230,15 +236,14 @@ int set_DNS_boxsizes(tGrid *grid)
     Omega = sqrt( 64*DoM3/pow(1 + 2*DoM, 6) +nu/DoM4 +
                  (-5*nu + 8*nu*nu)/(8*DoM5)            )/(m01+m02);
     if(nu<=0.0) Omega=0.0;
+    snprintf(OmegaStr,999, "%g", Omega);
   }
-  else
-    Omega = Getd("DNSdata_Omega");
   Setd("DNSdata_x_CM", xCM);
-  Setd("DNSdata_Omega", Omega);
+  Sets("DNSdata_Omega", OmegaStr);
   printf(" DNSdata_x_CM and DNSdata_Omega are now set to:\n");
-  printf(" DNSdata_x_CM = %g\n", Getd("DNSdata_x_CM"));
-  printf(" DNSdata_Omega = %g,  (m01+m02)*DNSdata_Omega = %g\n",
-         Getd("DNSdata_Omega"), Getd("DNSdata_Omega")*(m01+m02));
+  printf(" DNSdata_x_CM  = %s\n", Gets("DNSdata_x_CM"));
+  printf(" DNSdata_Omega = %s\n", Gets("DNSdata_Omega"));
+  printf(" (m01+m02)*DNSdata_Omega = %g\n", (m01+m02)*Getd("DNSdata_Omega"));
 
   /* set DNSdata_C1 */
   qc = DNS_polytrope_hm1_of_P(P_core1);
