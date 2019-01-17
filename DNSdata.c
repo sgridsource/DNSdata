@@ -1003,9 +1003,9 @@ void find_qmaxs_along_x_axis_and_reset_qmaxs_xmaxs_pars(tGrid *grid)
   /* find max q locations xmax1/2 in NS1/2 */
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
   find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
-  /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
+  ///* recompute q and then compute qmax1 and qmax2 */
+  //qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  //qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
   if(grid->box[bi1]->x_of_X[1] != NULL)
     xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,0.,0.);
   else
@@ -3516,9 +3516,9 @@ int DNSdata_analyze(tGrid *grid)
   /* find max q locations xmax1/2 in NS1/2 */
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
   find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
-  /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
+  ///* compute q from fields, and then compute qmax1 and qmax2 */
+  //qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  //qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
   if(grid->box[bi1]->x_of_X[1] != NULL)
     xmax1 = grid->box[bi1]->x_of_X[1]((void *) grid->box[bi1], -1, Xmax1,Ymax1,0.0);
   else
@@ -4824,9 +4824,9 @@ void central_q_errors_VectorFunc(int n, double *vec, double *fvec)
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
   find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
 
-  /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
+  ///* compute qmax1 and qmax2 */
+  //qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  //qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   /* compute Cartesian xmax1 */
 errorexit("need other boxes, not 0 and 3");
@@ -4882,9 +4882,9 @@ void estimate_q_errors_VectorFunc(int n, double *vec, double *fvec)
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
   find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
 
-  /* compute qmax1 and qmax2 */
-  qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
-  qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
+  ///* compute qmax1 and qmax2 */
+  //qmax1 = DNS_compute_new_centered_q_atXYZ(grid, bi1, Xmax1,0.,0.);
+  //qmax2 = DNS_compute_new_centered_q_atXYZ(grid, bi2, Xmax2,0.,0.);
 
   /* compute Cartesian xmax1 */
 errorexit("need other boxes, not 0 and 3");
