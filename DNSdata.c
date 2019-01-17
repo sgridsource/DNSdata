@@ -2862,13 +2862,14 @@ int DNSdata_solve(tGrid *grid)
   prdivider(1);
   printf("DNSdata_solve: starting main iteration loop ...\n");
 
+  /* compute diagnostics like ham and mom */
+  DNSdata_verify_solution(grid);
+  /* ^-- this also calls setADMvars which makes sure rhobar is set */
+
   /* choose initial Newton_tol */
   F_DNSdata(vlFu, vlu, vluDerivs, vlJdu);
   normresnonlin = GridL2Norm(vlFu);
   Newton_tol = max2(normresnonlin*NewtTolFac, tol*NewtTolFac);
-
-  /* compute diagnostics like ham and mom */
-  DNSdata_verify_solution(grid);
 
   /* output grid before any iterations are done */
   grid->time  = -itmax;
