@@ -410,7 +410,9 @@ tocompute = {
   Cif == end,
 
 
-  (* impose extra condition in one starbox *)
+  (**************************************************************************)
+  (* impose extra condition in one starbox to fix const we can add to Sigma *)
+  (**************************************************************************)
   Cif == ( MATTRinside && isVolAvBox && ExtraCond ),
 
     Cif == nonlin, (* non-linear case *)
@@ -435,7 +437,11 @@ tocompute = {
       Cinstruction == "//printf(\"VolAvSigma-VolAvSigma0=%g\\n\",VolAvSigma-VolAvSigma0);",
 
       (* impose conditions at this point: *)
-      Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+      Cif == (ExtraCondInXinDom),
+        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+      Cif == else,
+        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+      Cif == end,
       Cinstruction == "//printf(\"(%d)\", ijk);",
 
       (* set Sigma to zero at ijk *)
@@ -575,6 +581,7 @@ BeginCFunction[] := Module[{},
   pr["int dQFromdlam = Getv(\"DNSdata_drho0_inBC\",\"dlam\");\n"];
   pr["int SigmaZeroAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroAtPoint\");\n"];
   pr["int AddNoChangeCondAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddNoChangeCondAtPoint\");\n"];
+  pr["int ExtraCondInXinDom = Getv(\"DNSdata_Sigma_surface_BCs\",\"ExtraCondInXinDom\");\n"];
   pr["int ExtraCond = !Getv(\"DNSdata_Sigma_surface_BCs\",\"NoExtraCond\");\n"];
   pr["//int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
   pr["int InnerVolIntZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerVolIntZero\");\n"];
@@ -629,11 +636,13 @@ BeginCFunction[] := Module[{},
   pr["int MATTRtouch  = (box->MATTR== TOUCH);\n"];
   pr["int MATTRaway   = (box->MATTR== AWAY);\n"];
   pr["int hasSSURF    = (box->BOUND== SSURF);\n"];
-  pr["//int isXinDom    = (box->CI->dom == box->SIDE - STAR1);\n"];
+  pr["int isXinDom    = (box->CI->dom == box->SIDE - STAR1);\n"];
   pr["//int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);\n"];
   pr["int isCube = (box->CI->type == 0);\n"];
-  pr["int isVolAvBox  = (MATTRinside && isCube);\n"];
-
+  pr["//int isVolAvBox  = (MATTRinside && isCube);\n"];
+  pr["int isVolAvBox  = (  MATTRinside && (
+                           (isCube && (!ExtraCondInXinDom)) ||
+                           (isXinDom && ExtraCondInXinDom) )  );\n"];
   pr["\n"];
   pr["\n"];
 ];

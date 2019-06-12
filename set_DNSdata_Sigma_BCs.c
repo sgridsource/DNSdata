@@ -26,6 +26,7 @@ int dqFromqg = Getv("DNSdata_q_derivs","dqg");
 int dQFromdlam = Getv("DNSdata_drho0_inBC","dlam");
 int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
 int AddNoChangeCondAtPoint = Getv("DNSdata_Sigma_surface_BCs","AddNoChangeCondAtPoint");
+int ExtraCondInXinDom = Getv("DNSdata_Sigma_surface_BCs","ExtraCondInXinDom");
 int ExtraCond = !Getv("DNSdata_Sigma_surface_BCs","NoExtraCond");
 //int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
 int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
@@ -80,10 +81,13 @@ int MATTRinside = (box->MATTR== INSIDE);
 int MATTRtouch  = (box->MATTR== TOUCH);
 int MATTRaway   = (box->MATTR== AWAY);
 int hasSSURF    = (box->BOUND== SSURF);
-//int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
+int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
 //int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
 int isCube = (box->CI->type == 0);
-int isVolAvBox  = (MATTRinside && isCube);
+//int isVolAvBox  = (MATTRinside && isCube);
+int isVolAvBox  = (  MATTRinside && (
+                           (isCube && (!ExtraCondInXinDom)) ||
+                           (isXinDom && ExtraCondInXinDom) )  );
 
 
 double *FPsi = vlldataptr(vlFu, box, 0);
@@ -1955,7 +1959,22 @@ VolAvSigma0 = VolAvSigma2;
 //printf("VolAvSigma-VolAvSigma0=%g\n",VolAvSigma-VolAvSigma0); 
 
 
+
+/* conditional */
+if (ExtraCondInXinDom) {
+
+
+ijk = Index(n1-1, n2/2, n3/2); 
+
+
+} else { /* if (!ExtraCondInXinDom) */
+
+
 ijk = Index(n1/2, n2/2, n3/2); 
+
+}
+/* if (ExtraCondInXinDom) */
+
 
 
 //printf("(%d)", ijk); 
@@ -2178,4 +2197,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 598,  n/ = 297,  n+ = 380, n = 1275, O = 1 */
+/* nvars = 124, n* = 604,  n/ = 305,  n+ = 381, n = 1290, O = 1 */
