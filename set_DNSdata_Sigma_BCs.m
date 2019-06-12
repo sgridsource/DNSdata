@@ -411,7 +411,7 @@ tocompute = {
 
 
   (* impose extra condition in one starbox *)
-  Cif == ( MATTRinside && isVolAvBox ),
+  Cif == ( MATTRinside && isVolAvBox && ExtraCond ),
 
     Cif == nonlin, (* non-linear case *)
 
@@ -575,6 +575,7 @@ BeginCFunction[] := Module[{},
   pr["int dQFromdlam = Getv(\"DNSdata_drho0_inBC\",\"dlam\");\n"];
   pr["int SigmaZeroAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroAtPoint\");\n"];
   pr["int AddNoChangeCondAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddNoChangeCondAtPoint\");\n"];
+  pr["int ExtraCond = !Getv(\"DNSdata_Sigma_surface_BCs\",\"NoExtraCond\");\n"];
   pr["//int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
   pr["int InnerVolIntZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerVolIntZero\");\n"];
   pr["//int AddInnerSumToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerSumToBC\");\n"];

@@ -26,6 +26,7 @@ int dqFromqg = Getv("DNSdata_q_derivs","dqg");
 int dQFromdlam = Getv("DNSdata_drho0_inBC","dlam");
 int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
 int AddNoChangeCondAtPoint = Getv("DNSdata_Sigma_surface_BCs","AddNoChangeCondAtPoint");
+int ExtraCond = !Getv("DNSdata_Sigma_surface_BCs","NoExtraCond");
 //int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
 int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
 //int AddInnerSumToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
@@ -1892,7 +1893,7 @@ FlSigma[ijk] + Psim2*(dQ1*lwB1 + dQ2*lwB2 + dQ3*lwB3 + dlQ1*wB1[ijk] +
 
 
 /* conditional */
-if (MATTRinside && isVolAvBox) {
+if (MATTRinside && isVolAvBox && ExtraCond) {
 
 
 
