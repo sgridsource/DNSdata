@@ -448,6 +448,13 @@ tocompute = {
         FSigma == VolAvSigma - VolAvSigma0,
       Cif == end,
 
+      (* add condition that Sigma is unchanged at ijk *)
+      (* this would be:
+      Cif == AddNoChangeCondAtPoint,
+        FSigma == FSigma + 0,
+      Cif == end,
+      but we leave that out since it does not modify FSigma *)
+
     Cif == else,   (* linear case *)
 
       Cif == InnerVolIntZero, (* (AddInnerVolIntToBC || InnerVolIntZero), *)
@@ -474,6 +481,12 @@ tocompute = {
       Cif == (InnerVolIntZero || InnerSumZero),
         FlSigma == VolAvlSigma,
       Cif == end,
+
+      (* add condition that Sigma is unchanged at ijk *)
+      Cif == AddNoChangeCondAtPoint,
+        FlSigma == FlSigma + lSigma,
+      Cif == end,
+
 
     Cif == end, (* end of nonlin/linear case *)
   Cif == end,
@@ -561,6 +574,7 @@ BeginCFunction[] := Module[{},
   pr["int dqFromqg = Getv(\"DNSdata_q_derivs\",\"dqg\");\n"];
   pr["int dQFromdlam = Getv(\"DNSdata_drho0_inBC\",\"dlam\");\n"];
   pr["int SigmaZeroAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroAtPoint\");\n"];
+  pr["int AddNoChangeCondAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddNoChangeCondAtPoint\");\n"];
   pr["//int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
   pr["int InnerVolIntZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerVolIntZero\");\n"];
   pr["//int AddInnerSumToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerSumToBC\");\n"];

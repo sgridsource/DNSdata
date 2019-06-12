@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 14.10.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 12.6.2019 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -25,6 +25,7 @@ int corot2 = VwApprox2 || Getv("DNSdata_rotationstate2","corotation");
 int dqFromqg = Getv("DNSdata_q_derivs","dqg");
 int dQFromdlam = Getv("DNSdata_drho0_inBC","dlam");
 int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
+int AddNoChangeCondAtPoint = Getv("DNSdata_Sigma_surface_BCs","AddNoChangeCondAtPoint");
 //int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
 int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
 //int AddInnerSumToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
@@ -2059,12 +2060,26 @@ VolAvlSigma
 /* if (InnerVolIntZero || InnerSumZero) */
 
 
+
+
+/* conditional */
+if (AddNoChangeCondAtPoint) {
+
+FlSigma[ijk]
+=
+FlSigma[ijk] + lSigma[ijk]
+;
+
 }
-/* if (InnerVolIntZero || InnerSumZero) */
+/* if (AddNoChangeCondAtPoint) */
 
 
 }
-/* if (InnerVolIntZero || InnerSumZero) */
+/* if (AddNoChangeCondAtPoint) */
+
+
+}
+/* if (AddNoChangeCondAtPoint) */
 
 
 
@@ -2162,4 +2177,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 594,  n/ = 293,  n+ = 379, n = 1266, O = 1 */
+/* nvars = 124, n* = 598,  n/ = 297,  n+ = 380, n = 1275, O = 1 */
