@@ -1979,6 +1979,17 @@ Sigma[ijk]
 ;
 
 
+forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k); 
+
+FSigma[ijk]
+=
+SigmaAtPnt + FSigma[ijk]
+;
+
+
+} /* end forplane1 */ 
+
+
 } else { /* if (!CondOnSurf) */
 
 
@@ -2270,4 +2281,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 626,  n/ = 333,  n+ = 386, n = 1345, O = 1 */
+/* nvars = 124, n* = 628,  n/ = 335,  n+ = 388, n = 1351, O = 1 */

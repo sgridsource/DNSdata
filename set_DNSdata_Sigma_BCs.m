@@ -443,11 +443,9 @@ tocompute = {
         SigmaAtPnt == Sigma,
 
         (* go over lam=1 plane *)
-        (* this would be:
         Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
-          FSigma == FSigma + 0,
+          FSigma == FSigma + SigmaAtPnt,
         Cinstruction == "} /* end forplane1 */",
-        but we leave that out since it does not modify FSigma *)
 (*
         Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
           FSigma == FSigma + VolAvSigma - VolAvSigma0,
