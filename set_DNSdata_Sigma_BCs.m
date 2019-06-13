@@ -439,10 +439,20 @@ tocompute = {
       (* add condition all over lam=1 surface of this box *)
       Cif == CondOnSurf,
 
+        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+        SigmaAtPnt == Sigma,
+
         (* go over lam=1 plane *)
+        (* this would be:
+        Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
+          FSigma == FSigma + 0,
+        Cinstruction == "} /* end forplane1 */",
+        but we leave that out since it does not modify FSigma *)
+(*
         Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
           FSigma == FSigma + VolAvSigma - VolAvSigma0,
         Cinstruction == "} /* end forplane1 */",
+*)
 
       (* impose conditions at just one point: *)
       Cif == else,
@@ -490,10 +500,19 @@ tocompute = {
       (* add condition all over lam=1 surface of this box *)
       Cif == CondOnSurf,
 
+        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+        lSigmaAtPnt == lSigma,
+
+        (* go over lam=1 plane *)
+        Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
+          FlSigma == FlSigma + lSigmaAtPnt,
+        Cinstruction == "} /* end forplane1 */",
+(*
         (* go over lam=1 plane *)
         Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
           FlSigma == FlSigma + VolAvlSigma,
         Cinstruction == "} /* end forplane1 */",
+*)
 
       (* impose conditions at just one point: *)
       Cif == else,

@@ -361,6 +361,7 @@ double lhuzeroPsi4beta3;
 double lL2;
 double lLnh;
 double lq;
+double lSigmaAtPnt;
 double luzero;
 double luzerosqr;
 double lwB1;
@@ -385,6 +386,7 @@ double Psim7;
 double Psim8;
 double Psim9;
 double rdotor;
+double SigmaAtPnt;
 double uzero;
 double uzerosqr;
 double w1;
@@ -1969,15 +1971,12 @@ VolAvSigma0 = VolAvSigma2;
 if (CondOnSurf) {
 
 
-forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k); 
+ijk = Index(n1-1, n2/2, n3/2); 
 
-FSigma[ijk]
+SigmaAtPnt
 =
-VolAvSigma - VolAvSigma0 + FSigma[ijk]
+Sigma[ijk]
 ;
-
-
-} /* end forplane1 */ 
 
 
 } else { /* if (!CondOnSurf) */
@@ -2080,11 +2079,19 @@ VolAvlSigma += lSigma[ijk];
 if (CondOnSurf) {
 
 
+ijk = Index(n1-1, n2/2, n3/2); 
+
+lSigmaAtPnt
+=
+lSigma[ijk]
+;
+
+
 forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k); 
 
 FlSigma[ijk]
 =
-VolAvlSigma + FlSigma[ijk]
+lSigmaAtPnt + FlSigma[ijk]
 ;
 
 
@@ -2263,4 +2270,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 628,  n/ = 331,  n+ = 387, n = 1346, O = 1 */
+/* nvars = 124, n* = 626,  n/ = 333,  n+ = 386, n = 1345, O = 1 */
