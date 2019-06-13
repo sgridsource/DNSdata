@@ -446,14 +446,24 @@ tocompute = {
         Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
           FSigma == FSigma + SigmaAtPnt,
         Cinstruction == "} /* end forplane1 */",
-(*
-        Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
-          FSigma == FSigma + VolAvSigma - VolAvSigma0,
-        Cinstruction == "} /* end forplane1 */",
-*)
+
+      Cif == end,
+
+      (* impose conditions on inner points of cube: *)
+      Cif == CondInnerCube,
+
+        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+        SigmaAtPnt == Sigma,
+
+        (* go over inner part of cube *)
+        Cinstruction == "forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
+          FSigma == FSigma + SigmaAtPnt,
+        Cinstruction == "} /* end forinnerpoints */",
+
+      Cif == end,
 
       (* impose conditions at just one point: *)
-      Cif == else,
+      Cif == CondAtPoint,
 
         (* impose conditions at this point: *)
         Cif == (ExtraCondInXinDom),
@@ -505,15 +515,23 @@ tocompute = {
         Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
           FlSigma == FlSigma + lSigmaAtPnt,
         Cinstruction == "} /* end forplane1 */",
-(*
-        (* go over lam=1 plane *)
-        Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
-          FlSigma == FlSigma + VolAvlSigma,
-        Cinstruction == "} /* end forplane1 */",
-*)
+
+      Cif == end,
+
+      Cif == CondInnerCube,
+
+        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+        lSigmaAtPnt == lSigma,
+
+        (* go over inner part of cube *)
+        Cinstruction == "forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
+          FlSigma == FlSigma + lSigmaAtPnt,
+        Cinstruction == "} /* end forinnerpoints */",
+
+      Cif == end,
 
       (* impose conditions at just one point: *)
-      Cif == else,
+      Cif == CondAtPoint,
 
         (* impose conditions at this point: *)
         Cif == (ExtraCondInXinDom),
@@ -626,10 +644,12 @@ BeginCFunction[] := Module[{},
   pr["int dqFromqg = Getv(\"DNSdata_q_derivs\",\"dqg\");\n"];
   pr["int dQFromdlam = Getv(\"DNSdata_drho0_inBC\",\"dlam\");\n"];
   pr["int SigmaZeroAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"ZeroAtPoint\");\n"];
+  pr["int CondAtPoint = 1;\n"];
   pr["int AddNoChangeCondAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddNoChangeCondAtPoint\");\n"];
   pr["int ExtraCondInXinDom = Getv(\"DNSdata_Sigma_surface_BCs\",\"ExtraCondInXinDom\");\n"];
   pr["int ExtraCond = !Getv(\"DNSdata_Sigma_surface_BCs\",\"NoExtraCond\");\n"];
   pr["int CondOnSurf = Getv(\"DNSdata_Sigma_surface_BCs\",\"CondOnSurf\");\n"];
+  pr["int CondInnerCube = Getv(\"DNSdata_Sigma_surface_BCs\",\"CondInnerCube\");\n"];
   pr["//int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
   pr["int InnerVolIntZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerVolIntZero\");\n"];
   pr["//int AddInnerSumToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerSumToBC\");\n"];
@@ -662,8 +682,17 @@ BeginCFunction[] := Module[{},
   pr["/* do nothing if noBCs, i.e. DNSdata_Sigma_surface_BCs = none */\n"];
   pr["if(noBCs) return;\n\n\n"];
 
-  pr["/* CondOnSurf only makes sense if ExtraCondInXinDom=1 */\n"];
-  pr["if(CondOnSurf) ExtraCondInXinDom=1;\n\n\n"];
+  pr["/* CondOnSurf only makes sense with ExtraCondInXinDom=1 */\n"];
+  pr["if(CondOnSurf){
+        ExtraCondInXinDom=1;
+        CondAtPoint=0;
+      }\n\n\n"];
+
+  pr["/* CondInnerCube only makes sense with ExtraCondInXinDom=0 */\n"];
+  pr["if(CondInnerCube){
+        ExtraCondInXinDom=0;
+        CondAtPoint=0;
+      }\n\n\n"];
 
   pr["/* parse some pars: */\n"];
   pr["/* check if DNSdata_InnerToOuterSigmaTransition is only C1 or C0 */\n"];

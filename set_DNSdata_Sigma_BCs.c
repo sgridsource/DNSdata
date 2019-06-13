@@ -25,10 +25,12 @@ int corot2 = VwApprox2 || Getv("DNSdata_rotationstate2","corotation");
 int dqFromqg = Getv("DNSdata_q_derivs","dqg");
 int dQFromdlam = Getv("DNSdata_drho0_inBC","dlam");
 int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
+int CondAtPoint = 1;
 int AddNoChangeCondAtPoint = Getv("DNSdata_Sigma_surface_BCs","AddNoChangeCondAtPoint");
 int ExtraCondInXinDom = Getv("DNSdata_Sigma_surface_BCs","ExtraCondInXinDom");
 int ExtraCond = !Getv("DNSdata_Sigma_surface_BCs","NoExtraCond");
 int CondOnSurf = Getv("DNSdata_Sigma_surface_BCs","CondOnSurf");
+int CondInnerCube = Getv("DNSdata_Sigma_surface_BCs","CondInnerCube");
 //int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
 int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
 //int AddInnerSumToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
@@ -60,8 +62,18 @@ tVarBoxSubboxIndices *blkinfo = (tVarBoxSubboxIndices*) vldu->vlPars;
 if(noBCs) return;
 
 
-/* CondOnSurf only makes sense if ExtraCondInXinDom=1 */
-if(CondOnSurf) ExtraCondInXinDom=1;
+/* CondOnSurf only makes sense with ExtraCondInXinDom=1 */
+if(CondOnSurf){
+        ExtraCondInXinDom=1;
+        CondAtPoint=0;
+      }
+
+
+/* CondInnerCube only makes sense with ExtraCondInXinDom=0 */
+if(CondInnerCube){
+        ExtraCondInXinDom=0;
+        CondAtPoint=0;
+      }
 
 
 /* parse some pars: */
@@ -1989,8 +2001,42 @@ SigmaAtPnt + FSigma[ijk]
 
 } /* end forplane1 */ 
 
+}
+/* if (CondOnSurf) */
 
-} else { /* if (!CondOnSurf) */
+
+
+
+/* conditional */
+if (CondInnerCube) {
+
+
+ijk = Index(n1/2, n2/2, n3/2); 
+
+SigmaAtPnt
+=
+Sigma[ijk]
+;
+
+
+forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k); 
+
+FSigma[ijk]
+=
+SigmaAtPnt + FSigma[ijk]
+;
+
+
+} /* end forinnerpoints */ 
+
+}
+/* if (CondInnerCube) */
+
+
+
+
+/* conditional */
+if (CondAtPoint) {
 
 
 
@@ -2108,8 +2154,42 @@ lSigmaAtPnt + FlSigma[ijk]
 
 } /* end forplane1 */ 
 
+}
+/* if (CondOnSurf) */
 
-} else { /* if (!CondOnSurf) */
+
+
+
+/* conditional */
+if (CondInnerCube) {
+
+
+ijk = Index(n1/2, n2/2, n3/2); 
+
+lSigmaAtPnt
+=
+lSigma[ijk]
+;
+
+
+forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k); 
+
+FlSigma[ijk]
+=
+lSigmaAtPnt + FlSigma[ijk]
+;
+
+
+} /* end forinnerpoints */ 
+
+}
+/* if (CondInnerCube) */
+
+
+
+
+/* conditional */
+if (CondAtPoint) {
 
 
 
@@ -2281,4 +2361,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 628,  n/ = 335,  n+ = 388, n = 1351, O = 1 */
+/* nvars = 124, n* = 646,  n/ = 359,  n+ = 390, n = 1395, O = 1 */
