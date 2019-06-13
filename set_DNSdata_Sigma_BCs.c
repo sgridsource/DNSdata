@@ -2019,7 +2019,7 @@ Sigma[ijk]
 ;
 
 
-forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k); 
+forinnerijk(i,j,k, n1,n2,n3){ ijk=Index(i,j,k); 
 
 FSigma[ijk]
 =
@@ -2027,7 +2027,7 @@ SigmaAtPnt + FSigma[ijk]
 ;
 
 
-} /* end forinnerpoints */ 
+} /* end forinnerijk */ 
 
 }
 /* if (CondInnerCube) */
@@ -2172,7 +2172,7 @@ lSigma[ijk]
 ;
 
 
-forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k); 
+forinnerijk(i,j,k, n1,n2,n3){ ijk=Index(i,j,k); 
 
 FlSigma[ijk]
 =
@@ -2180,7 +2180,7 @@ lSigmaAtPnt + FlSigma[ijk]
 ;
 
 
-} /* end forinnerpoints */ 
+} /* end forinnerijk */ 
 
 }
 /* if (CondInnerCube) */

@@ -456,9 +456,9 @@ tocompute = {
         SigmaAtPnt == Sigma,
 
         (* go over inner part of cube *)
-        Cinstruction == "forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
+        Cinstruction == "forinnerijk(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
           FSigma == FSigma + SigmaAtPnt,
-        Cinstruction == "} /* end forinnerpoints */",
+        Cinstruction == "} /* end forinnerijk */",
 
       Cif == end,
 
@@ -524,9 +524,9 @@ tocompute = {
         lSigmaAtPnt == lSigma,
 
         (* go over inner part of cube *)
-        Cinstruction == "forinnerpoints(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
+        Cinstruction == "forinnerijk(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
           FlSigma == FlSigma + lSigmaAtPnt,
-        Cinstruction == "} /* end forinnerpoints */",
+        Cinstruction == "} /* end forinnerijk */",
 
       Cif == end,
 
