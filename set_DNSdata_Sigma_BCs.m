@@ -436,30 +436,43 @@ tocompute = {
       Cif == end,
       Cinstruction == "//printf(\"VolAvSigma-VolAvSigma0=%g\\n\",VolAvSigma-VolAvSigma0);",
 
-      (* impose conditions at this point: *)
-      Cif == (ExtraCondInXinDom),
-        Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+      (* add condition all over lam=1 surface of this box *)
+      Cif == CondOnSurf,
+
+        (* go over lam=1 plane *)
+        Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
+          FSigma == FSigma + VolAvSigma - VolAvSigma0,
+        Cinstruction == "} /* end forplane1 */",
+
+      (* impose conditions at just one point: *)
       Cif == else,
-        Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
-      Cif == end,
-      Cinstruction == "//printf(\"(%d)\", ijk);",
 
-      (* set Sigma to zero at ijk *)
-      Cif == SigmaZeroAtPoint,
-        FSigma == Sigma - VolAvSigma0,
-      Cif == end,
+        (* impose conditions at this point: *)
+        Cif == (ExtraCondInXinDom),
+          Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+        Cif == else,
+          Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+        Cif == end,
+        Cinstruction == "//printf(\"(%d)\", ijk);",
+  
+        (* set Sigma to zero at ijk *)
+        Cif == SigmaZeroAtPoint,
+          FSigma == Sigma - VolAvSigma0,
+        Cif == end,
+  
+        (* set VolAvSigma to zero at ijk *)
+        Cif == (InnerVolIntZero || InnerSumZero),
+          FSigma == VolAvSigma - VolAvSigma0,
+        Cif == end,
+  
+        (* add condition that Sigma is unchanged at ijk *)
+        (* this would be:
+        Cif == AddNoChangeCondAtPoint,
+          FSigma == FSigma + 0,
+        Cif == end,
+        but we leave that out since it does not modify FSigma *)
 
-      (* set VolAvSigma to zero at ijk *)
-      Cif == (InnerVolIntZero || InnerSumZero),
-        FSigma == VolAvSigma - VolAvSigma0,
-      Cif == end,
-
-      (* add condition that Sigma is unchanged at ijk *)
-      (* this would be:
-      Cif == AddNoChangeCondAtPoint,
-        FSigma == FSigma + 0,
-      Cif == end,
-      but we leave that out since it does not modify FSigma *)
+      Cif == end, (* end of conditions at just one point *)
 
     Cif == else,   (* linear case *)
 
@@ -474,25 +487,41 @@ tocompute = {
       Cif == end,
       Cinstruction == "//if(VolAvlSigma!=0.0) printf(\"box->b=%d VolAvlSigma=%g\\n\",box->b,VolAvlSigma);",
 
-      (* impose conditions at this point: *)
-      Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
-      Cinstruction == "//printf(\"|%d|\", ijk);",
+      (* add condition all over lam=1 surface of this box *)
+      Cif == CondOnSurf,
 
-      (* set Sigma to zero at ijk *)
-      Cif == SigmaZeroAtPoint,
-        FlSigma == lSigma,
-      Cif == end,
+        (* go over lam=1 plane *)
+        Cinstruction == "forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k);",
+          FlSigma == FlSigma + VolAvlSigma,
+        Cinstruction == "} /* end forplane1 */",
 
-      (* set VolAvSigma to zero at ijk *)
-      Cif == (InnerVolIntZero || InnerSumZero),
-        FlSigma == VolAvlSigma,
-      Cif == end,
+      (* impose conditions at just one point: *)
+      Cif == else,
 
-      (* add condition that Sigma is unchanged at ijk *)
-      Cif == AddNoChangeCondAtPoint,
-        FlSigma == FlSigma + lSigma,
-      Cif == end,
+        (* impose conditions at this point: *)
+        Cif == (ExtraCondInXinDom),
+          Cinstruction == "ijk = Index(n1-1, n2/2, n3/2);",
+        Cif == else,
+          Cinstruction == "ijk = Index(n1/2, n2/2, n3/2);",
+        Cif == end,
+        Cinstruction == "//printf(\"(%d)\", ijk);",
+  
+        (* set Sigma to zero at ijk *)
+        Cif == SigmaZeroAtPoint,
+          FlSigma == lSigma,
+        Cif == end,
+  
+        (* set VolAvSigma to zero at ijk *)
+        Cif == (InnerVolIntZero || InnerSumZero),
+          FlSigma == VolAvlSigma,
+        Cif == end,
+  
+        (* add condition that Sigma is unchanged at ijk *)
+        Cif == AddNoChangeCondAtPoint,
+          FlSigma == FlSigma + lSigma,
+        Cif == end,
 
+      Cif == end, (* end of conditions at just one point *)
 
     Cif == end, (* end of nonlin/linear case *)
   Cif == end,
@@ -583,6 +612,7 @@ BeginCFunction[] := Module[{},
   pr["int AddNoChangeCondAtPoint = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddNoChangeCondAtPoint\");\n"];
   pr["int ExtraCondInXinDom = Getv(\"DNSdata_Sigma_surface_BCs\",\"ExtraCondInXinDom\");\n"];
   pr["int ExtraCond = !Getv(\"DNSdata_Sigma_surface_BCs\",\"NoExtraCond\");\n"];
+  pr["int CondOnSurf = Getv(\"DNSdata_Sigma_surface_BCs\",\"CondOnSurf\");\n"];
   pr["//int AddInnerVolIntToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerVolIntToBC\");\n"];
   pr["int InnerVolIntZero = Getv(\"DNSdata_Sigma_surface_BCs\",\"InnerVolIntZero\");\n"];
   pr["//int AddInnerSumToBC = Getv(\"DNSdata_Sigma_surface_BCs\",\"AddInnerSumToBC\");\n"];
@@ -615,6 +645,9 @@ BeginCFunction[] := Module[{},
   pr["/* do nothing if noBCs, i.e. DNSdata_Sigma_surface_BCs = none */\n"];
   pr["if(noBCs) return;\n\n\n"];
 
+  pr["/* CondOnSurf only makes sense if ExtraCondInXinDom=1 */\n"];
+  pr["if(CondOnSurf) ExtraCondInXinDom=1;\n\n\n"];
+
   pr["/* parse some pars: */\n"];
   pr["/* check if DNSdata_InnerToOuterSigmaTransition is only C1 or C0 */\n"];
   pr["if(Getv(\"DNSdata_InnerToOuterSigmaTransition\",\"C1\"))\n"];
@@ -642,7 +675,7 @@ BeginCFunction[] := Module[{},
   pr["//int isVolAvBox  = (MATTRinside && isCube);\n"];
   pr["int isVolAvBox  = (  MATTRinside && (
                            (isCube && (!ExtraCondInXinDom)) ||
-                           (isXinDom && ExtraCondInXinDom) )  );\n"];
+                           (hasSSURF && isXinDom && ExtraCondInXinDom) )  );\n"];
   pr["\n"];
   pr["\n"];
 ];

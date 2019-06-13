@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 12.6.2019 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 13.6.2019 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -28,6 +28,7 @@ int SigmaZeroAtPoint = Getv("DNSdata_Sigma_surface_BCs","ZeroAtPoint");
 int AddNoChangeCondAtPoint = Getv("DNSdata_Sigma_surface_BCs","AddNoChangeCondAtPoint");
 int ExtraCondInXinDom = Getv("DNSdata_Sigma_surface_BCs","ExtraCondInXinDom");
 int ExtraCond = !Getv("DNSdata_Sigma_surface_BCs","NoExtraCond");
+int CondOnSurf = Getv("DNSdata_Sigma_surface_BCs","CondOnSurf");
 //int AddInnerVolIntToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
 int InnerVolIntZero = Getv("DNSdata_Sigma_surface_BCs","InnerVolIntZero");
 //int AddInnerSumToBC = Getv("DNSdata_Sigma_surface_BCs","AddInnerSumToBC");
@@ -59,6 +60,10 @@ tVarBoxSubboxIndices *blkinfo = (tVarBoxSubboxIndices*) vldu->vlPars;
 if(noBCs) return;
 
 
+/* CondOnSurf only makes sense if ExtraCondInXinDom=1 */
+if(CondOnSurf) ExtraCondInXinDom=1;
+
+
 /* parse some pars: */
 /* check if DNSdata_InnerToOuterSigmaTransition is only C1 or C0 */
 if(Getv("DNSdata_InnerToOuterSigmaTransition","C1"))
@@ -87,7 +92,7 @@ int isCube = (box->CI->type == 0);
 //int isVolAvBox  = (MATTRinside && isCube);
 int isVolAvBox  = (  MATTRinside && (
                            (isCube && (!ExtraCondInXinDom)) ||
-                           (isXinDom && ExtraCondInXinDom) )  );
+                           (hasSSURF && isXinDom && ExtraCondInXinDom) )  );
 
 
 double *FPsi = vlldataptr(vlFu, box, 0);
@@ -1961,6 +1966,25 @@ VolAvSigma0 = VolAvSigma2;
 
 
 /* conditional */
+if (CondOnSurf) {
+
+
+forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k); 
+
+FSigma[ijk]
+=
+VolAvSigma - VolAvSigma0 + FSigma[ijk]
+;
+
+
+} /* end forplane1 */ 
+
+
+} else { /* if (!CondOnSurf) */
+
+
+
+/* conditional */
 if (ExtraCondInXinDom) {
 
 
@@ -2007,6 +2031,10 @@ VolAvSigma - VolAvSigma0
 /* if (InnerVolIntZero || InnerSumZero) */
 
 
+}
+/* if (InnerVolIntZero || InnerSumZero) */
+
+
 
 } else { /* if (!InnerVolIntZero || InnerSumZero) */
 
@@ -2047,10 +2075,44 @@ VolAvlSigma += lSigma[ijk];
 //if(VolAvlSigma!=0.0) printf("box->b=%d VolAvlSigma=%g\n",box->b,VolAvlSigma); 
 
 
+
+/* conditional */
+if (CondOnSurf) {
+
+
+forplane1(i,j,k, n1,n2,n3, n1-1){ ijk=Index(i,j,k); 
+
+FlSigma[ijk]
+=
+VolAvlSigma + FlSigma[ijk]
+;
+
+
+} /* end forplane1 */ 
+
+
+} else { /* if (!CondOnSurf) */
+
+
+
+/* conditional */
+if (ExtraCondInXinDom) {
+
+
+ijk = Index(n1-1, n2/2, n3/2); 
+
+
+} else { /* if (!ExtraCondInXinDom) */
+
+
 ijk = Index(n1/2, n2/2, n3/2); 
 
+}
+/* if (ExtraCondInXinDom) */
 
-//printf("|%d|", ijk); 
+
+
+//printf("(%d)", ijk); 
 
 
 
@@ -2089,6 +2151,10 @@ FlSigma[ijk]
 =
 FlSigma[ijk] + lSigma[ijk]
 ;
+
+}
+/* if (AddNoChangeCondAtPoint) */
+
 
 }
 /* if (AddNoChangeCondAtPoint) */
@@ -2197,4 +2263,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 604,  n/ = 305,  n+ = 381, n = 1290, O = 1 */
+/* nvars = 124, n* = 628,  n/ = 331,  n+ = 387, n = 1346, O = 1 */
