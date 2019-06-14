@@ -457,7 +457,7 @@ tocompute = {
 
         (* go over inner part of cube *)
         Cinstruction == "forinnerijk(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);",
-          FSigma == FSigma + SigmaAtPnt,
+          FSigma == FSigma + SigmaAtPnt - VolAvSigma0,
         Cinstruction == "} /* end forinnerijk */",
 
       Cif == end,

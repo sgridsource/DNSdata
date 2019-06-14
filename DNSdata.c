@@ -1032,7 +1032,8 @@ void find_qmaxs_along_x_axis_and_reset_qmaxs_xmaxs_pars(tGrid *grid)
 
 
 /* set the pars DNSdata_desired_VolAvSigma12 to values that min BC violation */
-void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
+void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma,
+                                                 int it)
 {
   int b, ijk;
   int AddInnerVolIntToBC=Getv("DNSdata_Sigma_surface_BCs","AddInnerVolIntToBC");
@@ -1045,6 +1046,7 @@ void set_DNSdata_desired_VolAvSigma12_toMinBCerr(tGrid *grid, int index_Sigma)
 
   /* do nothing? */
   if(Getv("DNSdata_set_desired_VolAvSigmas", "no")) return;
+  if(Getv("DNSdata_set_desired_VolAvSigmas", "at_it1") && it!=1)  return;
 
   /* set VolAvSigma1/2 */
   forallboxes(grid, b)
@@ -2959,26 +2961,10 @@ int DNSdata_solve(tGrid *grid)
     DNS_set_wB(grid, STAR1, Getd("DNSdata_actual_xmax1"),0.0,0.0);
     DNS_set_wB(grid, STAR2, Getd("DNSdata_actual_xmax2"),0.0,0.0);
 
-/*
-int b;
-forallboxes(grid, b)
-{
-tBox *box = grid->box[b];
-int i;
-if(b==0 || b==13) continue;
-forallpoints(box, i)
-{
-box->v[37][i] = 6.5 + ((double) rand())*0.5/RAND_MAX;
-box->v[38][i] = 6.5 + ((double) rand())*0.5/RAND_MAX;
-box->v[38][i] = 6.5 + ((double) rand())*0.5/RAND_MAX;
-}
-}
-quick_Vars_output(grid->box[1], "Coordinates_CubedSphere_sigma01", 66,66);
-DNSgrid_Coordinates_CubSph_sigma_continuity(grid, STAR1);
-DNSgrid_Coordinates_CubSph_sigma_continuity(grid, STAR2);
-quick_Vars_output(grid->box[1], "Coordinates_CubedSphere_sigma01", 77,77);
-exit(99);
-*/
+    /* Set VolAvSigma1/2 so that the next ell. solves all try to
+       achieve a certain Volume Average for DNSdata_Sigma. */
+    set_DNSdata_desired_VolAvSigma12_toMinBCerr(grid,Ind("DNSdata_Sigma"),it);
+
     /* check if we do another ell. solve for DNSdata_Sigma */
     realnormres_old = realnormres; /* save realnormres */
     realnormres = normresnonlin_without_DNSdata_Sigma_outside(grid);
@@ -3269,11 +3255,11 @@ exit(99);
     if(Getv("DNSdata_center_new_q_timebin", "after_adjusting_Omega_xCM"))
       DNSdata_center_q_if_desired(grid, it);
 
-    /* Set VolAvSigma1/2 so that the next ell. solves all try to 
+    /* Set VolAvSigma1/2 so that the next ell. solves all try to
        achieve a certain Volume Average for DNSdata_Sigma. This also
-       results in residuals that do not take into account the arbitrary 
+       results in residuals that do not take into account the arbitrary
        constant that can be added to DNSdata_Sigma. */
-    set_DNSdata_desired_VolAvSigma12_toMinBCerr(grid, Ind("DNSdata_Sigma"));
+    set_DNSdata_desired_VolAvSigma12_toMinBCerr(grid,Ind("DNSdata_Sigma"),it);
 
     /* compute diagnostics like ham and mom */
     DNSdata_verify_solution(grid);

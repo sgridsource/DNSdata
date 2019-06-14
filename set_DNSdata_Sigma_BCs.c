@@ -2023,7 +2023,7 @@ forinnerijk(i,j,k, n1,n2,n3){ ijk=Index(i,j,k);
 
 FSigma[ijk]
 =
-SigmaAtPnt + FSigma[ijk]
+SigmaAtPnt - VolAvSigma0 + FSigma[ijk]
 ;
 
 
@@ -2361,4 +2361,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 646,  n/ = 359,  n+ = 390, n = 1395, O = 1 */
+/* nvars = 124, n* = 646,  n/ = 359,  n+ = 391, n = 1396, O = 1 */
