@@ -171,16 +171,16 @@ int sgrid_DNSdata()
     AddPar("DNSdata_adjustdomain01", "yes", "if we adjust domainshapes "
            "after shift [yes,no]");
   }
-  AddPar("DNSdata_Sigma_surface_BCs", "InnerVolIntZero",
+  AddPar("DNSdata_Sigma_surface_BCs", "CondInnerCube",
          "BCs for Sigma on star surfaces "
          "[InnerVolIntZero,InnerSumZero,ZeroAtPoint,AddNoChangeCondAtPoint,"
-         "ExtraCondInXinDom,NoExtraCond,none,ZeroInOuterBoxes,"
+         "ExtraCondInXinDom,CondInnerCube,NoExtraCond,none,ZeroInOuterBoxes,"
          "FakeMatterOutside,OutputSurfaceBCres,EllEqn,NoOutsideOnlySolve]");
   AddPar("DNSdata_FakeMatterType", "rhoEQ-1", "[rhoEQ-lam,rhoEQ-1,"
          "LaplaceSigmaOutside]");
   AddPar("DNSdata_InnerToOuterSigmaTransition", "C1", "smoothness as we go "
          "from inner to outer box [dSigma_dr,C2,C1,C0,S0]");
-  AddPar("DNSdata_set_desired_VolAvSigmas", "no", "whether we set "
+  AddPar("DNSdata_set_desired_VolAvSigmas", "at_it1", "how we set "
          "desired_VolAvSigma1/2 before ell. solves [no,yes,at_it1]");
   AddPar("DNSdata_desired_VolAvSigma1", "0", "desired value of VolAvSigma "
          "(i.e. InnerVolInt or InnerSum) in Sigma surface BC for star1");
