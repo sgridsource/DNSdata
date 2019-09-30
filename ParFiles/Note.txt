@@ -1,0 +1,60 @@
+This dir contains parfile examples.
+
+
+Important parfiles
+==================
+
+Construct initial data for a single TOV star:
+---------------------------------------------
+single_star.par
+
+Find maximum mass TOV star for SLy EoS:
+---------------------------------------
+SLy_maxmass.par
+
+Set up hi spin binary with polytropic EoS:
+------------------------------------------
+Szo.0202Ls2i.par  # highest spin
+Szo.02Ls2i.par    # slightly lower spin
+Szo.02Ls2iC.par   # same as Szo.02Ls2i.par, but explicitly set new BC pars
+
+# for hi spin we need:
+Coordinates_CubedSphere_sigma01_lmax = sqrt(n2*n3)/2  # stars non-spherical
+iterate_parameter4 = DNSdata_itmax 360 60 60 60 60    # many it.s at low res
+
+Set up hi spin binary with SLy EoS:
+-----------------------------------
+m1.35o.03Ls2iC.par  # almost like Szo.0202Ls2i.par, but with SLy EoS
+
+Set up hi mass binary with SLy EoS:
+-----------------------------------
+m02.4b26e.1_-.00151_O.0048738.par     # hi mass at low res
+m02.4b26e.1_-.00151_O.0048738_hi.par  # hi mass at hi res, init with low res
+
+# for hi (and medium) mass we need:
+DNSdata_CTSmod = yes   # works also for low masses
+
+Set up hi mass ratio binary with SLy EoS:
+-----------------------------------------
+q2b16e.1.par
+
+
+Older parfiles:
+---------------
+K123m01.4.par
+# missing pars:
+  DNSdata_SigmaSolve = yes 
+  DNSdata_CTSmod = yes
+  DNSdata_adjust = Py0
+  Coordinates_CubedSphere_sigma01_lmax = sqrt(n2*n3)/2
+
+K123m01.4eps.1.par
+# missing pars:
+  DNSdata_CTSmod = yes
+  DNSdata_adjust = Py0
+  Coordinates_CubedSphere_sigma01_lmax = sqrt(n2*n3)/2
+
+m1.35o.024eps.1.par 
+# missing pars:
+  DNSdata_adjust = Py0
+  Coordinates_CubedSphere_sigma01_lmax = sqrt(n2*n3)/2
