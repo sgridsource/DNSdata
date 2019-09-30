@@ -1,4 +1,4 @@
-# binary neutron star ID with spin and SLy EoS
+# binary neutron star ID with spin and polytropic EoS
 # Here we smooth Sigma: DNSdata_SigmaMod_eps = 0.1
 physics = ADMvars DNSdata
 
