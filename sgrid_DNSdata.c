@@ -144,11 +144,11 @@ int sgrid_DNSdata()
 //         "[no,center_yz,center_xyz,reset_q,adjust_domainshapes]");
 // there were more center fields options in BNSdata ...
   AddPar("DNSdata_Omega_init", "DNSdata_Omega", "ini. orbital angular velocity "
-         "[#,estimate,estimate_from_desired_m0,DNSdata_Omega]");
+         "[#,estimate,estimate_from_m,estimate_from_desired_m0,DNSdata_Omega]");
   AddPar("DNSdata_x_CM_init", "DNSdata_x_CM",
          "initial center of mass in x-direction [#,estimate,DNSdata_x_CM]");
   AddPar("DNSdata_Omega", "estimate",  "orbital angular velocity "
-         "[#,estimate,estimate_from_desired_m0,# keep]");
+         "[#,estimate,estimate_from_m,estimate_from_desired_m0,# keep]");
   AddPar("DNSdata_b",     "1",  "separation parameter (distance=2b)");
   AddPar("DNSdata_n",     "1",  "polytropic index n, Gamma = 1 + 1/n");
   AddPar("DNSdata_kappa", "1",  "kappa in EOS: P = kappa rho0^Gamma");

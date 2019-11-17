@@ -224,6 +224,18 @@ int set_DNS_boxsizes(tGrid *grid)
     if(nu<=0.0) Omega=0.0;
     snprintf(OmegaStr,999, "%g", Omega);
   }
+  else if(Getv("DNSdata_Omega", "estimate_from_m"))
+  {
+    DoM = fabs(xc1-xc2)/(m1+m2);
+    DoM3 = DoM*DoM*DoM;
+    DoM4 = DoM3*DoM;
+    DoM5 = DoM4*DoM;
+    nu = (m1*m2)/pow(m1+m2, 2.0);
+    Omega = sqrt( 64*DoM3/pow(1 + 2*DoM, 6) +nu/DoM4 +
+                 (-5*nu + 8*nu*nu)/(8*DoM5)            )/(m1+m2);
+    if(nu<=0.0) Omega=0.0;
+    snprintf(OmegaStr,999, "%g", Omega);
+  }
   else if(Getv("DNSdata_Omega", "estimate_from_desired_m0"))
   {
     double m1 = Getd("DNSdata_desired_m01");
@@ -234,7 +246,7 @@ int set_DNS_boxsizes(tGrid *grid)
     DoM5 = DoM4*DoM;
     nu = (m1*m2)/pow(m1+m2, 2.0);
     Omega = sqrt( 64*DoM3/pow(1 + 2*DoM, 6) +nu/DoM4 +
-                 (-5*nu + 8*nu*nu)/(8*DoM5)            )/(m01+m02);
+                 (-5*nu + 8*nu*nu)/(8*DoM5)            )/(m1+m2);
     if(nu<=0.0) Omega=0.0;
     snprintf(OmegaStr,999, "%g", Omega);
   }
