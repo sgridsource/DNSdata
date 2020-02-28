@@ -8,7 +8,7 @@ OBJS := sgrid_$(NAME).o DNSdata.o DNS_CTS.o setADMvars.o TOVstar.o \
 	DNS_Interpolate_ADMvars.o \
 	set_DNSdata_Sigma_BCs.o set_DNSdata_Sigma_BC_dSigdrTrans.o \
 	DNS_BCs.o DNS_set_dlnIntegEuler.o \
-	DNS_compute_chi.o DNS_EoS.o tab1d_Of_rho0_AtT0.o
+	DNS_compute_chi.o DNS_polytrope_EoS.o tab1d_Of_rho0_AtT0.o
 
 include $(TOP)/Makefile.subdirs
 

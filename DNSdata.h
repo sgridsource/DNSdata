@@ -166,7 +166,7 @@ void set_Sigma_0_ATlam1A0B0_BC(tVarList *vlFu, tVarList *vlu,
 /* DNS_compute_chi */
 int DNS_compute_chi(tGrid *grid);
 
-/* from DNS_EoS.c */
+/* from DNS_polytrope_EoS.c */
 int EoS_pwp; /* switch to pwp*/
 
 void DNS_polytrope_EoS_of_hm1(double hm1,
