@@ -180,3 +180,4 @@ int DNS_pwp_init_file();
 int DNS_pwp_init_parameter();
 int DNS_poly_init();
 void find_n_kappa(double P, double *n, double *kappa);
+double hm1_of_rho0_epsl_P(double rho0, double epsl, double P);
