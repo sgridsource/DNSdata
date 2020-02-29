@@ -348,10 +348,10 @@ int interp1d_lag1(double *f, double *df, double *x, int Nx,
     i = 0;
     ret = -1;
   }
-  if(i > (Nx-1))
+  if(i > (Nx-2))
   {
     if (PR) printf(" too few points on the right => interpolation maybe be inaccurate! (rho=%e)\n",pow(10.,xv));
-    i = Nx-1;
+    i = Nx-2;
     ret = 1;
   }
 
