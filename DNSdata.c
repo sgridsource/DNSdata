@@ -398,7 +398,8 @@ int DNSdata_startup(tGrid *grid)
   /* set rs, m, Phic, Psic, m0 for both stars */
   hmin1 = TOV_init(P_core1, 1, &rs1, &m1, &Phic1, &Psic1, &m01);
   hmin2 = TOV_init(P_core2, 1, &rs2, &m2, &Phic2, &Psic2, &m02);
-hmin1 = hmin2 = 1e-10;
+  /* use 1e-10 and not the potetially smaller step from TOV_init */
+  hmin1 = hmin2 = 1e-10;
 
   /* set qmax1/2 */
   Setd("DNSdata_qmax1", EoS->hm1_of_P(P_core1));
