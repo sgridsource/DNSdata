@@ -95,9 +95,7 @@ void EoS_tab1d_load_rho0_epsl_P_AtT0(char *fname)
   int i, nrows;
   double rho0, epsl, P;
 
-  PRF;
-  printf("EoS_tab1d_load_rho0_epsl_P_AtT0:\nread in EoS table from file %s: ",
-         fname);
+  PRF;printf(":\nread in EoS table from file %s: ", fname);
 
   /* open file */
   fp = fopen(fname, "r");
@@ -424,7 +422,7 @@ int tab1d_Of_rho0_AtT0(double rho0, double *epsl,
 
   if(0&PR) printf("%e %e -> %e %e %e -> %e %e %e\n",
                 rho0,*epsl, E,DEDrho0,D2EDrho02, *P,*dPdrho0,*dPdepsl);
-  if(!isfinite(rho0) || !isfinite(*epsl)) return 1;
+  //if(!isfinite(rho0) || !isfinite(*epsl)) return 1;
   return 0;
 }
 
