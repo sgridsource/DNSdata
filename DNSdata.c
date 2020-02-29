@@ -330,8 +330,8 @@ int DNSdata_startup(tGrid *grid)
   double omegaz2   = Getd("DNSdata_omegaz2");
   double xCM       = Getd("DNSdata_x_CM");
   double DNSdata_b = Getd("DNSdata_b");
-  double rs1, m1, Phic1, Psic1, m01;
-  double rs2, m2, Phic2, Psic2, m02;
+  double rs1, m1, Phic1, Psic1, m01, hmin1;
+  double rs2, m2, Phic2, Psic2, m02, hmin2;
   double xc1 = DNSdata_b;
   double xc2 = -DNSdata_b;
   double xout1 = DNSdata_b + rf_surf1;
@@ -396,8 +396,9 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("betax"));
 
   /* set rs, m, Phic, Psic, m0 for both stars */
-  TOV_init(P_core1, 1, &rs1, &m1, &Phic1, &Psic1, &m01);
-  TOV_init(P_core2, 1, &rs2, &m2, &Phic2, &Psic2, &m02);
+  hmin1 = TOV_init(P_core1, 1, &rs1, &m1, &Phic1, &Psic1, &m01);
+  hmin2 = TOV_init(P_core2, 1, &rs2, &m2, &Phic2, &Psic2, &m02);
+hmin1 = hmin2 = 1e-10;
 
   /* set qmax1/2 */
   Setd("DNSdata_qmax1", EoS->hm1_of_P(P_core1));
@@ -492,7 +493,7 @@ int DNSdata_startup(tGrid *grid)
         if(TOVav || TOVprod || box->SIDE==STAR1)
         {
           r1 = sqrt((x-xc1)*(x-xc1) + (y-ysh1)*(y-ysh1) + z*z);
-          TOV_m_P_Phi_Psi_OF_rf(r1, rs1, m1, P_core1, Phic1, Psic1,
+          TOV_m_P_Phi_Psi_OF_rf(r1, rs1, m1, P_core1, Phic1, Psic1, hmin1,
                                 &m1_r, &P1, &Phi1, &Psi1);
           q1 = EoS->hm1_of_P(P1);
           DNSdata_initial_shift(1, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs1, 
@@ -502,7 +503,7 @@ int DNSdata_startup(tGrid *grid)
         if(TOVav || TOVprod || box->SIDE==STAR2)
         {
           r2 = sqrt((x-xc2)*(x-xc2) + y*y + z*z);
-          TOV_m_P_Phi_Psi_OF_rf(r2, rs2, m2, P_core2, Phic2, Psic2,
+          TOV_m_P_Phi_Psi_OF_rf(r2, rs2, m2, P_core2, Phic2, Psic2, hmin2,
                                 &m2_r, &P2, &Phi2, &Psi2);
           q2 = EoS->hm1_of_P(P2);
           DNSdata_initial_shift(2, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs2, 

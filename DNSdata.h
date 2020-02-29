@@ -118,12 +118,9 @@ void J_oneComp(tVarList *vlJdw, tVarList *vldw,
 /* funcs from TOV */
 double TOV_init(double Pc, int pr, double *rf_surf,
                 double *m, double *Phi_c, double *Psi_c, double *m0);
-int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
-                             double Pc, double Phic, double Psic,
-                             double *m, double *P, double *Phi, double *Psi,
-                             double *m0);
 int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
                           double Pc, double Phic, double Psic,
+                          double hmin,
                           double *m, double *P, double *Phi, double *Psi);
 
 /* from DNSgrid.c */

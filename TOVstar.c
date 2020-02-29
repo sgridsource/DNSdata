@@ -229,6 +229,7 @@ double TOV_init(double Pc, int pr, double *rf_surf,
    for a given rf_surf, kappa, Gam, Pc, Phic, Psic */
 int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
                              double Pc, double Phic, double Psic,
+                             double hmin,
                              double *m, double *P, double *Phi, double *Psi,
                              double *m0)
 {
@@ -242,7 +243,7 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
   double *y;        /* The functions y1, y2, ...  */
   double *dy;       /* The functions' derivs dy1, dy2, ... */
   int nvar=5;       /* The number of functions  */
-  double eps, h1, hmin;   /* error, first step, minimum step  */
+  double eps, h1;   /* error, first step. minimum step is hmin */
   int nok,nbad;           /* # of ok steps, # of bad steps    */
   int i, stat;
   double rfe, ret;
@@ -277,7 +278,6 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
 
   /* pars for odeintegrate */
   h1=1e-10;
-  hmin=1e-10;
   eps=1e-12;
   drfsav=0;
 
@@ -317,6 +317,7 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
    only if we are inside the star. */
 int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
                           double Pc, double Phic, double Psic,
+                          double hmin,
                           double *m, double *P, double *Phi, double *Psi)
 {
   double m0;
@@ -331,7 +332,7 @@ int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
     *Phi =0.5*log(1.0 - 2.0*(*m)/r);
   }
   else
-    TOV_m_P_Phi_Psi_m0_OF_rf(rf, rf_surf, Pc, Phic, Psic,
+    TOV_m_P_Phi_Psi_m0_OF_rf(rf, rf_surf, Pc, Phic, Psic, hmin,
                              m, P, Phi, Psi, &m0);
   return 0;
 }
