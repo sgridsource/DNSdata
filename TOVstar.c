@@ -41,6 +41,7 @@ int TOV_init(double Pc, int pr, double *rf_surf,
   int   nvar=5;     /* The number of functions  */
   double eps, h1, hmin;   /* error, first step, minimum step  */
   int   nok,nbad;         /* # of ok steps, # of bad steps    */
+  double hmin2;     /* minimum step limit that works */
   int i, stat;
   double rfe, ret;
   double mc, Phic, Psic, zeroP, m0c;
@@ -124,16 +125,27 @@ int TOV_init(double Pc, int pr, double *rf_surf,
      soly on the fact that odeintegrate will fail at P=0. If it does not
      fail we need a root finder to determine where P=0. */  
   rfe=rf2;
+  hmin2 = hmin;
   for(;;)
   {
-    ret=odeintegrate(y,nvar,rf1,rfe,eps,h1,hmin,&nok,&nbad,TOV_ODEs,rkqs,
+    ret=odeintegrate(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,rkqs,
                      kmax,&kount,rfp,yp,drfsav,&stat);  
     if(pr) printf(" ret=%g stat=%d ", ret, stat);
+    if(stat==-1) /* Step size too small */
+    {
+      hmin2 = hmin2 * 0.1;
+      continue;
+    }
     if(ret<rfe) rfe=ret;
     else break;
   }
   if( fabs((rfe-rf2)/rf2)> 0.3 || (y[2]>1e-8))
+  {
+    printf("\nerrorexit1: ret=%g stat=%d ", ret, stat);
+    printf("rf2=%g rfe=%g y[2]=%g\n", rf2, rfe, y[2]);
+    fflush(stdout);
     errorexit("we need a real root finder to find the rf where P=0");
+  }
 
   /* we want Psi = 1 + M/(2*rf) = sqrt( (2*r)/(r-M +sqrt(r*r-2*M*r)) )
      outside the star */
@@ -164,17 +176,26 @@ int TOV_init(double Pc, int pr, double *rf_surf,
   /* check rfe */
   for(;;)
   {
-    ret=odeintegrate(y,nvar,rf1,rfe,eps,h1,hmin,&nok,&nbad,TOV_ODEs,rkqs,
+    ret=odeintegrate(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,rkqs,
                      kmax,&kount,rfp,yp,drfsav,&stat);  
     if(pr) printf(" ret=%g stat=%d\n", ret, stat);
+    if(stat==-1) /* Step size too small */
+    {
+      hmin2 = hmin2 * 0.1;
+      continue;
+    }
     if(ret<rfe) rfe=ret;
     else break;
   }
   //printf("rf=%g:  y[1]=%g  y[2]=%g  y[3]=%g  y[4]=%g\n",
   //       rfe, y[1], y[2], y[3], y[4]);
- 
   if( fabs((rfe-rf2)/rf2)> 0.3 || y[2]>1e-8)
+  {
+    printf("\nerrorexit2: ret=%g stat=%d ", ret, stat);
+    printf("rf2=%g rfe=%g y[2]=%g\n", rf2, rfe, y[2]);
+    fflush(stdout);
     errorexit("we need a real root finder to find the rf where P=0");
+  }
 
 
   /* output results */
