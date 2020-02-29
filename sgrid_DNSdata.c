@@ -306,12 +306,17 @@ int sgrid_DNSdata()
          "var beta at the very end in setADMvars "
          "[B^i+xi^i,B^i+phidotphi^i+rdotor0r^i]");
 
-  /* pars for piecewise polytropes */
-  AddPar("DNSdata_EoS_type", "poly", "poly. or piecewise poly. [poly,pwp]"); 
+  /* pars for EoS such as piecewise polytropes */
+  AddPar("DNSdata_EoS_type", "poly", "poly., piecewise poly. or "
+         "[poly,pwp,tab1d_AtT0]");
   if(Getv("DNSdata_EoS_type", "pwp"))
   {
     AddPar("DNSdata_pwp_rho0", "0.00023695302 0.00081212262 0.00162039766",
            "rho0 were we use transition between pieces");
+  }
+  if(Getv("DNSdata_EoS_type", "tab1d_AtT0"))
+  {
+    AddPar("DNSdata_EoS_tab1d_load_file", "", "file to load for 1d EoS");
   }
 
   /* par to improve condition number of PDE matrix */
