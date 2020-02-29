@@ -196,6 +196,7 @@ double hm1_of_rho0_epsl_P(double rho0, double epsl, double P);
 
 
 /* from tab1d_Of_rho0_AtT0.c */
+void EoS_tab1d_load_rho0_epsl_P_AtT0(char *fname);
 int tab1d_Of_P_AtT0(double P, double *rho0, double *epsl,
                     double *dPdrho0, double *dPdepsl);
 int tab1d_Of_hm1_AtT0(double hm1, double *rho0, double *epsl,

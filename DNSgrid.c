@@ -131,6 +131,14 @@ int set_DNS_boxsizes(tGrid *grid)
     EoS->hm1_of_P         = DNS_polytrope_hm1_of_P;
     EoS->rho0_rhoE_from_P = DNS_polytrope_rho0_rhoE_of_P;
   }
+  else if(Getv("DNSdata_EoS_type", "tab1d_AtT0"))
+  {
+    EoS_tab1d_load_rho0_epsl_P_AtT0(Gets("DNSdata_EoS_tab1d_load_file"));
+    EoS->vars_from_hm1    = tab1d_rho0_P_rhoE_drho0dhm1_from_hm1;
+    EoS->rho0_of_hm1      = tab1d_rho0_of_hm1;
+    EoS->hm1_of_P         = tab1d_hm1_of_P;
+    EoS->rho0_rhoE_from_P = tab1d_rho0_rhoE_from_P;
+  }
   else
   {
     errorexit("unkown DNSdata_EoS_type");
