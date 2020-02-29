@@ -393,13 +393,19 @@ int tab1d_Of_rho0_AtT0(double rho0, double *epsl,
 {
   double Logepsl, dLogepsl, d2Logepsl; /* tmp Log epsl and derivs */
   double E, DEDrho0, D2EDrho02;        /* tmp epsl and derivs */
-  double Logrho0;
+  double Logrho0, sign;
 
   /* take care of vacuum */
+  sign = 1.;
   if(rho0<=0.)
   {
-    *epsl = *P = *dPdrho0 = *dPdepsl = 0;
-    return 1;
+    if(rho0==0.)
+    {
+      *epsl = *P = *dPdrho0 = *dPdepsl = 0;
+      return 1;
+    }
+    sign = -1.;
+    rho0 = -rho0;
   }
 
   Logrho0 = log10(rho0);
@@ -414,6 +420,9 @@ int tab1d_Of_rho0_AtT0(double rho0, double *epsl,
   *epsl    = E; // set epsl here
   *dPdrho0 = 2.*(rho0)*DEDrho0 + (rho0)*(rho0)*D2EDrho02;
   *dPdepsl = 0.;
+
+  /* give P same sign as rho0 */
+  *P = sign * (*P);
 
   /* can get sound speed^2 cs2 like this: */
   //*cs2 = cs2_of_rho0_epsl_P_dPdrho0_dPdepsl(rho0, E, *P, *dPdrho0, *dPdepsl);
@@ -508,15 +517,21 @@ int tab1d_Of_P_AtT0(double P, double *rho0, double *epsl,
                     double *dPdrho0, double *dPdepsl)
 {
   double Logrho0, Logrho0min, Logrho0max, Lrho0min, Lrho0max;
-  double Papprox;
+  double Papprox, sign;
   int ret;
   ttab1d_vars p[1];
 
   /* take care of vacuum */
+  sign = 1.;
   if(P<=0.)
   {
-    *rho0 = *epsl = *dPdrho0 = *dPdepsl = 0;
-    return 1;
+    if(P==0.)
+    {
+      *rho0 = *epsl = *dPdrho0 = *dPdepsl = 0;
+      return 1;
+    }
+    sign = -1.;
+    P = -P;
   }
 
   /* set min and max rho0 */
@@ -535,6 +550,9 @@ int tab1d_Of_P_AtT0(double P, double *rho0, double *epsl,
   if(PR) printf("newton1d_brak -> ret=%d\n", ret);
   if(ret<0) errorexit("newton1d_brak failed!");
   *rho0 = pow(10., Logrho0);
+
+  /* give rho0 same sign as P */
+  *rho0 = sign * (*rho0);
 
   return tab1d_Of_rho0_AtT0(*rho0,  epsl, &Papprox, dPdrho0, dPdepsl);
 
