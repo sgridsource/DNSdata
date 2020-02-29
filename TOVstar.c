@@ -26,9 +26,10 @@ void TOV_rho0_rhoE_OF_P(double P, double *rho0, double *rhoE)
 }
 
 
-/* compute *rf_surf,*m,*Phi_c,*Psi_c for a given Pc */
-int TOV_init(double Pc, int pr, double *rf_surf,
-             double *m, double *Phi_c, double *Psi_c, double *m0)
+/* compute *rf_surf,*m,*Phi_c,*Psi_c for a given Pc, and
+   return step size min we need for odeintegrate */
+double TOV_init(double Pc, int pr, double *rf_surf,
+                double *m, double *Phi_c, double *Psi_c, double *m0)
 {   /* Variablen fuer odeint.c */
   int kmax=21;             /* max # of points outputed by odeint */
   int kount;               /* # of points outputed by odeint */
@@ -58,7 +59,8 @@ int TOV_init(double Pc, int pr, double *rf_surf,
   {
     *rf_surf=*m=*Phi_c=*m0 = 0.0;
     *Psi_c = 1.0;
-    return 0;
+    hmin2 = 1.0;
+    return hmin2;
   }
 
   /* allocate mem. */
@@ -219,7 +221,7 @@ int TOV_init(double Pc, int pr, double *rf_surf,
   free_vector(y,  1,nvar);
   free_vector(rfp, 1,nvar);
   free_matrix(yp, 1,nvar, 1,kmax);
-  return 0;
+  return hmin2; /* return step size min we need for odeintegrate */
 }
 
 

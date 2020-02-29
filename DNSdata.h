@@ -116,8 +116,8 @@ void J_oneComp(tVarList *vlJdw, tVarList *vldw,
                tVarList *vldwDerivs, tVarList *vlw);
 
 /* funcs from TOV */
-int TOV_init(double Pc, int pr, double *rf_surf,
-             double *m, double *Phi_c, double *Psi_c, double *m0);
+double TOV_init(double Pc, int pr, double *rf_surf,
+                double *m, double *Phi_c, double *Psi_c, double *m0);
 int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
                              double Pc, double Phic, double Psic,
                              double *m, double *P, double *Phi, double *Psi,
