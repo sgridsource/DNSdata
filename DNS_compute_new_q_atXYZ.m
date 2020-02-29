@@ -1,4 +1,4 @@
-(* DNS_compute _new _q _atXYZ.m 
+(* DNS_compute_new_q_atXYZ.m
    Wolfgang Tichy  2/2008       *)
 
 (* compute the updated q *)

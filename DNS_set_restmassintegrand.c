@@ -1,5 +1,5 @@
 /* DNS_set_restmassintegrand.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 18.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -14,6 +14,7 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
+extern tEoS EoS[1];
 
 
 void DNS_set_restmassintegrand(tGrid *grid, int iInteg)
@@ -128,8 +129,8 @@ double xrdotor3;
 
 
 
-FirstDerivsOf_S(box,index_DNSdata_Sigma,                   
-                                   Ind("DNSdata_Sigmax"));
+FirstDerivsOf_S(box,index_DNSdata_Sigma,                                    Ind("DNSdata_Sigmax")); 
+
 
 VwApprox = corot = 0; 
 
@@ -492,13 +493,13 @@ Sqrt(uzerosqr)
 if (q[ijk] >= 0.) {
 
 
-rho0 = DNS_polytrope_rho0_of_hm1(q[ijk]); 
+rho0 = EoS->rho0_of_hm1(q[ijk]); 
 
 
 } else { /* if (!q[ijk] >= 0.) */
 
 
-rho0 = -DNS_polytrope_rho0_of_hm1(-q[ijk]); 
+rho0 = -EoS->rho0_of_hm1(-q[ijk]); 
 
 }
 /* if (q[ijk] >= 0.) */
@@ -518,4 +519,4 @@ alpha*Psi2*Psi4*rho0*uzero
 }  /* end of function */
 
 /* DNS_set_restmassintegrand.c */
-/* nvars = 17, n* = 106,  n/ = 57,  n+ = 86, n = 249, O = 1 */
+/* nvars = 17, n* = 106,  n/ = 57,  n+ = 88, n = 251, O = 1 */

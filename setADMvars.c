@@ -1,5 +1,5 @@
 /* setADMvars.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 1.9.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -12,6 +12,7 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
+extern tEoS EoS[1];
 
 
 void setADMvars(tGrid *grid)
@@ -715,7 +716,7 @@ vR3
 ;
 
 
-DNS_polytrope_EoS_of_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
+EoS->vars_from_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
 
 
 
@@ -867,4 +868,4 @@ rho[ijk]*pow2(Psi4)
 }  /* end of function */
 
 /* setADMvars.c */
-/* nvars = 56, n* = 218,  n/ = 61,  n+ = 233, n = 512, O = 1 */
+/* nvars = 56, n* = 218,  n/ = 61,  n+ = 234, n = 513, O = 1 */

@@ -7,6 +7,9 @@
 
 #define Power pow
 
+extern tEoS EoS[1];
+
+
 /* struct types used in root finder newton_linesrch_itsP */
 typedef struct T_grid_bXYZ1_bXYZ2_struct {
   tGrid *grid; /* grid */
@@ -397,8 +400,8 @@ int DNSdata_startup(tGrid *grid)
   TOV_init(P_core2, 1, &rs2, &m2, &Phic2, &Psic2, &m02);
 
   /* set qmax1/2 */
-  Setd("DNSdata_qmax1", DNS_polytrope_hm1_of_P(P_core1));
-  Setd("DNSdata_qmax2", DNS_polytrope_hm1_of_P(P_core2));
+  Setd("DNSdata_qmax1", EoS->hm1_of_P(P_core1));
+  Setd("DNSdata_qmax2", EoS->hm1_of_P(P_core2));
   /* set cart positions of qmax1/2 */
   if(Getd("DNSdata_xmax1")<=0.0) Setd("DNSdata_xmax1", xc1);
   if(Getd("DNSdata_xmax2")>=0.0) Setd("DNSdata_xmax2", xc2);
@@ -491,7 +494,7 @@ int DNSdata_startup(tGrid *grid)
           r1 = sqrt((x-xc1)*(x-xc1) + (y-ysh1)*(y-ysh1) + z*z);
           TOV_m_P_Phi_Psi_OF_rf(r1, rs1, m1, P_core1, Phic1, Psic1,
                                 &m1_r, &P1, &Phi1, &Psi1);
-          q1 = DNS_polytrope_hm1_of_P(P1);
+          q1 = EoS->hm1_of_P(P1);
           DNSdata_initial_shift(1, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs1, 
                                 -(x-xc1), -(y-ysh1), z,  &Bx1,&By1,&Bz1);
         }
@@ -501,7 +504,7 @@ int DNSdata_startup(tGrid *grid)
           r2 = sqrt((x-xc2)*(x-xc2) + y*y + z*z);
           TOV_m_P_Phi_Psi_OF_rf(r2, rs2, m2, P_core2, Phic2, Psic2,
                                 &m2_r, &P2, &Phi2, &Psi2);
-          q2 = DNS_polytrope_hm1_of_P(P2);
+          q2 = EoS->hm1_of_P(P2);
           DNSdata_initial_shift(2, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs2, 
                                 x-xc2, y, z,  &Bx2,&By2,&Bz2);
         }

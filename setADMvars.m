@@ -127,7 +127,7 @@ tocompute = {
   VR[a] == vR[a],
 
   (* rest mass density, pressure, and total energy density *)
-  Cinstruction == "DNS_polytrope_EoS_of_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1);",
+  Cinstruction == "EoS->vars_from_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1);",
 
   (* if q=0 all matter vars are zero, which can be enforced by uzerosqr=0 *)
   Cif == (q==0),
@@ -204,6 +204,8 @@ BeginCFunction[] := Module[{},
   pr["#define pow2inv(x) (1.0/((x)*(x)))\n"];
   pr["#define Cal(x,y,z) ((x)?(y):(z))\n\n"];
 
+  pr["\n"];
+  pr["extern tEoS EoS[1];"];
   pr["\n\n\n"];
 
   pr["void setADMvars(tGrid *grid)\n"];

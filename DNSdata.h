@@ -34,6 +34,18 @@ enum
 };
 
 
+/* struct that contains important EoS info and function pointers */
+typedef struct tEOS {
+  /* function pointers to compute EoS vars from different inputs */
+  void (*vars_from_hm1)(double hm1,
+                        double *rho0, double *P, double *rhoE,
+                        double *drho0dhm1);
+  double (*rho0_of_hm1)(double hm1);
+  double (*hm1_of_P)(double P);
+  void (*rho0_rhoE_from_P)(double P, double *rho0, double *rhoE);
+} tEoS;
+
+
 /* main functions */
 int DNSdata_setup_boxsizes(tGrid *grid);
 int DNSdata_startup(tGrid *grid);

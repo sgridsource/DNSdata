@@ -82,7 +82,7 @@ tocompute = {
   Psim4  == Psim2*Psim2,
 
   (* rest mass density rho0, pressure P, and total energy density rhoE *)
-  Cinstruction == "DNS_polytrope_EoS_of_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1);",
+  Cinstruction == "EoS->vars_from_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1);",
 
   (*****************************)
   (* BEGIN: corot/general case *)
@@ -615,6 +615,8 @@ BeginCFunction[] := Module[{},
   pr["#define pow2inv(x) (1.0/((x)*(x)))\n"];
   pr["#define Cal(x,y,z) ((x)?(y):(z))\n\n"];
 
+  pr["\n"];
+  pr["extern tEoS EoS[1];"];
   pr["\n\n\n"];
 
   pr["void DNS_CTS(tVarList *vlFu, tVarList *vlu, \ 
@@ -804,7 +806,7 @@ InitializationCommands[] := Module[{},
     pr["omegMOmeg1 = omegax1;\n"];
     pr["omegMOmeg2 = omegay1;\n"];
     pr["omegMOmeg3 = omegaz1 - Omega;\n"];
-    pr["DNS_polytrope_EoS_of_hm1(qmax1, &rho0max, 
+    pr["EoS->vars_from_hm1(qmax1, &rho0max, 
                                  &Pmax, &rhoEmax, &drho0dhm1max);\n"];
   pr["} else {\n"];
     pr["if(corot2)    corot = 1;\n"];
@@ -813,7 +815,7 @@ InitializationCommands[] := Module[{},
     pr["omegMOmeg1 = omegax2;\n"];
     pr["omegMOmeg2 = omegay2;\n"];
     pr["omegMOmeg3 = omegaz2 - Omega;\n"];
-    pr["DNS_polytrope_EoS_of_hm1(qmax2, &rho0max, 
+    pr["EoS->vars_from_hm1(qmax2, &rho0max, 
                                  &Pmax, &rhoEmax, &drho0dhm1max);\n"];
   pr["} /* end if */\n"];
 

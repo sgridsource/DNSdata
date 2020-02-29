@@ -8,6 +8,9 @@
 #define Power pow
 #define pow2(x)    ((x)*(x))
 
+extern tEoS EoS[1];
+
+
 /* struct types used in root finder newton_linesrch_itsP */
 typedef struct T_grid_b_star_A_B_struct {
   tGrid *grid; /* grid */
@@ -115,9 +118,23 @@ int set_DNS_boxsizes(tGrid *grid)
   if(Getv("DNSdata_EoS_type", "pwp"))
   {     
     DNS_pwp_init_parameter();
+    EoS->vars_from_hm1    = DNS_polytrope_EoS_of_hm1;
+    EoS->rho0_of_hm1      = DNS_polytrope_rho0_of_hm1;
+    EoS->hm1_of_P         = DNS_polytrope_hm1_of_P;
+    EoS->rho0_rhoE_from_P = DNS_polytrope_rho0_rhoE_of_P;
   }
-  else if(Getv("DNSdata_EoS_type", "poly"))  DNS_poly_init();
-  else errorexit("unkown DNSdata_EoS_type");
+  else if(Getv("DNSdata_EoS_type", "poly"))
+  {
+    DNS_poly_init();
+    EoS->vars_from_hm1    = DNS_polytrope_EoS_of_hm1;
+    EoS->rho0_of_hm1      = DNS_polytrope_rho0_of_hm1;
+    EoS->hm1_of_P         = DNS_polytrope_hm1_of_P;
+    EoS->rho0_rhoE_from_P = DNS_polytrope_rho0_rhoE_of_P;
+  }
+  else
+  {
+    errorexit("unkown DNSdata_EoS_type");
+  }
 
   /* do we set star from mass m01 or from max q called qm1 */
   if(Getd("DNSdata_qm1")<0.0)
@@ -130,7 +147,7 @@ int set_DNS_boxsizes(tGrid *grid)
   else  /* get P_core1 from max q */
   {
     double rho0, rhoE, drho0dhm1;
-    DNS_polytrope_EoS_of_hm1(Getd("DNSdata_qm1"),
+    EoS->vars_from_hm1(Getd("DNSdata_qm1"),
                              &rho0, &P_core1, &rhoE, &drho0dhm1);
   }
   printf("setting: P_core1=%g\n", P_core1);
@@ -160,7 +177,7 @@ int set_DNS_boxsizes(tGrid *grid)
   else if(Getd("DNSdata_qm2")>0.0) /* get P_core2 from max q */
   {
     double rho0, rhoE, drho0dhm1;
-    DNS_polytrope_EoS_of_hm1(Getd("DNSdata_qm2"),
+    EoS->vars_from_hm1(Getd("DNSdata_qm2"),
                              &rho0, &P_core2, &rhoE, &drho0dhm1);
     printf("setting: P_core2=%g\n", P_core2);
     /* TOV_init yields m02 for a given P_core2 */
@@ -258,7 +275,7 @@ int set_DNS_boxsizes(tGrid *grid)
   printf(" (m01+m02)*DNSdata_Omega = %g\n", (m01+m02)*Getd("DNSdata_Omega"));
 
   /* set DNSdata_C1 */
-  qc = DNS_polytrope_hm1_of_P(P_core1);
+  qc = EoS->hm1_of_P(P_core1);
   /* oouzerosqr == alpha2 - 
                    Psi4 delta[b,c] (beta[b] + vR[b]) (beta[c] + vR[c]), */
   oouzerosqr = exp(Phic1*2.0) - 
@@ -272,7 +289,7 @@ int set_DNS_boxsizes(tGrid *grid)
   printf(" DNSdata_C1 = %g\n", Getd("DNSdata_C1"));
 
   /* set DNSdata_C2 */
-  qc = DNS_polytrope_hm1_of_P(P_core2);
+  qc = EoS->hm1_of_P(P_core2);
   /* oouzerosqr == alpha2 - 
                    Psi4 delta[b,c] (beta[b] + vR[b]) (beta[c] + vR[c]), */
   oouzerosqr = exp(Phic2*2.0) - 

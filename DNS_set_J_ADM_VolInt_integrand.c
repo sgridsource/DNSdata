@@ -1,5 +1,5 @@
 /* DNS_set_J_ADM_VolInt_integrand.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 10.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -12,6 +12,7 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
+extern tEoS EoS[1];
 
 
 void DNS_set_J_ADM_VolInt_integrand(tGrid *grid, int iIntegx, int iIntegy, int iIntegz)
@@ -129,8 +130,8 @@ double xrdotor3;
 
 
 
-FirstDerivsOf_S(box, Ind("DNSdata_Sigma"), 
-					Ind("DNSdata_Sigmax"));
+FirstDerivsOf_S(box, Ind("DNSdata_Sigma"),     Ind("DNSdata_Sigmax")); 
+
 
 VwApprox = corot = 0; 
 
@@ -472,7 +473,8 @@ vR3
 
 
 
-DNS_polytrope_EoS_of_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
+EoS->vars_from_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
+
 
 
 /* conditional */
@@ -526,4 +528,4 @@ Psi2*(jup2*(-xCM + x[ijk]) - jup1*y[ijk])*pow2(Psi4)
 }  /* end of function */
 
 /* DNS_set_J_ADM_VolInt_integrand.c */
-/* nvars = 19, n* = 116,  n/ = 48,  n+ = 107, n = 271, O = 1 */
+/* nvars = 19, n* = 116,  n/ = 48,  n+ = 108, n = 272, O = 1 */

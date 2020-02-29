@@ -5,6 +5,8 @@
 #include "sgrid.h"
 #include "DNSdata.h"
 
+extern tEoS EoS[1];
+
 
 /* TOV eqns */
 void TOV_ODEs(double rf, double *y, double *dy);
@@ -20,7 +22,7 @@ void TOV_rho0_rhoE_OF_P(double P, double *rho0, double *rhoE)
   /* we call a function that does something like this:
      rho0 = pow(P/kappa, n/(n+1))
      rhoE = n*P + k*rho0,        k is value of spec. enthalpy h for P=0 */
-  DNS_polytrope_rho0_rhoE_of_P(P, rho0, rhoE);
+  EoS->rho0_rhoE_from_P(P, rho0, rhoE);
 }
 
 

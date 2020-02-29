@@ -5,6 +5,10 @@
 #include "DNSdata.h"
 
 
+/* global struct with EoS info */
+tEoS EoS[1];
+
+
 /**************************************************************************/
 /* some general functions in that hold for any EoS */
 /**************************************************************************/

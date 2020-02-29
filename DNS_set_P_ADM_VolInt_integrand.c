@@ -1,5 +1,5 @@
 /* DNS_set_P_ADM_VolInt_integrand.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 10.2.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -12,11 +12,10 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
+extern tEoS EoS[1];
 
 
-void DNS_set_P_ADM_VolInt_integrand_Om_xcm(tGrid *grid,
-                                                 int iIntegx, int iIntegy, int iIntegz,
-                                                 double Om, double xcm)
+void DNS_set_P_ADM_VolInt_integrand_Om_xcm(tGrid *grid,                                                  int iIntegx, int iIntegy, int iIntegz,                                                  double Om, double xcm)
 {
 int VwApprox1 = Getv("DNSdata_rotationstate1","VwApproximation");
 int VwApprox2 = Getv("DNSdata_rotationstate2","VwApproximation");
@@ -141,8 +140,8 @@ double xrdotor3;
 
 
 
-FirstDerivsOf_S(box, Ind("DNSdata_Sigma"), 
-					Ind("DNSdata_Sigmax"));
+FirstDerivsOf_S(box, Ind("DNSdata_Sigma"),     Ind("DNSdata_Sigmax")); 
+
 
 VwApprox = corot = 0; 
 
@@ -539,7 +538,7 @@ vR3
 
 
 
-DNS_polytrope_EoS_of_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
+EoS->vars_from_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
 
 
 
@@ -601,4 +600,4 @@ DNS_set_P_ADM_VolInt_integrand_Om_xcm(grid, iIntegx, iIntegy, iIntegz ,Omega, xC
 }  /* end of 2nd function */
 
 /* DNS_set_P_ADM_VolInt_integrand.c */
-/* nvars = 19, n* = 119,  n/ = 51,  n+ = 116, n = 286, O = 1 */
+/* nvars = 19, n* = 119,  n/ = 51,  n+ = 117, n = 287, O = 1 */

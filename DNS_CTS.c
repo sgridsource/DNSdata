@@ -1,5 +1,5 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 24.10.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -13,6 +13,7 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
+extern tEoS EoS[1];
 
 
 void DNS_CTS(tVarList *vlFu, tVarList *vlu,       tVarList *vlJdu, tVarList *vldu, tVarList *vlduDerivs,      int nonlin)
@@ -379,7 +380,7 @@ xmax = xmax1;
 omegMOmeg1 = omegax1;
 omegMOmeg2 = omegay1;
 omegMOmeg3 = omegaz1 - Omega;
-DNS_polytrope_EoS_of_hm1(qmax1, &rho0max,                                   &Pmax, &rhoEmax, &drho0dhm1max);
+EoS->vars_from_hm1(qmax1, &rho0max,                                   &Pmax, &rhoEmax, &drho0dhm1max);
 } else {
 if(corot2)    corot = 1;
 if(VwApprox2) VwApprox = 1;
@@ -387,7 +388,7 @@ xmax = xmax2;
 omegMOmeg1 = omegax2;
 omegMOmeg2 = omegay2;
 omegMOmeg3 = omegaz2 - Omega;
-DNS_polytrope_EoS_of_hm1(qmax2, &rho0max,                                   &Pmax, &rhoEmax, &drho0dhm1max);
+EoS->vars_from_hm1(qmax2, &rho0max,                                   &Pmax, &rhoEmax, &drho0dhm1max);
 } /* end if */
 xC = xCM + ecc * (xmax - xCM);
 SGRID_LEVEL3_Pragma(omp parallel for)
@@ -872,7 +873,7 @@ pow2(Psim2)
 ;
 
 
-DNS_polytrope_EoS_of_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1); 
+EoS->vars_from_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1); 
 
 
 
@@ -3114,4 +3115,4 @@ CoordFac[ijk]*FlSigma[ijk]
 }  /* end of function */
 
 /* DNS_CTS.c */
-/* nvars = 182, n* = 1474,  n/ = 222,  n+ = 1211, n = 2907, O = 1 */
+/* nvars = 182, n* = 1474,  n/ = 222,  n+ = 1214, n = 2910, O = 1 */
