@@ -310,8 +310,8 @@ int sgrid_DNSdata()
   AddPar("DNSdata_EoS_type", "poly", "poly. or piecewise poly. [poly,pwp]"); 
   if(Getv("DNSdata_EoS_type", "pwp"))
   {
-     AddPar("DNSdata_pwp_rho0", "0.00023695302 0.00081212262 0.00162039766",
-            "rho0 were we use transition between pieces");
+    AddPar("DNSdata_pwp_rho0", "0.00023695302 0.00081212262 0.00162039766",
+           "rho0 were we use transition between pieces");
   }
 
   /* par to improve condition number of PDE matrix */
