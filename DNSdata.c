@@ -3698,10 +3698,18 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
 
     fprintf(fp, "%s data properties (time = %g):\n", DNS, grid->time);
     fprintf(fp, "-------------------\n");
-    fprintf(fp, "n_list\t\t%s\n", Gets("DNSdata_n"));
-    if(EoS_pwp==1)  fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
-    else            fprintf(fp, "rho0_list\t%s\n", "none");
-    fprintf(fp, "kappa\t\t%s\n", Gets("DNSdata_kappa"));
+    fprintf(fp, "EoS_type\t%s\n", Gets("DNSdata_EoS_type"));
+    if(Getv("DNSdata_EoS_type","pwp") || Getv("DNSdata_EoS_type","poly"))
+    {
+      fprintf(fp, "n_list\t\t%s\n", Gets("DNSdata_n"));
+      if(EoS_pwp==1)  fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
+      else            fprintf(fp, "rho0_list\t%s\n", "none");
+      fprintf(fp, "kappa\t\t%s\n", Gets("DNSdata_kappa"));
+    }
+    else if(Getv("DNSdata_EoS_type","tab1d_AtT0"))
+    {
+      fprintf(fp, "EoS_file\t%s\n", Gets("DNSdata_EoS_tab1d_load_file"));
+    }
     fprintf(fp, "x_CM\t\t%.19g\n", x_CM);
     fprintf(fp, "Omega\t\t%.19g\n", Omega);
     fprintf(fp, "ecc\t\t%.19g\n", ecc);
