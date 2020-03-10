@@ -145,8 +145,8 @@ int set_DNS_boxsizes(tGrid *grid)
   }
 
   /* set initial guesses for P_core1 and P_core2 */
-  P_core1 = Getd("DNSdata_P_core1");
-  P_core2 = Getd("DNSdata_P_core2");
+  P_core1 = Getd("DNSdata_Pm1");
+  P_core2 = Getd("DNSdata_Pm2");
 
   /* do we set star from mass m01 or from max q called qm1 */
   if(Getd("DNSdata_qm1")<0.0)

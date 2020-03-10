@@ -102,8 +102,8 @@ int sgrid_DNSdata()
   }
   AddPar("DNSdata_qm1",   "-1", "max q of NS1 we want");
   AddPar("DNSdata_qm2",   "-1", "max q of NS2 we want");
-  AddPar("DNSdata_P_core1", "1e-7", "guess for P_core1");
-  AddPar("DNSdata_P_core2", "1e-7", "guess for P_core2");
+  AddPar("DNSdata_Pm1", "1e-7", "guess for P_core1");
+  AddPar("DNSdata_Pm2", "1e-7", "guess for P_core2");
   AddPar("DNSdata_qmax1", "0", "max q of NS1 along x-axis");
   AddPar("DNSdata_qmax2", "0", "max q of NS2 along x-axis");
   AddPar("DNSdata_xmax1", "0", "pos. of max q of NS1 along x-axis");
