@@ -88,7 +88,8 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   rf2=rf1;
   hmin=1e-4;
   while(y[2]>=0)  /* y[2]=P */
-  { zeroP = y[2]; /* save last val of P*/
+  {
+    zeroP = y[2]; /* save last val of P*/
     TOV_ODEs(rf2, y, dy);
     for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
     rf2 += hmin;
@@ -135,8 +136,11 @@ double TOV_init(double Pc, int pr, double *rf_surf,
     if(pr) printf(" ret=%g stat=%d ", ret, stat);
     if(stat==-1) /* Step size too small */
     {
-      hmin2 = hmin2 * 0.1;
-      continue;
+      if(ret<rf2*0.95/1.1) /* if we didn't integrate far enough */
+      {
+        hmin2 = hmin2 * 0.1;
+        continue;
+      }
     }
     if(ret<rfe) rfe=ret;
     else break;
@@ -183,8 +187,11 @@ double TOV_init(double Pc, int pr, double *rf_surf,
     if(pr) printf(" ret=%g stat=%d\n", ret, stat);
     if(stat==-1) /* Step size too small */
     {
-      hmin2 = hmin2 * 0.1;
-      continue;
+      if(ret<rf2*0.95/1.1) /* if we didn't integrate far enough */
+      {
+        hmin2 = hmin2 * 0.1;
+        continue;
+      }
     }
     if(ret<rfe) rfe=ret;
     else break;
