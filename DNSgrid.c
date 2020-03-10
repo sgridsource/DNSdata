@@ -32,7 +32,7 @@ void m0_VectorFuncP(int n, double *vec, double *fvec, void *p);
 
 
 /* find core pressure in TOV star */
-double DNS_find_P_core(double m0, int pr)
+double DNS_find_P_core(double m0, double P_core_guess, int pr)
 {
   double vec[2];
   double fvec[2];
@@ -46,7 +46,7 @@ double DNS_find_P_core(double m0, int pr)
 
   /* find P_core, s.t. rest mass is m0 */
   if(pr) printf("find P_core of a TOV star, s.t. rest mass is m0=%g\n", m0);
-  vec[1] = 1e-7;   /* initial guess */
+  vec[1] = P_core_guess;   /* initial guess */
   /* do newton_linesrch_its iterations: */
   stat=newton_linesrch_itsP(vec, 1, &check, m0_VectorFuncP,
                             (void *) par,
@@ -144,13 +144,17 @@ int set_DNS_boxsizes(tGrid *grid)
     errorexit("unkown DNSdata_EoS_type");
   }
 
+  /* set initial guesses for P_core1 and P_core2 */
+  P_core1 = Getd("DNSdata_P_core1");
+  P_core2 = Getd("DNSdata_P_core2");
+
   /* do we set star from mass m01 or from max q called qm1 */
   if(Getd("DNSdata_qm1")<0.0)
   {
     /* many parts of the code only work with m01>0 */
     if(Getd("DNSdata_m01")<=0.0) errorexit("make sure DNSdata_m01 > 0");
     /* find P_core1, s.t. rest mass is m01 */
-    P_core1 = DNS_find_P_core(Getd("DNSdata_m01"), 1);
+    P_core1 = DNS_find_P_core(Getd("DNSdata_m01"), P_core1, 1);
   }
   else  /* get P_core1 from max q */
   {
@@ -174,7 +178,7 @@ int set_DNS_boxsizes(tGrid *grid)
   if(Getd("DNSdata_m02")>0.0 && Getd("DNSdata_qm2")<0.0)
   {
     /* find P_core2, s.t. rest mass is m02 */
-    P_core2 = DNS_find_P_core(Getd("DNSdata_m02"), 1);
+    P_core2 = DNS_find_P_core(Getd("DNSdata_m02"), P_core2, 1);
     printf("setting: P_core2=%g\n", P_core2);
 
     /* TOV_init yields m02 for a given P_core2 */

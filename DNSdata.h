@@ -124,7 +124,7 @@ int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
                           double *m, double *P, double *Phi, double *Psi);
 
 /* from DNSgrid.c */
-double DNS_find_P_core(double m0, int pr);
+double DNS_find_P_core(double m0, double P_core_guess, int pr);
 int set_DNS_boxsizes(tGrid *grid);
 int DNSdata_setup_boxes(tGrid *grid);
 int set_DNS_box_properties(tGrid *grid);
