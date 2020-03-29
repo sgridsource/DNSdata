@@ -8,9 +8,10 @@ Construct initial data for a single TOV star:
 ---------------------------------------------
 single_star.par
 
-Find maximum mass TOV star for SLy EoS:
----------------------------------------
+Find maximum mass TOV star for SLy and MPA1 EoS:
+------------------------------------------------
 SLy_maxmass.par
+MPA1_maxmass.par
 
 Set up hi spin binary with polytropic EoS:
 ------------------------------------------
