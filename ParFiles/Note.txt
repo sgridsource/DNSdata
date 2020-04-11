@@ -39,7 +39,9 @@ Set up hi mass ratio binary with SLy EoS:
 -----------------------------------------
 q2b16e.1.par
 
-
+Set up hi mass ratio binary with cold SFHo EoS from table:
+----------------------------------------------------------
+sfhoq2b16e.1.par
 
 
 Older parfiles:
