@@ -3505,6 +3505,7 @@ int DNSdata_analyze(tGrid *grid)
   printf("ADM quantities: M_ADM = %.16g  J_ADM = %.16g\n", M_ADM, J_ADM);
 
   /* find max q locations xmax1/2 in NS1/2 */
+  Ymax1=Ymax2=Zmax1=Zmax2=0.0;
   find_qmax_along_x_axis(grid, STAR1, &bi1, &Xmax1, &qmax1);
   find_qmax_along_x_axis(grid, STAR2, &bi2, &Xmax2, &qmax2);
   ///* compute q from fields, and then compute qmax1 and qmax2 */
