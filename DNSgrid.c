@@ -105,7 +105,7 @@ int set_DNS_boxsizes(tGrid *grid)
   P_core2 = Getd("DNSdata_Pm2");
 
   /* check if we set baryonic masses from single TOV ADM masses */
-  m0_from_m = DNS_set_DNSdata_m012_from_DNSdata_m12(P_core1, P_core2, 1);
+  m0_from_m = DNS_set_DNSdata_m012_from_DNSdata_m12(P_core1, P_core2, 0);
 
   /* get baryonic masses */
   m01 = Getd("DNSdata_m01");
