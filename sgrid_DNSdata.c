@@ -11,6 +11,7 @@ int sgrid_DNSdata()
   printf("Adding DNSdata\n");
 
   /* functions */
+  AddFun(PRE_GRID, DNS_init_EoS, "init EoS structure");
   AddFun(PRE_GRID, set_DNS_boxsizes, "setup initial box sizes");
   AddFun(PRE_COORDINATES, DNSdata_setup_boxes, "setup boxes e.g. place Cub. Sph.");
   AddFun(PRE_INITIALDATA, set_DNS_box_properties, "set box props for DNSdata");
@@ -84,8 +85,10 @@ int sgrid_DNSdata()
   AddPar("DNSdata_omegax2", "0", "x-comp of angular velocity of NS2");
   AddPar("DNSdata_omegay2", "0", "y-comp of angular velocity of NS2");
   AddPar("DNSdata_omegaz2", "0", "z-comp of angular velocity of NS2");
-  AddPar("DNSdata_m01",   "0.141202", "rest mass of NS1");
-  AddPar("DNSdata_m02",   "0.141202", "rest mass of NS2");
+  AddPar("DNSdata_m01", "0.141202", "baryonic/rest mass of NS1");
+  AddPar("DNSdata_m02", "0.141202", "baryonic/rest mass of NS2");
+  AddPar("DNSdata_m1", "-1", "if m1>0 set m01 s.t. ADM mass of TOV is m1");
+  AddPar("DNSdata_m2", "-1", "if m2>0 set m01 s.t. ADM mass of TOV is m2");
   AddPar("DNSdata_iterate_m0", "no", "whether we iterate rest masses [no,yes]");
   if(Getv("DNSdata_iterate_m0", "yes"))
   {

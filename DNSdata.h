@@ -209,3 +209,4 @@ void tab1d_rho0_P_rhoE_drho0dhm1_from_hm1(double hm1, double *rho0,
 double tab1d_rho0_of_hm1(double hm1);
 double tab1d_hm1_of_P(double P);
 void tab1d_rho0_rhoE_from_P(double P, double *rho0, double *rhoE);
+int DNS_init_EoS(tGrid *grid);

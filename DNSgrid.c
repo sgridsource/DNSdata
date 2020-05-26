@@ -29,6 +29,8 @@ double P_core2;  /* core pressure of star2 */
 
 /* funs in this file */
 void m0_VectorFuncP(int n, double *vec, double *fvec, void *p);
+int DNS_set_DNSdata_m012_from_DNSdata_m12(double P_core_guess1,
+                                          double P_core_guess2, int pr);
 
 
 /* find core pressure in TOV star */
@@ -83,21 +85,37 @@ int set_DNS_boxsizes(tGrid *grid)
   //double kappa     = Getd("DNSdata_kappa");
   //double DNSdata_n = Getd("DNSdata_n");
   double DNSdata_b = Getd("DNSdata_b");
-  double m01 = Getd("DNSdata_m01");
-  double m02 = Getd("DNSdata_m02");
+  double m01, m02;
   double xmin1,xmax1, xmin2,xmax2, xc1, xc2; /* x-positions of stars */
   double DoM, nu; /* distance over total rest mass, and rest mass ratio */
   double DoM3, DoM4, DoM5; /* powers of DoM */
   double xCM, Omega;
   char OmegaStr[1000];
   double Fc, qc, Cc, oouzerosqr;
+  int m0_from_m;
 
   printf("set_DNS_boxsizes: setting box sizes and coordinates used ...\n");
   prTimeIn_s("WallTime: ");
 
+  /* For TOV we need an EoS so we need to init EoS before we get here.
+     This is done in DNS_init_EoS just before set_DNS_boxsizes */
+
+  /* set initial guesses for P_core1 and P_core2 */
+  P_core1 = Getd("DNSdata_Pm1");
+  P_core2 = Getd("DNSdata_Pm2");
+
+  /* check if we set baryonic masses from single TOV ADM masses */
+  m0_from_m = DNS_set_DNSdata_m012_from_DNSdata_m12(P_core1, P_core2, 1);
+
+  /* get baryonic masses */
+  m01 = Getd("DNSdata_m01");
+  m02 = Getd("DNSdata_m02");
+
   /* reset initial DNSdata_m01/2 if needed */
   if(Getv("DNSdata_iterate_m0", "yes"))
   {
+    if(m0_from_m) errorexit("cannot use \"DNSdata_iterate_m0 = yes\" "
+                            "together with DNSdata_m1/2>=0");
     printf(" DNSdata_iterate_m0 = yes : setting:\n");
     /* set DNSdata_desired_m01/2 if needed */
     if(Getd("DNSdata_desired_m01")<0.0) Setd("DNSdata_desired_m01", m01);
@@ -113,40 +131,6 @@ int set_DNS_boxsizes(tGrid *grid)
     printf("   DNSdata_m02 = DNSdata_init_m02 = m02 = %g\n", m02);
     printf("   DNSdata_m0change = %g\n", Getd("DNSdata_m0change"));
   }
-
-  /* for TOV we need an EoS so we need to init EoS here */
-  if(Getv("DNSdata_EoS_type", "pwp"))
-  {     
-    DNS_pwp_init_parameter();
-    EoS->vars_from_hm1    = DNS_polytrope_EoS_of_hm1;
-    EoS->rho0_of_hm1      = DNS_polytrope_rho0_of_hm1;
-    EoS->hm1_of_P         = DNS_polytrope_hm1_of_P;
-    EoS->rho0_rhoE_from_P = DNS_polytrope_rho0_rhoE_of_P;
-  }
-  else if(Getv("DNSdata_EoS_type", "poly"))
-  {
-    DNS_poly_init();
-    EoS->vars_from_hm1    = DNS_polytrope_EoS_of_hm1;
-    EoS->rho0_of_hm1      = DNS_polytrope_rho0_of_hm1;
-    EoS->hm1_of_P         = DNS_polytrope_hm1_of_P;
-    EoS->rho0_rhoE_from_P = DNS_polytrope_rho0_rhoE_of_P;
-  }
-  else if(Getv("DNSdata_EoS_type", "tab1d_AtT0"))
-  {
-    EoS_tab1d_load_rho0_epsl_P_AtT0(Gets("DNSdata_EoS_tab1d_load_file"));
-    EoS->vars_from_hm1    = tab1d_rho0_P_rhoE_drho0dhm1_from_hm1;
-    EoS->rho0_of_hm1      = tab1d_rho0_of_hm1;
-    EoS->hm1_of_P         = tab1d_hm1_of_P;
-    EoS->rho0_rhoE_from_P = tab1d_rho0_rhoE_from_P;
-  }
-  else
-  {
-    errorexit("unkown DNSdata_EoS_type");
-  }
-
-  /* set initial guesses for P_core1 and P_core2 */
-  P_core1 = Getd("DNSdata_Pm1");
-  P_core2 = Getd("DNSdata_Pm2");
 
   /* do we set star from mass m01 or from max q called qm1 */
   if(Getd("DNSdata_qm1")<0.0)
@@ -590,9 +574,126 @@ void DNS_find_xin_xout(tGrid *grid, double *xin1, double *xout1,
 }
 
 
-/*****************************/
-/* functions to to avoid q<0 */
-/*****************************/
+/*******************************/
+/* functions to find m0 from m */
+/*******************************/
+
+/* funtion to be passed into newton_linesrch_its to find P_core1/2 from m1/2 */
+void m_VectorFuncP(int n, double *vec, double *fvec, void *p)
+{
+  double *par = (double *) p;
+  double mA = par[0];
+  int    pr = par[1];
+  double Pc, rf_surf, m, Phic, Psic, m0;
+
+  Pc = vec[1];
+  TOV_init(Pc, 0, &rf_surf, &m, &Phic, &Psic, &m0);
+  if(pr) printf("   Pc=%+.16e  m=%.16e\n",Pc,m);
+  fvec[1] = m-mA;
+}
+
+/* find core pressure in TOV star as function of m */
+double DNS_find_P_core_from_m(double m, double P_core_guess, int pr)
+{
+  double vec[2];
+  double fvec[2];
+  int check, stat;
+  double par[2];
+  par[0] = m;
+  par[1] = pr;
+
+  /* guard against unreasonable m */
+  if(m<=0.) return 0.;
+
+  /* find P_core, s.t. rest mass is m */
+  if(pr) printf("find P_core of a TOV star, s.t. rest mass is m=%g\n", m);
+  vec[1] = P_core_guess;   /* initial guess */
+  /* do newton_linesrch_its iterations: */
+  stat=newton_linesrch_itsP(vec, 1, &check, m_VectorFuncP,
+                            (void *) par,
+                            Geti("Coordinates_newtMAXITS"),
+                            Getd("Coordinates_newtTOLF") );
+  if(check || stat<0)
+  {
+    printf("WARNING from newton_linesrch_its with MAXITS=%d TOLF=%g:\n",
+           Geti("Coordinates_newtMAXITS"), Getd("Coordinates_newtTOLF"));
+    printf("  check=%d stat=%d\n", check, stat);
+  }
+
+  /* check if we found correct vec or just a local max in m */
+  m_VectorFuncP(1, vec, fvec, (void *) par);
+  if( (fabs(fvec[1])>Getd("Coordinates_newtTOLF")*1000) && pr )
+  {
+    int i;
+    double v[2], f[2];
+    printf("There may be a max in m near Pc=%g\n", vec[1]);
+    for(i=-15; i<=15; i++)
+    {
+      v[1] = vec[1] + i*vec[1]/1000;
+      m_VectorFuncP(1, v, f, (void *) par);
+    }
+  }
+  return vec[1];
+}
+
+/* set baryonic DNSdata_m01/2 from single TOV ADM DNSdata_m1/2,
+   return values:
+   0 if nothing was done
+   1 if only DNSdata_m01 was set
+   2 if only DNSdata_m02 was set
+   3 if both DNSdata_m01/2 were set */
+int DNS_set_DNSdata_m012_from_DNSdata_m12(double P_core_guess1,
+                                          double P_core_guess2, int pr)
+{
+  double m1 = Getd("DNSdata_m1");
+  double m2 = Getd("DNSdata_m2");
+  double m01, m02;
+  double rf_surf1, rf_surf2, Phic1, Phic2, Psic1, Psic2;
+  int ret=0;
+
+  if(m1>0.)
+  {
+    /* get core pressure from m1 */
+    P_core1 = DNS_find_P_core_from_m(m1, P_core_guess1, pr);
+
+    /* set m01 from core pressure */
+    TOV_init(P_core1, pr, &rf_surf1, &m1, &Phic1, &Psic1, &m01);
+
+    /* set actual DNSdata_m01 par */
+    Setd("DNSdata_m01", m01);
+    PRF;printf(" setting: DNSdata_m01=%g\n", Getd("DNSdata_m01"));
+    ret |= 1;
+  }
+
+  if(m2>=0.)
+  {
+    if(m1==0.)
+    {
+      m02 = 0.;
+    }
+    else
+    {
+      /* get core pressure from m2 */
+      P_core2 = DNS_find_P_core_from_m(m2, P_core_guess2, pr);
+
+      /* set m02 from core pressure */
+      TOV_init(P_core2, pr, &rf_surf2, &m2, &Phic2, &Psic2, &m02);
+    }
+
+    /* set actual DNSdata_m02 par */
+    Setd("DNSdata_m02", m02);
+    PRF;printf(" setting: DNSdata_m02=%g\n", Getd("DNSdata_m02"));
+    ret |= 2;
+  }
+
+  if(pr) { PRF;printf(": ret=%d\n", ret); }
+  return ret;
+}
+
+
+/**************************/
+/* functions to avoid q<0 */
+/**************************/
 
 /* set q (or other Var) to zero if q<0 or outside stars */
 void set_Var_to_Val_if_below_limit_or_outside(tGrid *grid, int vi, 
