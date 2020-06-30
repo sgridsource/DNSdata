@@ -56,7 +56,7 @@ SPECIALLIBS += /dss/dsshome1/03/di25bak3/Packages/forUMFPACK/AMD/Lib/libamd.a
 DFLAGS += -DTEMPLATES
 TEMPLATESDIR = /dss/dsshome1/03/di25bak3/Packages/dctemplates_extBlasLapack
 SPECIALLIBS += -L$(TEMPLATESDIR) -literatortemplates 
-SPECIALLIBS += $(MKL_LIB)
+SPECIALLIBS += $(MKL_LIB) # -mkl
 # -L$(TEMPLATESDIR)/F2CLIBS -lI77 -lF77 # -lblas -llapack -lgfortran
 
 #DFLAGS += -DFFTW3
