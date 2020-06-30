@@ -1,0 +1,65 @@
+# MyConfig.example
+#
+# The file MyConfig is included verbatim in the Makefile to determine which 
+# special libraries will be included in the build.
+
+# ------------------------------------------------------------------------
+# here are simple examples for libraries, they may be mutually exclusive
+
+# black hole evolution
+libpaths += src/physics/ModeComputer
+libpaths += src/physics/PN_CircularOrbit_GWs
+libpaths += src/physics/ADMvars
+#libpaths += src/physics/SingleBH
+#libpaths += src/physics/BSSN
+libpaths += src/utility/s2kit
+libpaths += src/utility/GridIterators
+libpaths += src/utility/LinAlg
+#libpaths += src/utility/boundary
+#libpaths += src/physics/ScalarWave
+#libpaths += src/physics/Poisson
+#libpaths += src/Projects/BNSdata
+libpaths += src/Projects/DNSdata
+#libpaths += src/Projects/RealisticBBH
+#libpaths += src/Projects/IsometricEmbedding
+#libpaths += src/Projects/QLMsolver
+
+# ------------------------------------------------------------------------
+# override various options in the Makefile
+
+# name and directory for the executable
+EXEC = sgrid
+EXECDIR = $(TOP)/exe
+
+# pick a C compiler, only gcc and icc have been tested, gcc is the default
+CC = icc # /opt/open64-5.0/bin/opencc # pathcc # gcc # icc
+#CLINKER = icpc # g++ # icc # openf90
+
+# optimization flags, say -O, -O2, -g for debugging, -pg for profiling, ...
+OFLAGS = -Ofast -qopenmp # -Ofast -qopenmp # -g -Wall # -O2
+DFLAGS += -DNONICOFUNCS
+
+# use OpenMP pragmas of LEVEL6 or LEVEL3,4 or TOP LEVEL
+##DFLAGS += -DLEVEL6_Pragmas # -DLEVEL3_Pragmas -DLEVEL4_Pragmas 
+#DFLAGS += -DTOPLEVEL_Pragmas -DMEMORY_EFFICIENT # -DLEVEL6_Pragmas
+#DFLAGS += -DTOPLEVEL_Pragmas # -DMEMORY_EFFICIENT # -DLEVEL6_Pragmas
+DFLAGS += -DTOPLEVEL_Pragmas -DLEVEL6_Pragmas
+
+#DFLAGS += -DUMFPACK -DSUITESPARSEQR
+DFLAGS += -DUMFPACK
+SPECIALINCS += -I/dss/dsshome1/03/di25bak3/Packages/forUMFPACK/AMD/Include
+SPECIALINCS += -I/dss/dsshome1/03/di25bak3/Packages/forUMFPACK/UFconfig
+SPECIALINCS += -I/dss/dsshome1/03/di25bak3/Packages/forUMFPACK/UMFPACK/Include
+SPECIALLIBS += /dss/dsshome1/03/di25bak3/Packages/forUMFPACK/UMFPACK/Lib/libumfpack.a
+SPECIALLIBS += /dss/dsshome1/03/di25bak3/Packages/forUMFPACK/AMD/Lib/libamd.a
+ 
+DFLAGS += -DTEMPLATES
+TEMPLATESDIR = /dss/dsshome1/03/di25bak3/Packages/dctemplates_extBlasLapack
+SPECIALLIBS += -L$(TEMPLATESDIR) -literatortemplates 
+SPECIALLIBS += $(MKL_LIB)
+# -L$(TEMPLATESDIR)/F2CLIBS -lI77 -lF77 # -lblas -llapack -lgfortran
+
+#DFLAGS += -DFFTW3
+#FFTW3DIR = /cm/shared/apps/fftw/openmpi/intel/64/3.3.4
+#SPECIALINCS += -I$(FFTW3DIR)/include
+#SPECIALLIBS += -L$(FFTW3DIR)/lib -lfftw3
