@@ -18,11 +18,11 @@ libpaths += src/utility/LinAlg
 #libpaths += src/utility/boundary
 #libpaths += src/physics/ScalarWave
 #libpaths += src/physics/Poisson
-#libpaths += src/Projects/BNSdata
-libpaths += src/Projects/DNSdata
-#libpaths += src/Projects/RealisticBBH
-#libpaths += src/Projects/IsometricEmbedding
-#libpaths += src/Projects/QLMsolver
+#projects += giter@mars.physics.fau.edu:/BNSdata
+projects += giter@mars.physics.fau.edu:/DNSdata
+#projects += giter@mars.physics.fau.edu:/RealisticBBH
+#projects += giter@mars.physics.fau.edu:/IsometricEmbedding
+#projects += giter@mars.physics.fau.edu:/QLMsolver
 
 # ------------------------------------------------------------------------
 # override various options in the Makefile
