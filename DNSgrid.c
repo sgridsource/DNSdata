@@ -156,7 +156,7 @@ int set_DNS_boxsizes(tGrid *grid)
   if(Getd("DNSdata_qm1")>0.0)
   {
     Setd("DNSdata_m01", m01);
-    printf("setting: DNSdata_m01=%g\n", Getd("DNSdata_m01"));
+    printf("setting: DNSdata_m01=%s\n", Gets("DNSdata_m01"));
   }
 
   if(Getd("DNSdata_m02")>0.0 && Getd("DNSdata_qm2")<0.0)
@@ -181,7 +181,7 @@ int set_DNS_boxsizes(tGrid *grid)
     printf(" rf_surf2=%g: m2=%g Phic2=%g Psic2=%g m02=%g\n",
            rf_surf2, m2, Phic2, Psic2, m02);
     Setd("DNSdata_m02", m02);
-    printf("setting: DNSdata_m02=%g\n", Getd("DNSdata_m02"));
+    printf("setting: DNSdata_m02=%s\n", Gets("DNSdata_m02"));
   }
   else 
   { P_core2=0.0; m2=m02=Phic2=0.0; Psic2=1.0; rf_surf2=rf_surf1; }
@@ -661,7 +661,7 @@ int DNS_set_DNSdata_m012_from_DNSdata_m12(double P_core_guess1,
 
     /* set actual DNSdata_m01 par */
     Setd("DNSdata_m01", m01);
-    PRF;printf(" setting: DNSdata_m01=%g\n", Getd("DNSdata_m01"));
+    PRF;printf(" setting: DNSdata_m01=%s\n", Gets("DNSdata_m01"));
     ret |= 1;
   }
 
@@ -682,7 +682,7 @@ int DNS_set_DNSdata_m012_from_DNSdata_m12(double P_core_guess1,
 
     /* set actual DNSdata_m02 par */
     Setd("DNSdata_m02", m02);
-    PRF;printf(" setting: DNSdata_m02=%g\n", Getd("DNSdata_m02"));
+    PRF;printf(" setting: DNSdata_m02=%s\n", Gets("DNSdata_m02"));
     ret |= 2;
   }
 
