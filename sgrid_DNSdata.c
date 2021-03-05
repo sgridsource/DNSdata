@@ -170,7 +170,7 @@ int sgrid_DNSdata()
          "for shift [TaniguchiShift]");
   AddPar("DNSdata_initfile", "", "name of first initialization file to read");
   AddPar("DNSdata_init_q_fromfields", "no", "init q from other fields [no,yes]");
-  if(Getd("DNSdata_m02")==0.0)
+  if(Getd("DNSdata_m02")==0.0 || Getd("DNSdata_m2")==0.0)
   {
     AddPar("DNSdata_yshift1", "0", "shift NS1 in y-direction for testing");
     AddPar("DNSdata_adjustdomain01", "yes", "if we adjust domainshapes "
