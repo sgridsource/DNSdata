@@ -667,18 +667,11 @@ int DNS_set_DNSdata_m012_from_DNSdata_m12(double P_core_guess1,
 
   if(m2>=0.)
   {
-    if(m1==0.)
-    {
-      m02 = 0.;
-    }
-    else
-    {
-      /* get core pressure from m2 */
-      P_core2 = DNS_find_P_core_from_m(m2, P_core_guess2, pr);
+    /* get core pressure from m2 */
+    P_core2 = DNS_find_P_core_from_m(m2, P_core_guess2, pr);
 
-      /* set m02 from core pressure */
-      TOV_init(P_core2, pr, &rf_surf2, &m2, &Phic2, &Psic2, &m02);
-    }
+    /* set m02 from core pressure */
+    TOV_init(P_core2, pr, &rf_surf2, &m2, &Phic2, &Psic2, &m02);
 
     /* set actual DNSdata_m02 par */
     Setd("DNSdata_m02", m02);
