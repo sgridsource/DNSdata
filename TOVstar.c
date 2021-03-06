@@ -221,8 +221,10 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   *Psi_c = Psic;
   *m0    = y[5];
 
-  if(pr) printf("  => rf_surf=%g  r_surf=%g  m=%g  m0=%g\n     P_c=%g  Phi_c=%g  Psi_c=%g\n",
-                  rfe,   rfe*y[4]*y[4], *m,   *m0,             Pc,    *Phi_c,   *Psi_c);
+  if(pr) printf("  => rf_surf=%.15g  r_surf=%.15g\n"
+                "     m=%.15g  m0=%.15g\n"
+                "     P_c=%.15g Phi_c=%.15g Psi_c=%.15g\n",
+                  rfe, rfe*y[4]*y[4], *m, *m0,  Pc, *Phi_c, *Psi_c);
 
   free_vector(dy, 1,nvar);
   free_vector(y,  1,nvar);
