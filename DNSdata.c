@@ -3599,6 +3599,7 @@ int DNSdata_analyze(tGrid *grid)
   */
 
   /* compute TOV */
+  //printf("m01=%g P_core1=%g\n", m01, P_core1);
   P_core1 = DNS_find_P_core(m01, P_core1, 0);
   P_core2 = DNS_find_P_core(m02, P_core2, 0);
   TOV_init(P_core1, 0,
