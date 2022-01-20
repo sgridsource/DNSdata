@@ -62,8 +62,15 @@ double dqdx_at_Xmax1_2_VectorFunc__Ymax2; /* pos. of max2 */
 
 
 /* global var lists */
-tVarList *vlu, *vlFu, *vluDerivs;
-tVarList *vldu, *vlJdu, *vlduDerivs;
+tVarList *DNSdata_vlu, *DNSdata_vlFu, *DNSdata_vluDerivs;
+tVarList *DNSdata_vldu, *DNSdata_vlJdu, *DNSdata_vlduDerivs;
+/* shorter names for these global varlists */
+#define vlu         DNSdata_vlu
+#define vlFu        DNSdata_vlFu
+#define vluDerivs   DNSdata_vluDerivs
+#define vldu        DNSdata_vldu
+#define vlJdu       DNSdata_vlJdu
+#define vlduDerivs  DNSdata_vlduDerivs
 
 
 /* functions in this file */
