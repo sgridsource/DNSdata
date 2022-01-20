@@ -23,6 +23,8 @@ double *EoS_n = NULL;     /* EoS_n[i] is n in piece i */
 double *EoS_k = NULL;     /* EoS_k[i] is k in piece i */
 double *EoS_q = NULL;     /* EoS_q[i] = q(EoS_rho0[i]),  q=h-1 */
 double *EoS_P = NULL;     /* EoS_P[i] = P(EoS_rho0[i]) */
+/* another global var to signal if pwp is on */
+int EoS_pwp;
 
 /* allocate memory for global EoS variables. */
 void alloc_EoS_globals(int pieces)
