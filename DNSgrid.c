@@ -8,7 +8,7 @@
 #define Power pow
 #define pow2(x)    ((x)*(x))
 
-extern tEoS EoS[1];
+extern tEoS_T0 EoS_T0[1];
 
 
 /* struct types used in root finder newton_linesrch_itsP */
@@ -98,7 +98,8 @@ int set_DNS_boxsizes(tGrid *grid)
   prTimeIn_s("WallTime: ");
 
   /* For TOV we need an EoS so we need to init EoS before we get here.
-     This is done in DNS_init_EoS just before set_DNS_boxsizes */
+     This is done by EoS_T0_init_from_pars in POST_PARAMETERS,
+     before set_DNS_boxsizes */
 
   /* set initial guesses for P_core1 and P_core2 */
   P_core1 = Getd("DNSdata_Pm1");
@@ -143,7 +144,7 @@ int set_DNS_boxsizes(tGrid *grid)
   else  /* get P_core1 from max q */
   {
     double rho0, rhoE, drho0dhm1;
-    EoS->vars_from_hm1(Getd("DNSdata_qm1"),
+    EoS_T0->vars_from_hm1(Getd("DNSdata_qm1"),
                              &rho0, &P_core1, &rhoE, &drho0dhm1);
   }
   printf("setting: P_core1=%g\n", P_core1);
@@ -173,7 +174,7 @@ int set_DNS_boxsizes(tGrid *grid)
   else if(Getd("DNSdata_qm2")>0.0) /* get P_core2 from max q */
   {
     double rho0, rhoE, drho0dhm1;
-    EoS->vars_from_hm1(Getd("DNSdata_qm2"),
+    EoS_T0->vars_from_hm1(Getd("DNSdata_qm2"),
                              &rho0, &P_core2, &rhoE, &drho0dhm1);
     printf("setting: P_core2=%g\n", P_core2);
     /* TOV_init yields m02 for a given P_core2 */
@@ -271,7 +272,7 @@ int set_DNS_boxsizes(tGrid *grid)
   printf(" (m01+m02)*DNSdata_Omega = %g\n", (m01+m02)*Getd("DNSdata_Omega"));
 
   /* set DNSdata_C1 */
-  qc = EoS->hm1_of_P(P_core1);
+  qc = EoS_T0->hm1_of_P(P_core1);
   /* oouzerosqr == alpha2 - 
                    Psi4 delta[b,c] (beta[b] + vR[b]) (beta[c] + vR[c]), */
   oouzerosqr = exp(Phic1*2.0) - 
@@ -285,7 +286,7 @@ int set_DNS_boxsizes(tGrid *grid)
   printf(" DNSdata_C1 = %g\n", Getd("DNSdata_C1"));
 
   /* set DNSdata_C2 */
-  qc = EoS->hm1_of_P(P_core2);
+  qc = EoS_T0->hm1_of_P(P_core2);
   /* oouzerosqr == alpha2 - 
                    Psi4 delta[b,c] (beta[b] + vR[b]) (beta[c] + vR[c]), */
   oouzerosqr = exp(Phic2*2.0) - 

@@ -113,9 +113,9 @@ tocompute = {
 
   (* deal with q<0 *)
   Cif == (q >=0.0),
-    Cinstruction == "rho0 = EoS->rho0_of_hm1(q[ijk]);",
+    Cinstruction == "rho0 = EoS_T0->rho0_of_hm1(q[ijk]);",
   Cif == else,
-    Cinstruction == "rho0 = -EoS->rho0_of_hm1(-q[ijk]);",
+    Cinstruction == "rho0 = -EoS_T0->rho0_of_hm1(-q[ijk]);",
   Cif == end,
 
   (* Integrand for rest mass with 3-volume element factor Psi^6 *)
@@ -153,7 +153,7 @@ BeginCFunction[] := Module[{},
   pr["#define Cal(x,y,z) ((x)?(y):(z))\n\n"];
 
   pr["\n"];
-  pr["extern tEoS EoS[1];"];
+  pr["extern tEoS_T0 EoS_T0[1];"];
   pr["\n\n\n"];
 
   pr["void DNS_set_restmassintegrand(tGrid *grid, int iInteg)\n"];

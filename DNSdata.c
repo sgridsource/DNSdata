@@ -7,7 +7,8 @@
 
 #define Power pow
 
-extern tEoS EoS[1];
+extern tEoS_T0 EoS_T0[1];
+extern int     PwP_n_pieces;
 
 
 /* struct types used in root finder newton_linesrch_itsP */
@@ -409,8 +410,8 @@ int DNSdata_startup(tGrid *grid)
   hmin1 = hmin2 = 1e-10;
 
   /* set qmax1/2 */
-  Setd("DNSdata_qmax1", EoS->hm1_of_P(P_core1));
-  Setd("DNSdata_qmax2", EoS->hm1_of_P(P_core2));
+  Setd("DNSdata_qmax1", EoS_T0->hm1_of_P(P_core1));
+  Setd("DNSdata_qmax2", EoS_T0->hm1_of_P(P_core2));
   /* set cart positions of qmax1/2 */
   if(Getd("DNSdata_xmax1")<=0.0) Setd("DNSdata_xmax1", xc1);
   if(Getd("DNSdata_xmax2")>=0.0) Setd("DNSdata_xmax2", xc2);
@@ -503,7 +504,7 @@ int DNSdata_startup(tGrid *grid)
           r1 = sqrt((x-xc1)*(x-xc1) + (y-ysh1)*(y-ysh1) + z*z);
           TOV_m_P_Phi_Psi_OF_rf(r1, rs1, m1, P_core1, Phic1, Psic1, hmin1,
                                 &m1_r, &P1, &Phi1, &Psi1);
-          q1 = EoS->hm1_of_P(P1);
+          q1 = EoS_T0->hm1_of_P(P1);
           DNSdata_initial_shift(1, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs1, 
                                 -(x-xc1), -(y-ysh1), z,  &Bx1,&By1,&Bz1);
         }
@@ -513,7 +514,7 @@ int DNSdata_startup(tGrid *grid)
           r2 = sqrt((x-xc2)*(x-xc2) + y*y + z*z);
           TOV_m_P_Phi_Psi_OF_rf(r2, rs2, m2, P_core2, Phic2, Psic2, hmin2,
                                 &m2_r, &P2, &Phi2, &Psi2);
-          q2 = EoS->hm1_of_P(P2);
+          q2 = EoS_T0->hm1_of_P(P2);
           DNSdata_initial_shift(2, 1.0, m1,m2, Omega, fabs(xc1-xc2), rs2, 
                                 x-xc2, y, z,  &Bx2,&By2,&Bz2);
         }
@@ -3711,8 +3712,10 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     if(Getv("DNSdata_EoS_type","pwp") || Getv("DNSdata_EoS_type","poly"))
     {
       fprintf(fp, "n_list\t\t%s\n", Gets("DNSdata_n"));
-      if(EoS_pwp==1)  fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
-      else            fprintf(fp, "rho0_list\t%s\n", "none");
+      if(PwP_n_pieces!=1)
+        fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
+      else
+        fprintf(fp, "rho0_list\t%s\n", "none");
       fprintf(fp, "kappa\t\t%s\n", Gets("DNSdata_kappa"));
     }
     else if(Getv("DNSdata_EoS_type","tab1d_AtT0"))

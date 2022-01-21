@@ -1,5 +1,5 @@
 /* DNS_set_M_ADM_VolInt_integrand.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 21.1.2022 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -12,7 +12,7 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
-extern tEoS EoS[1];
+extern tEoS_T0 EoS_T0[1];
 
 
 void DNS_set_M_ADM_VolInt_integrand(tGrid *grid, int iInteg)
@@ -570,7 +570,7 @@ uzerosqr
 
 
 
-EoS->vars_from_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
+EoS_T0->vars_from_hm1(q[ijk], &rho0, &P, &rhoE, &drho0dhm1); 
 
 
 

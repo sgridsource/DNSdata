@@ -11,7 +11,6 @@ int sgrid_DNSdata()
   printf("Adding DNSdata\n");
 
   /* functions */
-  AddFun(PRE_GRID, DNS_init_EoS, "init EoS structure");
   AddFun(PRE_GRID, set_DNS_boxsizes, "setup initial box sizes");
   AddFun(PRE_COORDINATES, DNSdata_setup_boxes, "setup boxes e.g. place Cub. Sph.");
   AddFun(PRE_INITIALDATA, set_DNS_box_properties, "set box props for DNSdata");
@@ -155,8 +154,6 @@ int sgrid_DNSdata()
   AddPar("DNSdata_Omega", "estimate",  "orbital angular velocity "
          "[#,estimate,estimate_from_m,estimate_from_desired_m0,# keep]");
   AddPar("DNSdata_b",     "1",  "separation parameter (distance=2b)");
-  AddPar("DNSdata_n",     "1",  "polytropic index n, Gamma = 1 + 1/n");
-  AddPar("DNSdata_kappa", "1",  "kappa in EOS: P = kappa rho0^Gamma");
   AddPar("DNSdata_x_CM",  "estimate",  "center of mass in x-direction");
   AddPar("DNSdata_C1",    "-1", "C1 in q = (C1/F-1)/(n+1) "
          "[needs to be adjusted so that m01 stays the constant]");
@@ -310,19 +307,6 @@ int sgrid_DNSdata()
   AddPar("DNSdata_ADMshift", "B+phidotphi^i+rdotor0r^i", "what we put in ADM "
          "var beta at the very end in setADMvars "
          "[B^i+xi^i,B^i+phidotphi^i+rdotor0r^i]");
-
-  /* pars for EoS such as piecewise polytropes */
-  AddPar("DNSdata_EoS_type", "poly", "poly., piecewise poly. or "
-         "[poly,pwp,tab1d_AtT0]");
-  if(Getv("DNSdata_EoS_type", "pwp"))
-  {
-    AddPar("DNSdata_pwp_rho0", "0.00023695302 0.00081212262 0.00162039766",
-           "rho0 were we use transition between pieces");
-  }
-  if(Getv("DNSdata_EoS_type", "tab1d_AtT0"))
-  {
-    AddPar("DNSdata_EoS_tab1d_load_file", "", "file to load for 1d EoS");
-  }
 
   /* par to improve condition number of PDE matrix */
   AddPar("DNSdata_CoordFacPower", "0", "scale PDEs by a coord. "

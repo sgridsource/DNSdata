@@ -1,5 +1,5 @@
 /* DNS_set_restmassintegrand.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 28.2.2020 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 21.1.2022 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -14,7 +14,7 @@
 #define Cal(x,y,z) ((x)?(y):(z))
 
 
-extern tEoS EoS[1];
+extern tEoS_T0 EoS_T0[1];
 
 
 void DNS_set_restmassintegrand(tGrid *grid, int iInteg)
@@ -493,13 +493,13 @@ Sqrt(uzerosqr)
 if (q[ijk] >= 0.) {
 
 
-rho0 = EoS->rho0_of_hm1(q[ijk]); 
+rho0 = EoS_T0->rho0_of_hm1(q[ijk]); 
 
 
 } else { /* if (!q[ijk] >= 0.) */
 
 
-rho0 = -EoS->rho0_of_hm1(-q[ijk]); 
+rho0 = -EoS_T0->rho0_of_hm1(-q[ijk]); 
 
 }
 /* if (q[ijk] >= 0.) */
