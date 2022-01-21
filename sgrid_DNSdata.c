@@ -312,5 +312,24 @@ int sgrid_DNSdata()
   AddPar("DNSdata_CoordFacPower", "0", "scale PDEs by a coord. "
          "dependent factor raised to this Power [-2,-1,0,1,2]");
 
+  /* sanity check */
+  if(!Getv("physics", "EoS_T0"))
+  {
+    prdivider(0);
+    printf("WARNING:\n");
+    printf("DNSdata now requires EoS_T0 in the par physics!\n"
+           "Of course this means that EoS_T0 has to be compiled in.\n");
+    printf("ALSO, the following parnames in old parfiles must be renamed:\n");
+    printf("  DNSdata_EoS_type            ->  EoS_type\n");
+    printf("  DNSdata_n                   ->  EoS_PwP_n\n");
+    printf("  DNSdata_kappa               ->  EoS_PwP_kappa\n");
+    printf("  DNSdata_pwp_rho0            ->  EoS_PwP_rho0\n");
+    printf("  DNSdata_EoS_tab1d_load_file ->  EoS_tab1d_load_file\n");
+    printf("FURTHERMORE, to get a polytropic or piecewise polytropic EoS "
+           "set:\n");
+    printf("  EoS_type = PwP\n");
+    errorexit("DNSdata now requires EoS_T0 in the par physics");
+  }
+
   return 0;
 }
