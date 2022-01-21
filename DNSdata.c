@@ -3409,9 +3409,9 @@ int DNSdata_verify_solution(tGrid *grid)
 int DNSdata_analyze(tGrid *grid)
 {
   double DNSdata_b = Getd("DNSdata_b");
-  double n     = Getd("DNSdata_n");
-  double Gamma = 1.0 + 1.0/n;
-  double kappa = Getd("DNSdata_kappa");
+  //double n     = Getd("EoS_PwP_n");
+  //double Gamma = 1.0 + 1.0/n;
+  //double kappa = Getd("EoS_PwP_kappa");
   double Omega = Getd("DNSdata_Omega");
   double x_CM  = Getd("DNSdata_x_CM");
   double ecc   = Getd("DNSdata_ecc");
@@ -3708,19 +3708,19 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
 
     fprintf(fp, "%s data properties (time = %g):\n", DNS, grid->time);
     fprintf(fp, "-------------------\n");
-    fprintf(fp, "EoS_type\t%s\n", Gets("DNSdata_EoS_type"));
-    if(Getv("DNSdata_EoS_type","pwp") || Getv("DNSdata_EoS_type","poly"))
+    fprintf(fp, "EoS_type\t%s\n", Gets("EoS_type"));
+    if(Getv("EoS_type","PwP"))
     {
-      fprintf(fp, "n_list\t\t%s\n", Gets("DNSdata_n"));
+      fprintf(fp, "n_list\t\t%s\n", Gets("EoS_PwP_n"));
       if(PwP_n_pieces!=1)
-        fprintf(fp, "rho0_list\t%s\n", Gets("DNSdata_pwp_rho0"));
+        fprintf(fp, "rho0_list\t%s\n", Gets("EoS_PwP_rho0"));
       else
         fprintf(fp, "rho0_list\t%s\n", "none");
-      fprintf(fp, "kappa\t\t%s\n", Gets("DNSdata_kappa"));
+      fprintf(fp, "kappa\t\t%s\n", Gets("EoS_PwP_kappa"));
     }
-    else if(Getv("DNSdata_EoS_type","tab1d_AtT0"))
+    else if(Getv("EoS_type","tab1d_AtT0"))
     {
-      fprintf(fp, "EoS_file\t%s\n", Gets("DNSdata_EoS_tab1d_load_file"));
+      fprintf(fp, "EoS_file\t%s\n", Gets("EoS_tab1d_load_file"));
     }
     fprintf(fp, "x_CM\t\t%.19g\n", x_CM);
     fprintf(fp, "Omega\t\t%.19g\n", Omega);

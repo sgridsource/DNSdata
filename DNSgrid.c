@@ -82,8 +82,8 @@ int set_DNS_boxsizes(tGrid *grid)
 {
   double m1, Phic1, Psic1;
   double m2, Phic2, Psic2;
-  //double kappa     = Getd("DNSdata_kappa");
-  //double DNSdata_n = Getd("DNSdata_n");
+  //double kappa     = Getd("EoS_PwP_kappa");
+  //double DNSdata_n = Getd("EoS_PwP_n");
   double DNSdata_b = Getd("DNSdata_b");
   double m01, m02;
   double xmin1,xmax1, xmin2,xmax2, xc1, xc2; /* x-positions of stars */
@@ -1381,7 +1381,7 @@ void DNSgrid_load_initial_guess_from_checkpoint(tGrid *grid, char *filename)
   char *DNSdata_xmax2_sav = strdup(Gets("DNSdata_xmax2"));
 
   /* make list of pars we want to read */  
-  parlist = "DNSdata_b DNSdata_m01 DNSdata_m02 DNSdata_kappa "
+  parlist = "DNSdata_b DNSdata_m01 DNSdata_m02 EoS_PwP_kappa "
             "DNSdata_Omega DNSdata_x_CM DNSdata_C1 DNSdata_C2 "
             "DNSdata_qmax1 DNSdata_qmax2 DNSdata_xmax1 DNSdata_xmax2 "
             "DNSdata_actual_xmax1 DNSdata_actual_xmax2";
