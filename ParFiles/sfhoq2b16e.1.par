@@ -6,7 +6,7 @@ physics = ADMvars DNSdata EoS_T0
 
 ################################# eos ##############################################
 EoS_type = tab1d_AtT0
-EoS_tab1d_load_file = /home/wolf/sgrid/src/Projects/DNSdata/EoS_tab1d/sfho.txt
+EoS_tab1d_load_file = /home/wolf/sgrid/src/Projects/EoS_T0/EoS_tab1d/sfho.txt
 DNSdata_Pm1 = 1e-4
 DNSdata_Pm2 = 1e-4
 
