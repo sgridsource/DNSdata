@@ -2,13 +2,13 @@
 # Here we smooth Sigma: DNSdata_SigmaMod_eps = 0.1
 # We also use: DNSdata_adjust = Py0
 
-physics = ADMvars DNSdata
+physics = ADMvars DNSdata EoS_T0
 
 ################################# eos ##############################################
-DNSdata_EoS_type = pwp
-DNSdata_kappa    = 8.94989354e-02
-DNSdata_pwp_rho0 = 2.36701096e-04 8.11322219e-04 1.61880065e-03
-DNSdata_n        = 2.80171728459242 0.498753117206983 0.503018108651911 0.540248514316586
+EoS_type = PwP
+EoS_PwP_kappa    = 8.94989354e-02
+EoS_PwP_rho0 = 2.36701096e-04 8.11322219e-04 1.61880065e-03
+EoS_PwP_n        = 2.80171728459242 0.498753117206983 0.503018108651911 0.540248514316586
 
 #########################physical setup################################################
 DNSdata_b               = 16
@@ -66,7 +66,7 @@ DNSdata_center_new_q            = center_xyz # no # center_xyz # center_yz
 DNSdata_center_new_q_fac        = 1 # 0.5
 DNSdata_center_new_q_first_at   = 1
 DNSdata_drho0_inBC              = dlam # dq # dlam
-#DNSdata_new_q                  = Fromqgold
+#EoS_PwP_new_q                  = Fromqgold
 #DNSdata_q_derivs               = dqg
 DNSdata_SmoothSigma             = no
 DNSdata_SmoothSigmaRegion       = 0.1

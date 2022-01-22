@@ -4,12 +4,12 @@
 # This mass is printed on the screen together with P_core1 near the max.
 errorexit = abort
 
-physics = ADMvars DNSdata
+physics = ADMvars DNSdata EoS_T0
 
-DNSdata_EoS_type = pwp
-DNSdata_kappa = 8.95133496e-02
-DNSdata_pwp_rho0 = 2.71662310e-04 8.11322219e-04 1.61880065e-03
-DNSdata_n = 2.801717284592417 0.4088307440719542 0.3888024883359253 0.5299417064122947
+EoS_type = PwP
+EoS_PwP_kappa = 8.95133496e-02
+EoS_PwP_rho0 = 2.71662310e-04 8.11322219e-04 1.61880065e-03
+EoS_PwP_n = 2.801717284592417 0.4088307440719542 0.3888024883359253 0.5299417064122947
 
 DNSdata_b	= 13
 

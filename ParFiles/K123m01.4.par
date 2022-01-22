@@ -4,11 +4,11 @@
 # in dSigma/dx at the star surface.
 # NOTE HOWEVER: In this example the CM drifts away!!!
 # Better use: K123m01.4eps.1.par
-physics = ADMvars DNSdata
+physics = ADMvars DNSdata EoS_T0
 
 ################################# eos ##############################################
-DNSdata_kappa    = 123.6489
-DNSdata_n        = 1
+EoS_PwP_kappa    = 123.6489
+EoS_PwP_n        = 1
 
 #########################physical setup################################################
 DNSdata_b               = 21
@@ -69,7 +69,7 @@ DNSdata_center_new_q_fac        = 1 # 0.5
 DNSdata_center_new_q_first_at   = 1
 #DNSdata_Sigma_surface_BCs       = InnerVolIntZero # ZeroAtPoint # FakeMatterOutside OutputSurfaceBCres # AddInnerVolIntToBC 
 DNSdata_drho0_inBC              = dlam # dq # dlam
-#DNSdata_new_q                  = Fromqgold
+#EoS_PwP_new_q                  = Fromqgold
 #DNSdata_q_derivs               = dqg
 
 DNSdata_CubSph_sigma_func       = yes
