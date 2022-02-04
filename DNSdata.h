@@ -135,7 +135,6 @@ void reset_Coordinates_CubedSphere_sigma01(tGrid *grid, tGrid *gridnew,
 void DNS_set_sigma01_and_derivs(tGrid *grid, int star);
 double InnerVolumeIntegral(tGrid *grid, int star, int vind);
 double StarSurfaceIntegral(tGrid *grid, int star, int vind);
-tGrid *make_grid_with_sigma_pm(tGrid *grid, int nAB, int nphi, int nxyz);
 int DNSgrid_Get_BoxAndCoords_of_xyz(tGrid *grid1,
                                     double *X1, double *Y1, double *Z1,
                                     intList *bl1, double x, double y, double z);
