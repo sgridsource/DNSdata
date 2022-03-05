@@ -1,5 +1,5 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 21.1.2022 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 5.3.2022 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -2315,23 +2315,29 @@ lduzerosqr3
 
 lvR1
 =
--lB1[ijk] - (lh*(dSigma1[ijk] + wB1[ijk]))/(h2*uzero) + 
-  ((lwB1 + dlSigma1[ijk])/uzero - 
-     (luzero*(dSigma1[ijk] + wB1[ijk]))/uzerosqr)/h
+-lB1[ijk] - ((luzero*(DSigmaUp1 + w1))/uzerosqr + 
+     (4.*Psim5*dSigma1[ijk]*lPsi[ijk])/uzero)/h + 
+  (-((lh*(DSigmaUp1 + w1))/h2) + 
+     (lwB1*Psim6 + Psim4*dlSigma1[ijk] - 6.*Psim7*lPsi[ijk]*wB1[ijk])/h)/
+   uzero
 ;
 
 lvR2
 =
--lB2[ijk] - (lh*(dSigma2[ijk] + wB2[ijk]))/(h2*uzero) + 
-  ((lwB2 + dlSigma2[ijk])/uzero - 
-     (luzero*(dSigma2[ijk] + wB2[ijk]))/uzerosqr)/h
+-lB2[ijk] - ((luzero*(DSigmaUp2 + w2))/uzerosqr + 
+     (4.*Psim5*dSigma2[ijk]*lPsi[ijk])/uzero)/h + 
+  (-((lh*(DSigmaUp2 + w2))/h2) + 
+     (lwB2*Psim6 + Psim4*dlSigma2[ijk] - 6.*Psim7*lPsi[ijk]*wB2[ijk])/h)/
+   uzero
 ;
 
 lvR3
 =
--lB3[ijk] - (lh*(dSigma3[ijk] + wB3[ijk]))/(h2*uzero) + 
-  ((lwB3 + dlSigma3[ijk])/uzero - 
-     (luzero*(dSigma3[ijk] + wB3[ijk]))/uzerosqr)/h
+-lB3[ijk] - ((luzero*(DSigmaUp3 + w3))/uzerosqr + 
+     (4.*Psim5*dSigma3[ijk]*lPsi[ijk])/uzero)/h + 
+  (-((lh*(DSigmaUp3 + w3))/h2) + 
+     (lwB3*Psim6 + Psim4*dlSigma3[ijk] - 6.*Psim7*lPsi[ijk]*wB3[ijk])/h)/
+   uzero
 ;
 
 divlwB
@@ -3115,4 +3121,4 @@ CoordFac[ijk]*FlSigma[ijk]
 }  /* end of function */
 
 /* DNS_CTS.c */
-/* nvars = 182, n* = 1474,  n/ = 222,  n+ = 1214, n = 2910, O = 1 */
+/* nvars = 182, n* = 1495,  n/ = 228,  n+ = 1223, n = 2946, O = 1 */

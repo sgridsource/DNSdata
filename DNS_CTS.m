@@ -349,9 +349,24 @@ tocompute = {
                        (ldL2[a] - 
                         2 lL2 (dLnalpha[a] + dLnh[a]))/(alpha2 h2) - 
                        2 L2 (ldLnalpha[a] + ldLnh[a])/(alpha2 h2),
+      (* before 3/5/2022 we had incorrectly assumed: *)
       (* vR[a] == (wB[a] + dSigma[a])/(uzero*h) - beta[a], *)
-      lvR[a] == (lwB[a] + dlSigma[a])/(uzero*h) - lB[a] +
-                (wB[a] + dSigma[a]) (-luzero/(uzerosqr*h) - lh/(uzero*h2)),
+      (* and thus obtained:
+         lvR[a] == (lwB[a] + dlSigma[a])/(uzero*h) - lB[a] +
+                   (wB[a] + dSigma[a]) (-luzero/(uzerosqr*h) - lh/(uzero*h2)),
+         Fortunately this made no difference when we solve the ell. eqns
+         one after the other! *)
+      (* The correct vR[a] is: *)
+      (* vR[a] == (w[a] + DSigmaUp[a])/(uzero*h) - beta[a], *)
+      (* Together with:
+         DSigmaUp[a] == Psim4 dSigma[a],
+         w[a] == Psim6 wB[a],
+         we get:
+         vR[a] == (Psim6 wB[a] + Psim4 dSigma[a])/(uzero*h) - beta[a],
+         and thus: *)
+      lvR[a] == ( (-6 Psim7 wB[a] - 4 Psim5 dSigma[a]) lPsi +
+                  Psim6 lwB[a] + Psim4 dlSigma[a])/(uzero*h) - lB[a] +
+                (w[a] + DSigmaUp[a]) (-luzero/(uzerosqr*h) - lh/(uzero*h2)),
 
       divlwB == delta [b,c] dlwB[b,c],
       divlbeta == delta [b,c] dlB[b,c],
