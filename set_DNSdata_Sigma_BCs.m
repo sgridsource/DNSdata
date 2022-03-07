@@ -376,11 +376,12 @@ tocompute = {
         lalpha == lalphaP/Psi - alphaP lPsi/Psi2,   
         (* dSigmaUp[a] == dSigma[a], *)
         dlSigmaUp[a] == dlSigma[a],
+        (* L2 == h2 + (wDown[c] + dSigma[c]) (w[c] + DSigmaUp[c]), *)
         lL2 == 2*(Psim8 wBDown[c] lwB[c] +
                      Psim6 (lwB[c] dSigma[c] + wB[c] dlSigma[c]) +
-                     Psim4 dSigmaUp[c] dlSigma[c]  - 
+                     Psim4 dSigmaUp[c] dlSigma[c])  -
                   (8 Psim9 wBDown[c] wB[c] + 12 Psim7 wB[c] dSigma[c] +
-                   4 Psim5 dSigma[c] dSigmaUp[c]) lPsi + 2 h2 lLnh),
+                   4 Psim5 dSigma[c] dSigmaUp[c]) lPsi + 2 h2 lLnh,
         luzerosqr == (lL2 - 2 L2 (lalpha/alpha + lLnh))/(alpha2 h2),
         luzero == luzerosqr/(2 uzero),
         lhuzeroPsi4beta[a] == h (luzero Psi4 beta[a] +

@@ -1,5 +1,5 @@
 /* set_DNSdata_Sigma_BCs.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 13.6.2019 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 7.3.2022 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -15,8 +15,7 @@
 
 
 
-void set_DNSdata_Sigma_BC(tVarList *vlFu, tVarList *vlu,  
-		   tVarList *vlJdu, tVarList *vldu, tVarList *vlduDerivs, 		   int nonlin)
+void set_DNSdata_Sigma_BC(tVarList *vlFu, tVarList *vlu,       tVarList *vlJdu, tVarList *vldu, tVarList *vlduDerivs,      int nonlin)
 {
 int VwApprox1 = Getv("DNSdata_rotationstate1","VwApproximation");
 int VwApprox2 = Getv("DNSdata_rotationstate2","VwApproximation");
@@ -63,17 +62,11 @@ if(noBCs) return;
 
 
 /* CondOnSurf only makes sense with ExtraCondInXinDom=1 */
-if(CondOnSurf){
-        ExtraCondInXinDom=1;
-        CondAtPoint=0;
-      }
+if(CondOnSurf){         ExtraCondInXinDom=1;         CondAtPoint=0;       }
 
 
 /* CondInnerCube only makes sense with ExtraCondInXinDom=0 */
-if(CondInnerCube){
-        ExtraCondInXinDom=0;
-        CondAtPoint=0;
-      }
+if(CondInnerCube){         ExtraCondInXinDom=0;         CondAtPoint=0;       }
 
 
 /* parse some pars: */
@@ -102,9 +95,7 @@ int isXinDom    = (box->CI->dom == box->SIDE - STAR1);
 //int isVolAvBox  = (MATTRinside && hasSSURF && isXinDom);
 int isCube = (box->CI->type == 0);
 //int isVolAvBox  = (MATTRinside && isCube);
-int isVolAvBox  = (  MATTRinside && (
-                           (isCube && (!ExtraCondInXinDom)) ||
-                           (hasSSURF && isXinDom && ExtraCondInXinDom) )  );
+int isVolAvBox  = (  MATTRinside && (                            (isCube && (!ExtraCondInXinDom)) ||                            (hasSSURF && isXinDom && ExtraCondInXinDom) )  );
 
 
 double *FPsi = vlldataptr(vlFu, box, 0);
@@ -420,12 +411,12 @@ double xrdotor3;
 
 
 
-if(blkinfo != NULL) {                                               
-                     if(blkinfo->bi   != bi) continue;
-                     if(blkinfo->vari != index_lSigma) continue;  }
+if(blkinfo != NULL) {                      if(blkinfo->bi   != bi) continue;                      if(blkinfo->vari != index_lSigma) continue;  } 
+
+
 
 /* conditional */
-if (((isSTAR1 && corot1) || (!isSTAR1 && corot2)) && hasSSURF) {
+if ((isSTAR1 && corot1 || !isSTAR1 && corot2) && hasSSURF) {
 
 
 
@@ -514,39 +505,18 @@ double *dSigmain1, *dSigmain2, *dSigmain3;
 double *dlSigmain1, *dlSigmain2, *dlSigmain3; 
 
 
-double *ddSigmain11, *ddSigmain12, *ddSigmain13,                      
-                            *ddSigmain22, *ddSigmain23, *ddSigmain33;
+double *ddSigmain11, *ddSigmain12, *ddSigmain13,                             *ddSigmain22, *ddSigmain23, *ddSigmain33; 
 
-double *ddlSigmain11, *ddlSigmain12, *ddlSigmain13,                      
-                            *ddlSigmain22, *ddlSigmain23, *ddlSigmain33;
+
+double *ddlSigmain11, *ddlSigmain12, *ddlSigmain13,                             *ddlSigmain22, *ddlSigmain23, *ddlSigmain33; 
+
 
 biin = bi - 6; /* only if CubSp are arranged my way */ 
 
 
-n1in = grid->box[biin]->n1;                                              
-                     n2in = grid->box[biin]->n2;
-                     n3in = grid->box[biin]->n3;
+n1in = grid->box[biin]->n1;                      n2in = grid->box[biin]->n2;                      n3in = grid->box[biin]->n3;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+                Sigmain    = grid->box[biin]->v[index_Sigma];                lSigmain   = grid->box[biin]->v[index_lSigma];                dSigmain1  = grid->box[biin]->v[index_DNSdata_Sigmax+0];                dSigmain2  = grid->box[biin]->v[index_DNSdata_Sigmax+1];                dSigmain3  = grid->box[biin]->v[index_DNSdata_Sigmax+2];               dlSigmain1  = grid->box[biin]->v[index_dlSigma1];               dlSigmain2  = grid->box[biin]->v[index_dlSigma2];               dlSigmain3  = grid->box[biin]->v[index_dlSigma3];               ddSigmain11 = grid->box[biin]->v[index_DNSdata_Sigmaxx+0];               ddSigmain12 = grid->box[biin]->v[index_DNSdata_Sigmaxx+1];               ddSigmain13 = grid->box[biin]->v[index_DNSdata_Sigmaxx+2];               ddSigmain22 = grid->box[biin]->v[index_DNSdata_Sigmaxx+3];               ddSigmain23 = grid->box[biin]->v[index_DNSdata_Sigmaxx+4];               ddSigmain33 = grid->box[biin]->v[index_DNSdata_Sigmaxx+5];              ddlSigmain11 = grid->box[biin]->v[index_ddlSigma11];              ddlSigmain12 = grid->box[biin]->v[index_ddlSigma12];              ddlSigmain13 = grid->box[biin]->v[index_ddlSigma13];              ddlSigmain22 = grid->box[biin]->v[index_ddlSigma22];              ddlSigmain23 = grid->box[biin]->v[index_ddlSigma23];              ddlSigmain33 = grid->box[biin]->v[index_ddlSigma33];
 
-               Sigmain    = grid->box[biin]->v[index_Sigma];
-               lSigmain   = grid->box[biin]->v[index_lSigma];
-               dSigmain1  = grid->box[biin]->v[index_DNSdata_Sigmax+0];
-               dSigmain2  = grid->box[biin]->v[index_DNSdata_Sigmax+1];
-               dSigmain3  = grid->box[biin]->v[index_DNSdata_Sigmax+2];
-              dlSigmain1  = grid->box[biin]->v[index_dlSigma1];
-              dlSigmain2  = grid->box[biin]->v[index_dlSigma2];
-              dlSigmain3  = grid->box[biin]->v[index_dlSigma3];
-              ddSigmain11 = grid->box[biin]->v[index_DNSdata_Sigmaxx+0];
-              ddSigmain12 = grid->box[biin]->v[index_DNSdata_Sigmaxx+1];
-              ddSigmain13 = grid->box[biin]->v[index_DNSdata_Sigmaxx+2];
-              ddSigmain22 = grid->box[biin]->v[index_DNSdata_Sigmaxx+3];
-              ddSigmain23 = grid->box[biin]->v[index_DNSdata_Sigmaxx+4];
-              ddSigmain33 = grid->box[biin]->v[index_DNSdata_Sigmaxx+5];
-             ddlSigmain11 = grid->box[biin]->v[index_ddlSigma11];
-             ddlSigmain12 = grid->box[biin]->v[index_ddlSigma12];
-             ddlSigmain13 = grid->box[biin]->v[index_ddlSigma13];
-             ddlSigmain22 = grid->box[biin]->v[index_ddlSigma22];
-             ddlSigmain23 = grid->box[biin]->v[index_ddlSigma23];
-             ddlSigmain33 = grid->box[biin]->v[index_ddlSigma33];
 if(n2in!=n2 || n3in!=n3) errorexit("we need n2in=n2 and n3in=n3"); 
 
 
@@ -567,10 +537,9 @@ spec_Deriv1(box, 1, Sigma, dSigmadlam);
 forplaneN(1, i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k); 
 
 
-ind0   = Ind_n1n2(0,j,k,n1,n2);                                 
-                       indin  = Ind_n1n2(n1in-1,j,k,n1in,n2in);
-                       Sig    = Sigma[ind0];
-                       Sigin  = Sigmain[indin];FSigma[ijk]
+ind0   = Ind_n1n2(0,j,k,n1,n2);                        indin  = Ind_n1n2(n1in-1,j,k,n1in,n2in);                        Sig    = Sigma[ind0];                        Sigin  = Sigmain[indin]; 
+
+FSigma[ijk]
 =
 Sig - Sigin
 ;
@@ -845,10 +814,9 @@ spec_Deriv1(box, 1, lSigma, dlSigmadlam);
 forplaneN(1, i,j,k, n1,n2,n3, 1){ ijk=Index(i,j,k); 
 
 
-ind0   = Ind_n1n2(0,j,k,n1,n2);                                 
-                       indin  = Ind_n1n2(n1in-1,j,k,n1in,n2in);
-                       lSig   = lSigma[ind0];
-                       lSigin = lSigmain[indin];FlSigma[ijk]
+ind0   = Ind_n1n2(0,j,k,n1,n2);                        indin  = Ind_n1n2(n1in-1,j,k,n1in,n2in);                        lSig   = lSigma[ind0];                        lSigin = lSigmain[indin]; 
+
+FlSigma[ijk]
 =
 lSig - lSigin
 ;
@@ -1126,13 +1094,13 @@ if (MATTRinside && hasSSURF) {
 if (dqFromqg) {
 
 
-FirstDerivsOf_S(box, Ind("DNSdata_qg"), 					Ind("DNSdata_qx")); 
+FirstDerivsOf_S(box, Ind("DNSdata_qg"),      Ind("DNSdata_qx")); 
 
 
 } else { /* if (!dqFromqg) */
 
 
-FirstDerivsOf_S(box, Ind("DNSdata_q"), 					Ind("DNSdata_qx")); 
+FirstDerivsOf_S(box, Ind("DNSdata_q"),      Ind("DNSdata_qx")); 
 
 }
 /* if (dqFromqg) */
@@ -1793,13 +1761,12 @@ dlSigma3[ijk]
 
 lL2
 =
-4.*h2*lLnh - lPsi[ijk]*(8.*Psim5*
-      (dSigmaUp1*dSigma1[ijk] + dSigmaUp2*dSigma2[ijk] + 
-        dSigmaUp3*dSigma3[ijk]) + 
-     (16.*Psim9*wBDown1 + 24.*Psim7*dSigma1[ijk])*wB1[ijk] + 
-     (16.*Psim9*wBDown2 + 24.*Psim7*dSigma2[ijk])*wB2[ijk] + 
-     (16.*Psim9*wBDown3 + 24.*Psim7*dSigma3[ijk])*wB3[ijk]) + 
-  2.*(Psim8*(lwB1*wBDown1 + lwB2*wBDown2 + lwB3*wBDown3) + 
+-(lPsi[ijk]*(4.*Psim5*(dSigmaUp1*dSigma1[ijk] + dSigmaUp2*dSigma2[ijk] + 
+          dSigmaUp3*dSigma3[ijk]) + 
+       (8.*Psim9*wBDown1 + 12.*Psim7*dSigma1[ijk])*wB1[ijk] + 
+       (8.*Psim9*wBDown2 + 12.*Psim7*dSigma2[ijk])*wB2[ijk] + 
+       (8.*Psim9*wBDown3 + 12.*Psim7*dSigma3[ijk])*wB3[ijk])) + 
+  2.*(h2*lLnh + Psim8*(lwB1*wBDown1 + lwB2*wBDown2 + lwB3*wBDown3) + 
      Psim4*(dSigmaUp1*dlSigma1[ijk] + dSigmaUp2*dlSigma2[ijk] + 
         dSigmaUp3*dlSigma3[ijk]) + 
      Psim6*(lwB1*dSigma1[ijk] + lwB2*dSigma2[ijk] + lwB3*dSigma3[ijk] + 
@@ -2361,4 +2328,4 @@ lSigma[ijk]
 }  /* end of function */
 
 /* set_DNSdata_Sigma_BCs.c */
-/* nvars = 124, n* = 646,  n/ = 359,  n+ = 391, n = 1396, O = 1 */
+/* nvars = 124, n* = 645,  n/ = 359,  n+ = 392, n = 1396, O = 1 */
