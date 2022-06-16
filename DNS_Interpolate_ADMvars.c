@@ -234,7 +234,7 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
           else val = spec_interpolate(box, c, X,Y,Z);
           /* if we always interpolate we need:
           val = spec_interpolate(box, c, X,Y,Z); */
-          if(!finite(val))
+          if(!finit(val))
           {
             printf("point:  (x,y,z)=(%g,%g,%g)\n", x,y,z);
             printf("NAN at: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z); 

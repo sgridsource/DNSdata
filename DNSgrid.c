@@ -1150,11 +1150,11 @@ void Interp_Var_From_Grid1_To_Grid2_star(tGrid *grid1, tGrid *grid2, int vind,
           /* get var at point X,Y,Z by interpolation */
           pv[i] = spec_interpolate(grid1_p->box[b1],
                                    grid1_p->box[b1]->v[cind], X,Y,Z);
-          if(!finite(pv[i]))
+          if(!finit(pv[i]))
           {
             printf("box->b=%d x=%g y=%g z=%g  b1=%d X=%.18g Y=%.18g Z=%.18g\n",
                     box->b, x,y,z, b1, X,Y,Z);
-            errorexit("!finite(pv[i])");
+            errorexit("!finit(pv[i])");
           }
         }
         else /* point x,y,z may be beyond outer boundary */
