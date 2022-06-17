@@ -127,6 +127,7 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   TOV_ODEs(rf1, y, dy, NULL);
   for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
   rf1 += hmin;
+  /* NOTE: all dy are zero at r=0, so y does not change here! */
 
 //  printf("rf=%g:  y[1]=%g  y[2]=%g  y[3]=%g  y[4]=%g\n",
 //         rf1, y[1], y[2], y[3], y[4]);
@@ -188,6 +189,7 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   TOV_ODEs(rf1, y, dy, NULL);
   for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
   rf1 += hmin;
+  /* NOTE: all dy are zero at r=0, so y does not change here! */
 
   /* check rfe */
   for(;;)
