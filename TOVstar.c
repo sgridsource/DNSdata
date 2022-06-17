@@ -5,17 +5,26 @@
 #include "sgrid.h"
 #include "DNSdata.h"
 
+#ifdef GSL
+#include <gsl/gsl_errno.h>
+#define G_SUCCESS GSL_SUCCESS
+#define G_EDOM    GSL_EDOM
+#else
+#define G_SUCCESS 0
+#define G_EDOM    1
+#endif
+
 extern tEoS_T0 EoS_T0[1];
 
 
 /* TOV eqns */
-void TOV_ODEs(double rf, double *y, double *dy);
+int TOV_ODEs(double rf, const double *y, double *dy, void *params);
 
 
 
 
 /* EoS functions used in TOV */
-/* rest mass density rho0 and total energy density rhoE as 
+/* rest mass density rho0 and total energy density rhoE as
    a function of pressure P */
 void TOV_rho0_rhoE_OF_P(double P, double *rho0, double *rhoE)
 {
@@ -27,7 +36,7 @@ void TOV_rho0_rhoE_OF_P(double P, double *rho0, double *rhoE)
 
 
 /* compute *rf_surf,*m,*Phi_c,*Psi_c for a given Pc, and
-   return step size min we need for odeintegrate */
+   return step size min we need for odeintegrateP */
 double TOV_init(double Pc, int pr, double *rf_surf,
                 double *m, double *Phi_c, double *Psi_c, double *m0)
 {   /* Variablen fuer odeint.c */
@@ -73,7 +82,7 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   /* initial values */
   mc = m0c = 0.0;
   Psic = Phic = 1.0;
-  rf1= 0.0;   
+  rf1= 0.0;
 
   /* set initial values in y vec. */
   y[1]=mc;
@@ -90,7 +99,7 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   while(y[2]>=0)  /* y[2]=P */
   {
     zeroP = y[2]; /* save last val of P*/
-    TOV_ODEs(rf2, y, dy);
+    TOV_ODEs(rf2, y, dy, NULL);
     for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
     rf2 += hmin;
   }
@@ -108,14 +117,14 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   y[4]=Psic;
   y[5]=m0c;
 
-  /* pars for odeintegrate */
+  /* pars for odeintegrateP */
   h1=1e-10;
   hmin=1e-10;
   eps=1e-12;
   drfsav=0.0;
 
   /* make one step to get away from rf=0 */
-  TOV_ODEs(rf1, y, dy);
+  TOV_ODEs(rf1, y, dy, NULL);
   for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
   rf1 += hmin;
 
@@ -123,16 +132,16 @@ double TOV_init(double Pc, int pr, double *rf_surf,
 //         rf1, y[1], y[2], y[3], y[4]);
 
 
-  /* Here we use odeintegrate not ONLY to integrate, but also to find
+  /* Here we use odeintegrateP not ONLY to integrate, but also to find
      the rfe where P=0. The way we do this is odd, because we rely
-     soly on the fact that odeintegrate will fail at P=0. If it does not
-     fail we need a root finder to determine where P=0. */  
+     soly on the fact that odeintegrateP will fail at P=0. If it does not
+     fail we need a root finder to determine where P=0. */
   rfe=rf2;
   hmin2 = hmin;
   for(;;)
   {
-    ret=odeintegrate(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,rkqs,
-                     kmax,&kount,rfp,yp,drfsav,&stat);  
+    ret=odeintegrateP(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,NULL,
+                      rkqsP,kmax,&kount,rfp,yp,drfsav,&stat);
     if(pr) printf(" ret=%g stat=%d ", ret, stat);
     if(stat==-1) /* Step size too small */
     {
@@ -160,7 +169,7 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   Psi_surf = y[4];   /* current Psi at surface */
   r = rfe*Psi_surf*Psi_surf;  /* Schw. r at surface, current rf at surface */
   Psi_surf_new = sqrt( (2*r)/(r-M +sqrt(r*r-2*M*r)) ); /* desired Psi at surf. */
-  Psic = Psic * Psi_surf_new/Psi_surf; /* rescale Psi at center */ 
+  Psic = Psic * Psi_surf_new/Psi_surf; /* rescale Psi at center */
   rfe = r/(Psi_surf_new*Psi_surf_new); /* rescale surface radius rfe */
   rf2 = rfe;
   /* add const to Phi. We need e^{2Phi} = (1.0 - 2.0*M/r) outside */
@@ -175,15 +184,15 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   y[3]=Phic;
   y[4]=Psic;
   y[5]=m0c;
-  TOV_ODEs(rf1, y, dy);
+  TOV_ODEs(rf1, y, dy, NULL);
   for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
   rf1 += hmin;
 
   /* check rfe */
   for(;;)
   {
-    ret=odeintegrate(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,rkqs,
-                     kmax,&kount,rfp,yp,drfsav,&stat);  
+    ret=odeintegrateP(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,NULL,
+                      rkqsP,kmax,&kount,rfp,yp,drfsav,&stat);
     if(pr) printf(" ret=%g stat=%d\n", ret, stat);
     if(stat==-1) /* Step size too small */
     {
@@ -230,11 +239,11 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   free_vector(y,  1,nvar);
   free_vector(rfp, 1,nvar);
   free_matrix(yp, 1,nvar, 1,kmax);
-  return hmin2; /* return step size min we need for odeintegrate */
+  return hmin2; /* return step size min we need for odeintegrateP */
 }
 
 
-/* find *m, *P, *Phi, *Psi, *m0 at rf, 
+/* find *m, *P, *Phi, *Psi, *m0 at rf,
    for a given rf_surf, kappa, Gam, Pc, Phic, Psic */
 int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
                              double Pc, double Phic, double Psic,
@@ -285,19 +294,19 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
   y[4]=Psic;
   y[5]=m0c;
 
-  /* pars for odeintegrate */
+  /* pars for odeintegrateP */
   h1=1e-10;
   eps=1e-12;
   drfsav=0;
 
   /* make one step to get away from rf=0 */
-  TOV_ODEs(rf1, y, dy);
+  TOV_ODEs(rf1, y, dy, NULL);
   for(i=1; i<=nvar; i++) y[i] += dy[i]*hmin;
   rf1 += hmin;
 
   /* integrate up to rf2 */
-  ret=odeintegrate(y,nvar,rf1,rf2,eps,h1,hmin,&nok,&nbad,TOV_ODEs,rkqs,
-                   kmax,&kount,rfp,yp,drfsav,&stat);  
+  ret=odeintegrateP(y,nvar,rf1,rf2,eps,h1,hmin,&nok,&nbad,TOV_ODEs,NULL,
+                    rkqsP,kmax,&kount,rfp,yp,drfsav,&stat);
   *m   = y[1];
   *P   = y[2];
   *Phi = y[3];
@@ -312,7 +321,7 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
     r = rf*(*Psi)*(*Psi);  /* Schw. r at surface, current rf at surface */
     *Phi =0.5*log(1.0 - 2.0*(*m)/r);
   }
-  
+
   free_vector(dy, 1,nvar);
   free_vector(y,  1,nvar);
   free_vector(rfp, 1,nvar);
@@ -320,7 +329,7 @@ int TOV_m_P_Phi_Psi_m0_OF_rf(double rf, double rf_surf,
   return 0;
 }
 
-/* find *m, *P, *Phi, *Psi at rf, 
+/* find *m, *P, *Phi, *Psi at rf,
    for a given rf_surf, m_surf, Pc, Phic, Psic.
    This is faster than TOV_m_P_Phi_Psi_m0_OF_rf, because it integrates
    only if we are inside the star. */
@@ -349,7 +358,7 @@ int TOV_m_P_Phi_Psi_OF_rf(double rf, double rf_surf, double m_surf,
 
 /* TOV eqns */
 /* r = area radial coord, rf = isotrop. like coord for conf. flatness */
-void TOV_ODEs(double rf, double *y, double *dy)
+int TOV_ODEs(double rf, const double *y, double *dy, void *params)
 {
   double r, dm_dr, dP_dr, dPhi_dr, dPsi_dr, dm0_dr;
   double dr_drf, dm_drf, dP_drf, dPhi_drf, dPsi_drf, dm0_drf;
@@ -360,6 +369,11 @@ void TOV_ODEs(double rf, double *y, double *dy)
   /* retrieve vars */
   m   = y[1];
   P   = y[2];
+  if(P<0.)
+  {
+    dy[1] = dy[2] = dy[3] = dy[4] = dy[5] = 0.; /* avoid gcc warning */
+    return G_EDOM; /* input domain error, e.g sqrt(-1) */
+  }
   Phi = y[3];
   Psi = y[4];
   TOV_rho0_rhoE_OF_P(P, &rho0, &rhoE);  /* depends on EOS */
@@ -367,7 +381,7 @@ void TOV_ODEs(double rf, double *y, double *dy)
 
   /* r in terms of rf */
   r = rf*Psi*Psi;
-  
+
   /* derivs with respect to r */
   dm_dr = A*rhoE*r*r;
   if(r>(1e-4)) // (1e-4)*E) // funny, 1e-5 does not work!!! ???
@@ -414,4 +428,5 @@ printf("dm0_dr=%g ", dm0_dr);
 printf("\n");
 exit(22);
 */
+  return G_SUCCESS;
 }
