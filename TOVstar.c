@@ -365,15 +365,12 @@ int TOV_ODEs(double rf, const double *y, double *dy, void *params)
   double m, P, Phi, Psi, rhoE, rho0;
   double A = 4*PI;
   double Ao3 = A/3.0;
+  int stat = G_SUCCESS;
 
   /* retrieve vars */
   m   = y[1];
   P   = y[2];
-  if(P<0.)
-  {
-    dy[1] = dy[2] = dy[3] = dy[4] = dy[5] = 0.; /* avoid gcc warning */
-    return G_EDOM; /* input domain error, e.g sqrt(-1) */
-  }
+  if(P<0. || !finit(P)) stat = G_EDOM;
   Phi = y[3];
   Psi = y[4];
   TOV_rho0_rhoE_OF_P(P, &rho0, &rhoE);  /* depends on EOS */
@@ -428,5 +425,7 @@ printf("dm0_dr=%g ", dm0_dr);
 printf("\n");
 exit(22);
 */
-  return G_SUCCESS;
+//printf("TOV_ODEs rf=%.17g y[2]=%g dy[2]=%g\n", rf, y[2], dy[2]);
+
+  return stat;
 }
