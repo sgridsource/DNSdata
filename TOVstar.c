@@ -140,12 +140,13 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   hmin2 = hmin;
   for(;;)
   {
+    y[1]=mc; y[2]=Pc; y[3]=Phic; y[4]=Psic; y[5]=m0c;
     ret=odeintegrateP(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,NULL,
                       rkqsP,kmax,&kount,rfp,yp,drfsav,&stat);
     if(pr) printf(" ret=%g stat=%d ", ret, stat);
     if(stat==-1) /* Step size too small */
     {
-      if(ret<rf2*0.95/1.1) /* if we didn't integrate far enough */
+      if(ret<rfe*0.95/1.1) /* if we didn't integrate far enough */
       {
         hmin2 = hmin2 * 0.1;
         continue;
@@ -191,12 +192,13 @@ double TOV_init(double Pc, int pr, double *rf_surf,
   /* check rfe */
   for(;;)
   {
+    y[1]=mc; y[2]=Pc; y[3]=Phic; y[4]=Psic; y[5]=m0c;
     ret=odeintegrateP(y,nvar,rf1,rfe,eps,h1,hmin2,&nok,&nbad,TOV_ODEs,NULL,
                       rkqsP,kmax,&kount,rfp,yp,drfsav,&stat);
     if(pr) printf(" ret=%g stat=%d\n", ret, stat);
     if(stat==-1) /* Step size too small */
     {
-      if(ret<rf2*0.95/1.1) /* if we didn't integrate far enough */
+      if(ret<rfe*0.95/1.1) /* if we didn't integrate far enough */
       {
         hmin2 = hmin2 * 0.1;
         continue;
