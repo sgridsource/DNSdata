@@ -1,7 +1,11 @@
 (* DNS_set _dlnIntegEuler.m 
    Wolfgang Tichy  11/2011    *)
 
-(* compute the updated q *)
+(* The variable lnIntegEuler is supposed to contain 2 times ln(h) of Eq. (26)
+   in 1209.5336 for the general case. For corotation h = -C u^0 and
+   lnIntegEuler = 2 ln(h) = 2(ln u^0 + ln (-C)) = ln((u^0)^2) + const
+   In the end it computes the derivative of lnIntegEuler and writes it into
+   the var with index idlnIntegEuler. *)
 
 
 (* variables *)
