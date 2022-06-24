@@ -151,7 +151,7 @@ tocompute = {
       twoalpha2wdSigmapw == 2 alpha2 w[c] (dSigma[c]+wDown[c]),
       betadSigmaMinusCC == beta[c] dSigma[c] - CC, 
       bb == betadSigmaMinusCC^2 + twoalpha2wdSigmapw,
-      L2 == (bb + Sqrt[Abs[bb*bb + twoalpha2wdSigmapw^2]])/(2 alpha2),
+      L2 == (bb + Sqrt[Abs[bb*bb + SgnL2*twoalpha2wdSigmapw^2]])/(2 alpha2),
       h == Sqrt[Abs[L2 - (dSigma[a]+wDown[a]) (DSigmaUp[a]+w[a])]],
     Cif == else,
       (* h == q + 1, *)
@@ -209,6 +209,8 @@ BeginCFunction[] := Module[{},
   pr["int corot2 = VwApprox2 || Getv(\"DNSdata_rotationstate2\",\"corotation\");\n"];
   pr["int VwApprox, corot;\n"];
   pr["int qFromFields = Getv(\"DNSdata_new_q\",\"FromFields\");\n"];
+  pr["int FlipSgnL2   = Getv(\"DNSdata_new_q\",\"FlipSignUnderRootOfL2Eqn\");\n"];
+  pr["double SgnL2    = -1 + 2*FlipSgnL2; //-1 or +1\n"];
   pr["int wB0outside  = Getv(\"DNSdata_wB_outside\",\"0\");\n"];
   pr["double C1 = Getd(\"DNSdata_C1\");\n"];
   pr["double C2 = Getd(\"DNSdata_C2\");\n"];

@@ -1,5 +1,5 @@
 /* DNS_compute_new_q_instar.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 5.12.2018 */
+/* Copyright (C) 2005-2008 Wolfgang Tichy, 23.6.2022 */
 /* Produced with Mathematica */
 
 #include "sgrid.h"
@@ -24,6 +24,8 @@ int corot1 = VwApprox1 || Getv("DNSdata_rotationstate1","corotation");
 int corot2 = VwApprox2 || Getv("DNSdata_rotationstate2","corotation");
 int VwApprox, corot;
 int qFromFields = Getv("DNSdata_new_q","FromFields");
+int FlipSgnL2   = Getv("DNSdata_new_q","FlipSignUnderRootOfL2Eqn");
+double SgnL2    = -1 + 2*FlipSgnL2; //-1 or +1
 int wB0outside  = Getv("DNSdata_wB_outside","0");
 double C1 = Getd("DNSdata_C1");
 double C2 = Getd("DNSdata_C2");
@@ -143,27 +145,21 @@ double xrdotor3;
 if(box->SIDE != star) continue; 
 
 
-FirstDerivsOf_S(box,index_DNSdata_Sigma,                   
-                                   Ind("DNSdata_Sigmax"));
+FirstDerivsOf_S(box,index_DNSdata_Sigma,                                    Ind("DNSdata_Sigmax")); 
+
 
 
 /* conditional */
 if (MATTRtouch && !wB0outside) {
 
 
-int biin = bi-6; /* works only for my CubSph setup */                        
-
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_Sigmax"), biin,bi);
-
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_Sigmay"), biin,bi);
-
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_Sigmaz"), biin,bi);
-
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBx"), biin,bi);
-
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBy"), biin,bi);
-
-    copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBz"), biin,bi);}
+int biin = bi-6; /* works only for my CubSph setup */                         
+     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_Sigmax"), biin,bi);
+     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_Sigmay"), biin,bi);
+     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_Sigmaz"), biin,bi);
+     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBx"), biin,bi);
+     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBy"), biin,bi);
+     copy_Var_Box1ATlam1_to_Box2ATlam0(grid, Ind("DNSdata_wBz"), biin,bi);}
 /* if (MATTRtouch && !wB0outside) */
 
 
@@ -627,7 +623,7 @@ twoalpha2wdSigmapw + pow2(betadSigmaMinusCC)
 
 L2
 =
-(0.5*(bb + Sqrt(Abs(pow2(bb) + pow2(twoalpha2wdSigmapw)))))/alpha2
+(0.5*(bb + Sqrt(Abs(pow2(bb) + SgnL2*pow2(twoalpha2wdSigmapw)))))/alpha2
 ;
 
 h
@@ -709,4 +705,4 @@ q[ijk]
 }  /* end of function */
 
 /* DNS_compute_new_q_instar.c */
-/* nvars = 17, n* = 147,  n/ = 71,  n+ = 145, n = 363, O = 1 */
+/* nvars = 17, n* = 149,  n/ = 73,  n+ = 149, n = 371, O = 1 */
