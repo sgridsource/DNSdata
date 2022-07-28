@@ -62,9 +62,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   printf("DNS_Interpolate_ADMvars:\n");
   prTimeIn_s("WallTime: ");
 
-  /* allocate varlists */
+  /* allocate varlist */
   vlu = vlalloc(grid);
-  vlc = vlalloc(grid);
 
   /* add all vars to vlu */
   vlpush(vlu, Ind("alpha"));
