@@ -520,13 +520,17 @@ int set_DNS_box_properties(tGrid *grid)
 int pr_DNS_box_properties(tGrid *grid)
 {
   int b;
-  printf("pr_DNS_box_properties:\n");
-  forallboxes(grid, b)
+
+  if(Getv("verbose", "yes"))
   {
-    tBox *box = grid->box[b];
-    printf("  b=%d:  box->  SIDE=%d  MATTR=%d  BOUND=%d  COORD=%d\n",
-           b, box->SIDE, box->MATTR, box->BOUND, box->COORD);
-    if(box->BOUND==SSURF) printCI(box);
+    printf("pr_DNS_box_properties:\n");
+    forallboxes(grid, b)
+    {
+      tBox *box = grid->box[b];
+      printf("  b=%d:  box->  SIDE=%d  MATTR=%d  BOUND=%d  COORD=%d\n",
+             b, box->SIDE, box->MATTR, box->BOUND, box->COORD);
+      if(box->BOUND==SSURF) printCI(box);
+    }
   }
   return 0;
 }

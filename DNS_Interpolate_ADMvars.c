@@ -58,6 +58,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   int b, j;
 
   if(GetsLax("BNSdata_Interpolate_pointsfile")==0) return 0;
+  if(strcmp(Gets("BNSdata_Interpolate_pointsfile"), "*** NONE ***")==0)
+    return 0;
   prdivider(0);
   printf("DNS_Interpolate_ADMvars:\n");
   prTimeIn_s("WallTime: ");
