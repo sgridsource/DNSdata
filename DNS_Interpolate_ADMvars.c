@@ -40,7 +40,8 @@ int read_next_xyz_from_pointsfile(FILE *in, double *x, double *y, double *z)
    BNSdata_Interpolate_output = some_output_filename
    BNSdata_Interpolate_verbose = no # yes
    BNSdata_Interpolate_max_xyz_diff = 1e-8
-   The last 2 are just for debugging. Their values are set e.g. by BAM. */
+   The last 2 are just for debugging. Their values are set e.g. by BAM.
+   We do nothing if BNSdata_Interpolate_pointsfile = *** NONE ***        */
 int DNS_Interpolate_ADMvars(tGrid *grid)
 {
   int pr = GetvLax("BNSdata_Interpolate_verbose", "yes");
