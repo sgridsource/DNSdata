@@ -65,9 +65,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   printf("DNS_Interpolate_ADMvars:\n");
   prTimeIn_s("WallTime: ");
 
-  /* allocate varlists */
+  /* allocate varlist */
   vlu = vlalloc(grid);
-  vlc = vlalloc(grid);
 
   /* add all vars to vlu */
   vlpush(vlu, Ind("alpha"));
@@ -95,6 +94,10 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   outbuf = calloc(nelem, outsize);
   if(inbuf==NULL)  errorexit("couldn't allocate inbuf");
   if(outbuf==NULL) errorexit("couldn't allocate outbuf");
+  /* Note: Since nelem above is large (3456000), valgrid can say:
+     "Warning: set address range perms: large range [...) (defined)".
+     This just means we are allocating a lot, and can be avoided by setting
+     nelem=3456; */
 
   /* write coeffs of vlu in all boxes into vlc */
   forallboxes(grid, b)
