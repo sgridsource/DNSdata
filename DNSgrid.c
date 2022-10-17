@@ -105,6 +105,28 @@ int set_DNS_boxsizes(tGrid *grid)
   P_core1 = Getd("DNSdata_Pm1");
   P_core2 = Getd("DNSdata_Pm2");
 
+  /* set some fake stuff in case we just interpolate,
+     and then jump over all TOV stuff */
+  if(GetsLax("BNSdata_Interpolate_pointsfile")!=0)
+  {
+    printf("   Skipping box size calculations!!!\n"
+           "   Assuming info is later read from checkpoint.\n");
+    m01 = Getd("DNSdata_m01");
+    m02 = Getd("DNSdata_m02");
+    m1  = Getd("DNSdata_m1");
+    m2  = Getd("DNSdata_m2");
+    if(m1>0) m01 = m1;
+    if(m2>0) m02 = m2;
+    Setd("DNSdata_m01", m01);
+    Setd("DNSdata_m02", m02);
+    m1 = m01;
+    m2 = m02;
+    P_core1 = P_core2 = 1e-3;
+    rf_surf1 = rf_surf2 = 4;
+    printf("   Using fake values for m01, m02, P_core1, P_core2, rf_surf1, rf_surf2\n");
+    goto Set_Omega_xCM_C1_C2;
+  }
+
   /* check if we set baryonic masses from single TOV ADM masses */
   m0_from_m = DNS_set_DNSdata_m012_from_DNSdata_m12(P_core1, P_core2, 0);
 
@@ -186,6 +208,8 @@ int set_DNS_boxsizes(tGrid *grid)
   }
   else 
   { P_core2=0.0; m2=m02=Phic2=0.0; Psic2=1.0; rf_surf2=rf_surf1; }
+
+Set_Omega_xCM_C1_C2: /* once masses are set, set the other pars */
 
   /* Note: sigma1/2 are simply the radii rf_surf1/2 */
   printf(" found: rf_surf1=%g\n", rf_surf1);
