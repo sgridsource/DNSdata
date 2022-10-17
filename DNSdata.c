@@ -403,12 +403,6 @@ int DNSdata_startup(tGrid *grid)
   enablevar(grid, Ind("alpha"));
   enablevar(grid, Ind("betax"));
 
-  /* set rs, m, Phic, Psic, m0 for both stars */
-  hmin1 = TOV_init(P_core1, 1, &rs1, &m1, &Phic1, &Psic1, &m01);
-  hmin2 = TOV_init(P_core2, 1, &rs2, &m2, &Phic2, &Psic2, &m02);
-  /* use 1e-10 and not the potetially smaller step from TOV_init */
-  hmin1 = hmin2 = 1e-10;
-
   /* set qmax1/2 */
   Setd("DNSdata_qmax1", EoS_T0->hm1_of_P(P_core1));
   Setd("DNSdata_qmax2", EoS_T0->hm1_of_P(P_core2));
@@ -425,6 +419,12 @@ int DNSdata_startup(tGrid *grid)
 
   /* do nothing if BNSdata_Interpolate_pointsfile exists */
   if(GetsLax("BNSdata_Interpolate_pointsfile")!=0) return 0;
+
+  /* set rs, m, Phic, Psic, m0 for both stars */
+  hmin1 = TOV_init(P_core1, 1, &rs1, &m1, &Phic1, &Psic1, &m01);
+  hmin2 = TOV_init(P_core2, 1, &rs2, &m2, &Phic2, &Psic2, &m02);
+  /* use 1e-10 and not the potetially smaller step from TOV_init */
+  hmin1 = hmin2 = 1e-10;
 
   /* load data from some old checkpoint file */
   if(initFromChkp && GetsLax("outdir_previous_iteration")!=NULL)
