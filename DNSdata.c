@@ -2789,6 +2789,7 @@ int DNSdata_solve(tGrid *grid)
 	    void (*precon)(tVarList *, tVarList *, tVarList *, tVarList *));
   tVarList *vldummy;
   int it;
+  int restart;
   double dOmega = Getd("DNSdata_Omega")*0.1;
   double totalerr1, totalerr;
   char str[1000];
@@ -2895,7 +2896,6 @@ int DNSdata_solve(tGrid *grid)
   /* main iteration loop, do it until res is small enough */
   for(it=1; it <= itmax; it++)
   {
-    int restart;
     char Loop_State[6667];
 
     printf("DNSdata_solve step %d:\n", it);
@@ -2943,6 +2943,11 @@ int DNSdata_solve(tGrid *grid)
     /* If we read a checkpoint that had finished the solve, i.e.
        that has $time = 0, do not solve again! */
     if(grid->time==0.0 && restart == 1) break;
+
+    /* If we get here, we will do some ell. solves for sure. I.e. our vars
+       will no longer contain the data read from a checkoint.
+       We indicate this by setting restart=0 already now. */
+    restart = 0;
 
     /* what to do with q at A=0 and q<0 */
     if(Getv("DNSdata_set_negative_q", "zero"))
@@ -3303,7 +3308,7 @@ int DNSdata_solve(tGrid *grid)
     printf("DNSdata_solve warning: *** Too many steps! ***\n");
 
   /* do we want to do a final ell. solve for some vars? */
-  if( strlen(Gets("DNSdata_FinalEllSolveVars"))>0 )
+  if( (restart==0) && (strlen(Gets("DNSdata_FinalEllSolveVars"))>0) )
   {
     double time = grid->time;
     /* write grid once more (at time=-0.1), since we have not written yet */
