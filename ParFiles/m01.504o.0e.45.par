@@ -20,8 +20,8 @@ DNSdata_rotationstate2  = rotation
 DNSdata_omegaz1         = 0
 DNSdata_omegaz2         = 0
 
-#DNSdata_Omega           = estimate
-#DNSdata_rdot            = -0.002428692805610841
+#DNSdata_Omega           = estimate # this default should result in 0.002
+#DNSdata_rdot            = -0
 DNSdata_ecc             = 0.45
 
 ###############################old iterator ############################################3
