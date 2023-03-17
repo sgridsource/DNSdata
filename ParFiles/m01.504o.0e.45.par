@@ -1,6 +1,7 @@
-# binary neutron star ID with hi mass ratio and SLy EoS
+# binary neutron star ID with hi eccentricity and SLy EoS
+# This should be very close to BAM:0113 from there CoRe DB.
 # Here we smooth Sigma: DNSdata_SigmaMod_eps = 0.1
-# We also use: DNSdata_adjust = Py0
+# We also use: DNSdata_adjust = forcebalance always # Py0
 
 physics = ADMvars DNSdata EoS_T0
 
