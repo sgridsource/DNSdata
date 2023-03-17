@@ -43,6 +43,18 @@ Set up hi mass ratio binary with cold SFHo EoS from table:
 ----------------------------------------------------------
 sfhoq2b16e.1.par
 
+Set up hi ecc binary with SLy EoS:
+----------------------------------
+m01.504o.0e.45.par
+
+=====
+NOTE:
+=====
+I think most new par files should be based on
+q2b16e.1.par 
+with more iterations as in m1.35o.03Ls2iC.par if we do something difficult
+like hi spin.
+
 
 Older parfiles:
 ===============
