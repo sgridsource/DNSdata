@@ -17,7 +17,7 @@ DNSdata_m02             = 1.0755
 DNSdata_CTSmod          = yes
 DNSdata_rotationstate1  = rotation
 DNSdata_rotationstate2  = rotation
-DNSdata_omegaz1         = 0
+DNSdata_omegaz1         = 0 # switch on iterate_parameter4 for hi spin
 DNSdata_omegaz2         = 0
 
 DNSdata_Omega           = 0.008542860051306079 # estimate
