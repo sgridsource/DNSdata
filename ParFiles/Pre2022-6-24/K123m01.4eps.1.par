@@ -62,6 +62,7 @@ DNSdata_adjust_mintol           = 1e-4
 DNSdata_itmax                   = 25 # 40 # 199 # 30
 DNSdata_tol                     = 1e-8
 DNSdata_analyze_xmax            = print_xmax
+DNSdata_new_q                   = FromFields FlipSignUnderRootOfL2Eqn
 DNSdata_center_new_q            = center_xyz # no # center_xyz # center_yz
 DNSdata_center_new_q_fac        = 1 # 0.5
 DNSdata_center_new_q_first_at   = 1

@@ -1,4 +1,16 @@
-This dir contains parfile examples.
+This dir contains old parfile examples.
+
+******************************************************************************
+All in Pre2022-6-24 have:
+DNSdata_new_q = FromFields FlipSignUnderRootOfL2Eqn
+which is probably not what we want, because it means that for non-zero spin
+we have the sign bug that Roxana has discovered. For zero spin this makes no
+difference.
+******************************************************************************
+To reproduce old sgrid runs (pre 2022-6-24) we should add:
+DNSdata_new_q = FromFields FlipSignUnderRootOfL2Eqn
+to their parfile.
+******************************************************************************
 
 
 Important parfiles
