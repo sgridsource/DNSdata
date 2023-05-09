@@ -93,6 +93,8 @@ iterate_parameters = yes
 iterate_parameter1 = n1  10 14 18 22 26
 iterate_parameter2 = n2  10 14 18 22 26
 iterate_parameter3 = n3  10 14 18 22 26
+# switch this on if we do something difficult like hi spin:
+# iterate_parameter4 = DNSdata_itmax 360 60 60 60 60
 
 finaltime = 0
 
