@@ -122,9 +122,10 @@ int sgrid_DNSdata()
   AddPar("DNSdata_actual_zmax2", "0", "z-pos. of actual global max of q in NS2");
   AddPar("DNSdata_q_derivs", "dq", "how we compute the derivs of q [dq,dqg]");
   AddPar("DNSdata_drho0_inBC", "dlam", "what we use for drho0 in BC [dq,dlam]");
-  AddPar("DNSdata_new_q", "FromFields FlipSignUnderRootOfL2Eqn", "How we "
-         "compute the new q. As Roxana discovered, FlipSignUnderRootOfL2Eqn "
-         "was always on until 23.6.22. "
+  AddPar("DNSdata_new_q", "FromFields", "How we update q. As Roxana "
+         "discovered, until 2022-6-23 q was always updated as if:\n"
+         "DNSdata_new_q = FromFields FlipSignUnderRootOfL2Eqn \n"
+         "On 2023-5-9 WT removed FlipSignUnderRootOfL2Eqn from the default"
          "[FromFields,Fromqgold,FromFields FlipSignUnderRootOfL2Eqn]");
   AddPar("DNSdata_center_new_q", "no",
          "if and how we center new q on (DNSdata_xmax1/2,0,0) "
