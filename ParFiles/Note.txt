@@ -1,0 +1,50 @@
+This dir contains parfile examples.
+
+
+Important parfiles
+==================
+
+Construct initial data for a single TOV star:
+---------------------------------------------
+single_star.par
+
+Find maximum mass TOV star for SLy and MPA1 EoS:
+------------------------------------------------
+SLy_maxmass.par
+MPA1_maxmass.par
+
+Set up hi spin binary with SLy EoS:
+-----------------------------------
+m1.35o.03Ls2iC.par  # almost like Szo.0202Ls2i.par, but with SLy EoS
+
+# for hi spin we need:
+Coordinates_CubedSphere_sigma01_lmax = sqrt(n2*n3)/2  # stars non-spherical
+iterate_parameter4 = DNSdata_itmax 360 60 60 60 60    # many it.s at low res
+
+Set up hi mass binary with SLy EoS:
+-----------------------------------
+m02.4b26e.1_-.00151_O.0048738.par     # hi mass at low res
+m02.4b26e.1_-.00151_O.0048738_hi.par  # hi mass at hi res, init with low res
+
+# for hi (and medium) mass we need:
+DNSdata_CTSmod = yes   # works also for low masses
+
+Set up hi mass ratio binary with SLy EoS:
+-----------------------------------------
+q2b16e.1.par
+
+Set up hi mass ratio binary with cold SFHo EoS from table:
+----------------------------------------------------------
+sfhoq2b16e.1.par
+
+Set up hi ecc binary with SLy EoS:
+----------------------------------
+m01.504o.0e.45.par
+
+=====
+NOTE:
+=====
+I think most new par files should be based on
+q2b16e.1.par 
+with more iterations as in m1.35o.03Ls2iC.par if we do something difficult
+like hi spin.

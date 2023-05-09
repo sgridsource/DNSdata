@@ -1,0 +1,38 @@
+# Get a single TOV star with its max mass.
+# This is achieved by asking for a DNSdata_m01 that is above the max TOV mass.
+# Then the code picks a P_core1 such that we get the max TOV mass m0.
+# This mass is printed on the screen together with P_core1 near the max.
+errorexit = abort
+
+physics = ADMvars DNSdata EoS_T0
+
+EoS_type = PwP
+EoS_PwP_kappa = 8.95133496e-02
+EoS_PwP_rho0 = 2.71662310e-04 8.11322219e-04 1.61880065e-03
+EoS_PwP_n = 2.801717284592417 0.4088307440719542 0.3888024883359253 0.5299417064122947
+
+DNSdata_b	= 13
+
+DNSdata_m01	= 4
+DNSdata_m02	= 0
+
+DNSdata_itmax	= 0
+
+nboxes		= 38
+n1		= 4
+n2		= 6
+n3		= 8
+
+0doutiter	= 1
+0doutput	= DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err ham momx trK dtrK_dt normham normmomx
+0doutputall	= yes
+0doutput_VolumeIntegralJacobian = one
+ADMvars_normalizedConstraints = yes
+
+1doutiter	= 1
+1doutput	= DNSdata_q DNSdata_Psi DNSdata_Bx DNSdata_alphaP DNSdata_Sigma DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err alpha betax psi gxx Kxx rho jx Sxx ham momx trK dtrK_dt x y z  X Y Z
+1doutputall	= yes
+
+2doutiter	= 1
+2doutput	= DNSdata_q DNSdata_Psi DNSdata_Bx DNSdata_alphaP DNSdata_Sigma DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err ham momx trK dtrK_dt x y z  X Y Z
+2doutputall	= yes

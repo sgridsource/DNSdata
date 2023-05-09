@@ -1,0 +1,35 @@
+# Get a single TOV star with m01 = 1.5.
+errorexit = abort
+
+physics = ADMvars DNSdata EoS_T0
+
+EoS_type = PwP
+EoS_PwP_kappa = 8.94989354e-02
+EoS_PwP_rho0 = 2.36701096e-04 8.11322219e-04 1.61880065e-03
+EoS_PwP_n = 2.80171728459242 0.498753117206983 0.503018108651911 0.540248514316586
+
+DNSdata_b	= 13
+
+DNSdata_m01	= 1.5
+DNSdata_m02	= 0
+
+DNSdata_itmax	= 0
+
+nboxes		= 38
+n1		= 4
+n2		= 6
+n3		= 8
+
+0doutiter	= 1
+0doutput	= DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err ham momx trK dtrK_dt normham normmomx
+0doutputall	= yes
+0doutput_VolumeIntegralJacobian = one
+ADMvars_normalizedConstraints = yes
+
+1doutiter	= 1
+1doutput	= DNSdata_q DNSdata_Psi DNSdata_Bx DNSdata_alphaP DNSdata_Sigma DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err alpha betax psi gxx Kxx rho jx Sxx ham momx trK dtrK_dt x y z  X Y Z
+1doutputall	= yes
+
+2doutiter	= 1
+2doutput	= DNSdata_q DNSdata_Psi DNSdata_Bx DNSdata_alphaP DNSdata_Sigma DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err ham momx trK dtrK_dt x y z  X Y Z
+2doutputall	= yes

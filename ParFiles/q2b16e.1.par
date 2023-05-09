@@ -1,0 +1,207 @@
+# binary neutron star ID with hi mass ratio and SLy EoS
+# Here we smooth Sigma: DNSdata_SigmaMod_eps = 0.1
+# We also use: DNSdata_adjust = Py0
+
+physics = ADMvars DNSdata EoS_T0
+
+################################# eos ##############################################
+EoS_type = PwP
+EoS_PwP_kappa    = 8.94989354e-02
+EoS_PwP_rho0 = 2.36701096e-04 8.11322219e-04 1.61880065e-03
+EoS_PwP_n        = 2.80171728459242 0.498753117206983 0.503018108651911 0.540248514316586
+
+#########################physical setup################################################
+DNSdata_b               = 16
+DNSdata_m01             = 2.4
+DNSdata_m02             = 1.0755
+DNSdata_CTSmod          = yes
+DNSdata_rotationstate1  = rotation
+DNSdata_rotationstate2  = rotation
+DNSdata_omegaz1         = 0
+DNSdata_omegaz2         = 0
+
+DNSdata_Omega           = 0.008542860051306079 # estimate
+DNSdata_rdot            = -0.002428692805610841
+
+###############################old iterator ############################################3
+#DNSdata_linSolver               = UMFPACK
+GridIterators_UMFPACK_version   = dl
+GridIterators_verbose           = yes # no
+
+##############################new iterator ########################################
+DNSdata_linSolver = templates_GMRES_with_BlockJacobi_precon
+DNSdata_linSolver_tolFac = 1e-3
+DNSdata_linSolver_itmax = 20000
+GridIterators_GMRES_restart = 500
+##GridIterators_templates_RESID_mode = tol
+GridIterators_Preconditioner_type = spectral # fd
+#GridIterators_Preconditioner_BlockJacobi_nsb1 = 2 # 1
+GridIterators_Preconditioner_BlockJacobi_nsb2 = 2 # 1
+GridIterators_Preconditioner_BlockJacobi_nsb3 = 2 # 1
+GridIterators_Newtonstep	= backtrack
+GridIterators_Newton_atlocalMin	= quit
+
+DNSdata_EllSolver_method        = DNS_ordered_Eqn_Iterator
+DNSdata_SigmaSolve              = OuterBoxesOff
+DNSdata_SigmaSolve_tolFac       = 0.1
+DNSdata_extraSigmaSolve_every   = 6
+DNSdata_extraSigmaSolve_fac     = 1.1
+DNSdata_InnerToOuterSigmaTransition = C1 # C0 C1 C2
+DNSdata_CTS_Eqs_Iteration_order = DNSdata_Psi DNSdata_Bx DNSdata_By DNSdata_Bz DNSdata_alphaP
+
+DNSdata_guess                   = initialize_from_checkpoint TOVproduct # TaniguchiShift # TOV # TOVaverage
+DNSdata_esw                     = 0.2
+DNSdata_esw1                    = 0.4 # 1 # 0.4
+DNSdata_allow_esw1_first_at     = 0 # 15
+DNSdata_Sigma_esw               = 0.2 # 0.4
+DNSdata_Sigma_esw1              = 1
+DNSdata_allow_Sigma_esw1_first_at = -1 # 0
+DNSdata_adjust_first_at         = 0 # 8
+DNSdata_adjust                  = Py0 # forcebalance always # Py0_forcebalance always # forcebalance always
+DNSdata_adjust_mintol           = 1e-4
+DNSdata_itmax                   = 25 # 40 # 199 # 30
+DNSdata_tol                     = 1e-8
+DNSdata_analyze_xmax            = print_xmax
+DNSdata_new_q                   = FromFields
+DNSdata_center_new_q            = center_xyz # no # center_xyz # center_yz
+DNSdata_center_new_q_fac        = 1 # 0.5
+DNSdata_center_new_q_first_at   = 1
+DNSdata_drho0_inBC              = dlam # dq # dlam
+#EoS_PwP_new_q                  = Fromqgold
+#DNSdata_q_derivs               = dqg
+DNSdata_SmoothSigma             = no
+DNSdata_SmoothSigmaRegion       = 0.1
+DNSdata_SigmaMod_eps            = 0.1
+
+DNSdata_CubSph_sigma_func       = yes
+Coordinates_CubedSphere_sigma01_lmax = sqrt(n2*n3)/2
+DNSdata_CubSph_sigma_continuity = yes
+DNSdata_adjust_C1C2             = refineguess # zbrent
+DNSdata_m0_error_VectorFuncP_grid0 = grid_bak
+Coordinates_bface_options	= setnormalderiv_order3 # populate_bfaces
+
+nboxes = 38
+n1 = 26
+n2 = 26
+n3 = 26
+
+checkpoint              = yes
+checkpoint_restart_it   = 0
+checkpoint_variables    = all # auto
+
+iterate_parameters = yes
+iterate_parameter1 = n1  10 14 18 22 26
+iterate_parameter2 = n2  10 14 18 22 26
+iterate_parameter3 = n3  10 14 18 22 26
+
+finaltime = 0
+
+
+####################output #############################################
+0doutiter       = 1
+0doutput        = DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err ham momx normham normmomx
+0doutputall     = yes
+0doutput_VolumeIntegralJacobian = one
+ADMvars_normalizedConstraints = yes
+
+1doutiter       = 1
+1doutput        = DNSdata_q DNSdata_qx DNSdata_qg DNSdata_Sigma DNSdata_Sigmax DNSdata_wBx DNSdata_VRx DNSdata_Psi DNSdata_Bx DNSdata_alphaP DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err ham momx Coordinates_CubedSphere_sigma01_def Coordinates_CubedSphere_sigma01_co Coordinates_CubedSphere_sigma01 Coordinates_CubedSphere_dsigma01_dA Coordinates_CubedSphere_dsigma01_dB
+1doutputall     = yes
+
+2doutiter       = 1
+2doutput        = DNSdata_q DNSdata_qx DNSdata_qg DNSdata_Sigma DNSdata_Sigmax DNSdata_wBx DNSdata_VRx DNSdata_Psi DNSdata_Bx DNSdata_alphaP DNSdata_Psi_Err DNSdata_Bx_Err DNSdata_alphaP_Err DNSdata_Sigma_Err DNSdata_Psix DNSdata_Bxx DNSdata_alphaPx ham momx x y z X Y Z Coordinates_CubedSphere_sigma01_def Coordinates_CubedSphere_sigma01_co Coordinates_CubedSphere_sigma01 Coordinates_CubedSphere_dsigma01_dA Coordinates_CubedSphere_dsigma01_dB
+2doutputall     = yes
+
+#3doutiter      = 1
+#3doutput       = DNSdata_q
+#3doutputall    = yes
+
+outputX0_box1 = 1
+outputX0_box2 = 1
+outputX0_box3 = 1
+outputX0_box4 = 1
+outputX0_box5 = 1
+outputX0_box6 = 1
+
+outputX0_box14 = 1
+outputX0_box15 = 1
+outputX0_box16 = 1
+outputX0_box17 = 1
+outputX0_box18 = 1
+outputX0_box19 = 1
+
+outputReplaceXby_box1 = x
+outputReplaceYby_box1 = y
+outputReplaceZby_box1 = z
+outputReplaceXby_box2 = x
+outputReplaceYby_box2 = y
+outputReplaceZby_box2 = z
+outputReplaceXby_box3 = x
+outputReplaceYby_box3 = y
+outputReplaceZby_box3 = z
+outputReplaceXby_box4 = x
+outputReplaceYby_box4 = y
+outputReplaceZby_box4 = z
+outputReplaceXby_box7 = x
+outputReplaceYby_box7 = y
+outputReplaceZby_box7 = z
+outputReplaceXby_box8 = x
+outputReplaceYby_box8 = y
+outputReplaceZby_box8 = z
+outputReplaceXby_box9 = x
+outputReplaceYby_box9 = y
+outputReplaceZby_box9 = z
+outputReplaceXby_box10 = x
+outputReplaceYby_box10 = y
+outputReplaceZby_box10 = z
+
+outputReplaceXby_box14 = x
+outputReplaceYby_box14 = y
+outputReplaceZby_box14 = z
+outputReplaceXby_box20 = x
+outputReplaceYby_box20 = y
+outputReplaceZby_box20 = z
+outputReplaceXby_box15 = x
+outputReplaceYby_box15 = y
+outputReplaceZby_box15 = z
+outputReplaceXby_box21 = x
+outputReplaceYby_box21 = y
+outputReplaceZby_box21 = z
+
+outputReplaceXby_box16 = x
+outputReplaceYby_box16 = y
+outputReplaceZby_box16 = z
+outputReplaceXby_box22 = x
+outputReplaceYby_box22 = y
+outputReplaceZby_box22 = z
+outputReplaceXby_box17 = x
+outputReplaceYby_box17 = y
+outputReplaceZby_box17 = z
+outputReplaceXby_box23 = x
+outputReplaceYby_box23 = y
+outputReplaceZby_box23 = z
+
+outputReplaceXby_box26 = x
+outputReplaceYby_box26 = y
+outputReplaceZby_box26 = z
+outputReplaceXby_box27 = x
+outputReplaceYby_box27 = y
+outputReplaceZby_box27 = z
+outputReplaceXby_box28 = x
+outputReplaceYby_box28 = y
+outputReplaceZby_box28 = z
+outputReplaceXby_box29 = x
+outputReplaceYby_box29 = y
+outputReplaceZby_box29 = z
+outputReplaceXby_box32 = x
+outputReplaceYby_box32 = y
+outputReplaceZby_box32 = z
+outputReplaceXby_box33 = x
+outputReplaceYby_box33 = y
+outputReplaceZby_box33 = z
+outputReplaceXby_box34 = x
+outputReplaceYby_box34 = y
+outputReplaceZby_box34 = z
+outputReplaceXby_box35 = x
+outputReplaceYby_box35 = y
+outputReplaceZby_box35 = z
