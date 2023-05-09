@@ -6,12 +6,12 @@ Important parfiles
 
 Construct initial data for a single TOV star:
 ---------------------------------------------
-single_star.par
+single_star.par   # no elliptic solve
 
 Find maximum mass TOV star for SLy and MPA1 EoS:
 ------------------------------------------------
-SLy_maxmass.par
-MPA1_maxmass.par
+SLy_maxmass.par   # no elliptic solve
+MPA1_maxmass.par  # no elliptic solve
 
 Set up hi spin binary with SLy EoS:
 -----------------------------------
