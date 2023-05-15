@@ -1,4 +1,4 @@
-# MyConfig.example
+# MyConfig example
 #
 # The file MyConfig is included verbatim in the Makefile to determine which 
 # special libraries will be included in the build.
