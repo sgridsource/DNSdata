@@ -5,7 +5,7 @@
 #include "sgrid.h"
 #include "DNSdata.h"
 
-
+extern tGrid *SGRID_grid;
 
 /* position filepointer below the label str */
 int position_fileptr_below_label(FILE *in, char *str)
@@ -274,5 +274,186 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   prdivider(0);
   prTimeIn_s("WallTime: ");
      
+  return 0;
+}
+
+/* Interpolate ADM initial data onto point xyz[3] on sgrid's grid.
+   The vars array must be large enough to hold the number of vars we
+   set (currently that is 20). You can get this number by looking at the
+   vlpush into vlu below.
+   Note: xyz must contain the Cartesian (x,y,z) on sgrid's grid.
+         I.e. the caller may have to shift the x-coord if the center of mass
+         needs to be located at the origin... */
+int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
+{
+  tGrid *grid = SGRID_grid;
+  int pr = GetvLax("BNSdata_Interpolate_verbose", "yes");
+  tVarList *vlu;
+  tVarList *vlc;
+  int corot1 = Getv("DNSdata_rotationstate1","corotation");
+  int corot2 = Getv("DNSdata_rotationstate2","corotation");
+  int b;
+
+  //prdivider(0);
+  //PRF;printf(":\n");
+  //prTimeIn_s("WallTime: ");
+
+  /* allocate varlist */
+  vlu = vlalloc(grid);
+
+  /* add all vars to vlu */
+  vlpush(vlu, Ind("alpha"));
+  vlpush(vlu, Ind("DNSdata_Bx"));
+  vlpush(vlu, Ind("gxx"));
+  vlpush(vlu, Ind("Kxx"));
+  vlpush(vlu, Ind("DNSdata_q"));
+  vlpush(vlu, Ind("DNSdata_VRx"));
+  /* Those we do not need:
+    vlpush(vlu, Ind("DNSdata_Sigmax"));
+    vlpush(vlu, Ind("DNSdata_wBx"));
+    vlpush(vlu, Ind("rho"));
+    vlpush(vlu, Ind("jx"));
+    vlpush(vlu, Ind("Sxx"));
+  */
+
+  /* now duplicate vlu to get vlc */
+  vlc = AddDuplicateEnable(vlu, "_c");
+
+  /* write coeffs of vlu in all boxes into vlc */
+  forallboxes(grid, b)
+    spec_Coeffs_varlist(grid->box[b], vlu, vlc);
+
+
+  /* interpolate onto xyz */
+  {
+    //We need make_empty_grid if several threads are calling this function
+    //tGrid *grid_p = make_empty_grid(grid->nvariables, 0);
+    //copy_grid(grid, grid_p, 0);
+    tGrid *grid_p = grid;
+    intList *bl = alloc_intList(); /* list that contains boxes */
+
+    double x,y,z, val;
+    double gxx=-1e300;
+    double X,Y,Z;
+    int j, b;
+    int star;
+
+    /* set x,y,z */
+    x = xyz[0];
+    y = xyz[1];
+    z = xyz[2];
+    if(pr) { PRF;printf(": (x,y,z)=(%g,%g,%g)\n", x,y,z); }
+
+    /* initial guess for X,Y,Z, b: */
+    if(x>=0.0) star=STAR1;
+    else       star=STAR2;
+    clear_intList(bl);
+    bladd_ifAttrib(grid, iSIDE, star, bl);
+    bladd_ifAttrib(grid, iSIDE, ZERO, bl); /* boxes with x>0 and x<0 */
+    /*
+    errorexit("bl is missing boxes that do not belong to just one star");
+    nearest_b_XYZ_of_xyz_inboxlist(grid, bl->e,bl->n,
+                                   &b, &ind, &X,&Y,&Z, x,y,z);
+    if(grid->box[b]->COORD==CART)
+    {
+      X=x;
+      Y=y;
+      Z=z;
+    }
+    if(pr) printf("guess:  b=%d (X,Y,Z)=(%g,%g,%g)  nearest ind=%d\n", b, X,Y,Z, ind);
+    */
+    /* get X,Y,Z, b of x,y,z */
+    b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, bl, x,y,z);
+    if(pr) printf("actual: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
+    if(b<0)
+    {
+      printf("point: (x,y,z)=(%g,%g,%g)\n", x,y,z);
+      printf("error: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
+      errorexit("could not find point");
+    }
+    if( GetsLax("BNSdata_Interpolate_max_xyz_diff")!=0 )
+    {
+      double tol= Getd("BNSdata_Interpolate_max_xyz_diff");
+      tBox *box = grid_p->box[b];
+      double xs,ys,zs, diff;
+
+      if(box->x_of_X[1]==NULL) { xs=X;  ys=Y;  zs=Z; }
+      else
+      {
+        xs = box->x_of_X[1]((void *) box, -1, X,Y,Z);
+        ys = box->x_of_X[2]((void *) box, -1, X,Y,Z);
+        zs = box->x_of_X[3]((void *) box, -1, X,Y,Z);
+      }
+      diff = sqrt( (x-xs)*(x-xs) + (y-ys)*(y-ys) + (z-zs)*(z-zs) );
+      if(diff>tol)
+      {
+        printf("error: b=%d {X,Y,Z}={%.15g,%.15g,%.15g}\n", b, X,Y,Z);
+        printf("=> {xs,ys,zs}={x(X,Y,Z), y(X,Y,Z), z(X,Y,Z)} with:\n");
+        printf(" {xs,ys,zs}={%.15g,%.15g,%.15g}\n", xs,ys,zs);
+        printf("BUT {x,y,z}={%.15g,%.15g,%.15g}\n", x,y,z);
+        printf(" diff=%.15g\n", diff);
+        fflush(stdout);
+        errorexit("x(X,Y,Z), y(X,Y,Z), z(X,Y,Z) are wrong!");
+      }
+    }
+
+    /* interpolate vlu (using coeffs in vlc) to X,Y,Z in box b */
+    for(j=0; j<vlc->n; j++)
+    {
+      tBox *box = grid_p->box[b];
+      double *c = box->v[vlc->index[j]];
+
+      /* HACK: don't interpolate for some vars that are zero
+         or already known */
+      if( strcmp(VarName(vlu->index[j]),"gxx")==0 )
+        gxx = val = spec_interpolate(box, c, X,Y,Z);
+      else if( strcmp(VarName(vlu->index[j]),"gyy")==0 ||
+               strcmp(VarName(vlu->index[j]),"gzz")==0   )
+        val = gxx;
+      else if( strcmp(VarName(vlu->index[j]),"gxy")==0 ||
+               strcmp(VarName(vlu->index[j]),"gxz")==0 ||
+               strcmp(VarName(vlu->index[j]),"gyz")==0   )
+        val=0.0;
+      else if( strcmp(VarName(vlu->index[j]),"DNSdata_q")==0 )
+      {
+        if(box->MATTR!=INSIDE) val=0.0;
+        else                   val=spec_interpolate(box, c, X,Y,Z);
+      }
+      else if( strcmp(VarName(vlu->index[j]),"DNSdata_VRx")==0 ||
+               strcmp(VarName(vlu->index[j]),"DNSdata_VRy")==0 ||
+               strcmp(VarName(vlu->index[j]),"DNSdata_VRz")==0   )
+      {
+        if(box->MATTR!=INSIDE) val=0.0;
+        else if( (box->SIDE==STAR1) && corot1 ||
+                 (box->SIDE==STAR2) && corot2 )  val=0.0;
+        else val=spec_interpolate(box, c, X,Y,Z);
+      }
+      else val = spec_interpolate(box, c, X,Y,Z);
+      /* if we always interpolate we need:
+      val = spec_interpolate(box, c, X,Y,Z); */
+      if(!finit(val))
+      {
+        printf("point:  (x,y,z)=(%g,%g,%g)\n", x,y,z);
+        printf("NAN at: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
+        errorexit("spec_interpolate returned NAN, probably (X,Y,Z) was bad!");
+      }
+      if(pr) printf("%s=%g\n", VarName(vlu->index[j]), val);
+
+      /* put val into vars array */
+      vars[j] = val;
+    }
+    /* free local copies */
+    free_intList(bl);
+    //free_grid(grid_p);
+  }
+
+  /* free var and buffers */
+  vlfree(vlu);
+  VLDisableFree(vlc);
+
+  //PRF;printf(": finished interpolations and wrote all output.\n");
+  //prdivider(0);
+  //prTimeIn_s("WallTime: ");
+
   return 0;
 }
