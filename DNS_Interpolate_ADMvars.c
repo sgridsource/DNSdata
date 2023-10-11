@@ -281,9 +281,12 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
    The vars array must be large enough to hold the number of vars we
    set (currently that is 20). You can get this number by looking at the
    vlpush into vlu below.
-   Note: xyz must contain the Cartesian (x,y,z) on sgrid's grid.
-         I.e. the caller may have to shift the x-coord if the center of mass
-         needs to be located at the origin... */
+   Note1: xyz must contain the Cartesian (x,y,z) on sgrid's grid.
+          I.e. the caller may have to shift the x-coord if the center of
+          mass needs to be located at the origin...
+   Note2: Before another program can call this function sgrid has to be
+          initialized as in the Cactus thorn, but with
+          BNSdata_Interpolate_pointsfile=****NONE**** . */
 int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
 {
   tGrid *grid = SGRID_grid;
