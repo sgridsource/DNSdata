@@ -277,7 +277,9 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   return 0;
 }
 
-/* Interpolate ADM initial data onto point xyz[3] on sgrid's grid.
+/* Interpolate ADM initial data onto the npoints points stored in
+   xyz[3][npoints] on sgrid's grid.
+   The result is written into vars[nvars][npoints].
    The vars array must be large enough to hold the number of vars we
    set (currently that is 20). You can get this number by looking at the
    vlpush into vlu below.
@@ -287,7 +289,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
    Note2: Before another program can call this function sgrid has to be
           initialized as in the Cactus thorn, but with
           BNSdata_Interpolate_pointsfile=****NONE**** . */
-int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
+int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
+                                             double *xyz[3], double *vars[])
 {
   tGrid *grid = SGRID_grid;
   int pr = GetvLax("BNSdata_Interpolate_verbose", "yes");
@@ -295,7 +298,7 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
   tVarList *vlc;
   int corot1 = Getv("DNSdata_rotationstate1","corotation");
   int corot2 = Getv("DNSdata_rotationstate2","corotation");
-  int b;
+  int i, b;
 
   //prdivider(0);
   //PRF;printf(":\n");
@@ -328,6 +331,7 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
 
 
   /* interpolate onto xyz */
+  for(i=0; i<npoints; i++)
   {
     //We need make_empty_grid if several threads are calling this function
     //tGrid *grid_p = make_empty_grid(grid->nvariables, 0);
@@ -342,9 +346,9 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
     int star;
 
     /* set x,y,z */
-    x = xyz[0];
-    y = xyz[1];
-    z = xyz[2];
+    x = xyz[0][i];
+    y = xyz[1][i];
+    z = xyz[2][i];
     if(pr) { PRF;printf(": (x,y,z)=(%g,%g,%g)\n", x,y,z); }
 
     /* initial guess for X,Y,Z, b: */
@@ -443,7 +447,7 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars)
       if(pr) printf("%s=%g\n", VarName(vlu->index[j]), val);
 
       /* put val into vars array */
-      vars[j] = val;
+      vars[j][i] = val;
     }
     /* free local copies */
     free_intList(bl);
