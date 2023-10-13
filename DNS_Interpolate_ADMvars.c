@@ -278,19 +278,20 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
 }
 
 /* Interpolate ADM initial data onto the npoints points stored in
-   xyz[3][npoints] on sgrid's grid.
+   xyz[3][npoints] + xyzadd[3] on sgrid's grid.
    The result is written into vars[nvars][npoints].
    The vars array must be large enough to hold the number of vars we
    set (currently that is 20). You can get this number by looking at the
    vlpush into vlu below.
-   Note1: xyz must contain the Cartesian (x,y,z) on sgrid's grid.
-          I.e. the caller may have to shift the x-coord if the center of
+   Note1: xyz+xyzadd must contain the Cartesian (x,y,z) on sgrid's grid.
+          I.e. the caller can shift the x-coord by xyzadd if the center of
           mass needs to be located at the origin...
    Note2: Before another program can call this function sgrid has to be
           initialized as in the Cactus thorn, but with
           BNSdata_Interpolate_pointsfile=****NONE**** . */
 int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
-                                             double *xyz[3], double *vars[])
+                                             double *xyz[3], double xyzadd[3],
+                                             double *vars[])
 {
   tGrid *grid = SGRID_grid;
   int pr = GetvLax("BNSdata_Interpolate_verbose", "yes");
@@ -346,9 +347,9 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
     int star;
 
     /* set x,y,z */
-    x = xyz[0][i];
-    y = xyz[1][i];
-    z = xyz[2][i];
+    x = xyz[0][i] + xyzadd[0];
+    y = xyz[1][i] + xyzadd[1];
+    z = xyz[2][i] + xyzadd[2];
     if(pr) { PRF;printf(": (x,y,z)=(%g,%g,%g)\n", x,y,z); }
 
     /* initial guess for X,Y,Z, b: */
