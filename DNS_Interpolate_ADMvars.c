@@ -326,15 +326,15 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars,
   vlc = AddDuplicateEnable(vlu, "_c");
 
   /* set coeffs only if we init */
-  #pragma omp critical (init_coeffs)
+  if(init)
   {
-    if(init)
+    #pragma omp critical (init_coeffs)
     {
       /* write coeffs of vlu in all boxes into vlc */
       forallboxes(grid, b)
         spec_Coeffs_varlist(grid->box[b], vlu, vlc);
-      goto Free_Return;
     }
+    goto Free_Return;
   }
 
   /* interpolate onto xyz */
