@@ -278,6 +278,8 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
 }
 
 /* Interpolate ADM initial data onto point xyz[3] on sgrid's grid.
+   -spec coeffs must be initialized by calling with init=1 first
+   -afterwards we just call it with init=0 to actually interpolate
    The vars array must be large enough to hold the number of vars we
    set (currently that is 20). You can get this number by looking at the
    vlpush into vlu below.
