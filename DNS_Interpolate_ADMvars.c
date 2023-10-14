@@ -277,21 +277,18 @@ int DNS_Interpolate_ADMvars(tGrid *grid)
   return 0;
 }
 
-/* Interpolate ADM initial data onto the npoints points stored in
-   xyz[3][npoints] + xyzadd[3] on sgrid's grid.
-   The result is written into vars[nvars][npoints].
+/* Interpolate ADM initial data onto point xyz[3] on sgrid's grid.
    The vars array must be large enough to hold the number of vars we
    set (currently that is 20). You can get this number by looking at the
    vlpush into vlu below.
-   Note1: xyz+xyzadd must contain the Cartesian (x,y,z) on sgrid's grid.
-          I.e. the caller can shift the x-coord by xyzadd if the center of
+   Note1: xyz must contain the Cartesian (x,y,z) on sgrid's grid.
+          I.e. the caller may have to shift the x-coord if the center of
           mass needs to be located at the origin...
    Note2: Before another program can call this function sgrid has to be
           initialized as in the Cactus thorn, but with
           BNSdata_Interpolate_pointsfile=****NONE**** . */
-int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
-                                             double *xyz[3], double xyzadd[3],
-                                             double *vars[])
+int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(double xyz[3], double *vars,
+                                             int init)
 {
   tGrid *grid = SGRID_grid;
   int pr = GetvLax("BNSdata_Interpolate_verbose", "yes");
@@ -299,7 +296,7 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
   tVarList *vlc;
   int corot1 = Getv("DNSdata_rotationstate1","corotation");
   int corot2 = Getv("DNSdata_rotationstate2","corotation");
-  int i, b;
+  int b;
 
   //prdivider(0);
   //PRF;printf(":\n");
@@ -326,13 +323,19 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
   /* now duplicate vlu to get vlc */
   vlc = AddDuplicateEnable(vlu, "_c");
 
-  /* write coeffs of vlu in all boxes into vlc */
-  forallboxes(grid, b)
-    spec_Coeffs_varlist(grid->box[b], vlu, vlc);
-
+  /* set coeffs only if we init */
+  #pragma omp critical (init_coeffs)
+  {
+    if(init)
+    {
+      /* write coeffs of vlu in all boxes into vlc */
+      forallboxes(grid, b)
+        spec_Coeffs_varlist(grid->box[b], vlu, vlc);
+      goto Free_Return;
+    }
+  }
 
   /* interpolate onto xyz */
-  for(i=0; i<npoints; i++)
   {
     //We need make_empty_grid if several threads are calling this function
     //tGrid *grid_p = make_empty_grid(grid->nvariables, 0);
@@ -347,9 +350,9 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
     int star;
 
     /* set x,y,z */
-    x = xyz[0][i] + xyzadd[0];
-    y = xyz[1][i] + xyzadd[1];
-    z = xyz[2][i] + xyzadd[2];
+    x = xyz[0];
+    y = xyz[1];
+    z = xyz[2];
     if(pr) { PRF;printf(": (x,y,z)=(%g,%g,%g)\n", x,y,z); }
 
     /* initial guess for X,Y,Z, b: */
@@ -370,8 +373,12 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
     }
     if(pr) printf("guess:  b=%d (X,Y,Z)=(%g,%g,%g)  nearest ind=%d\n", b, X,Y,Z, ind);
     */
-    /* get X,Y,Z, b of x,y,z */
-    b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, bl, x,y,z);
+
+    #pragma omp critical (XYZ_bl_from_xyz)
+    {
+      /* get X,Y,Z, b of x,y,z */
+      b=DNSgrid_Get_BoxAndCoords_of_xyz(grid_p, &X,&Y,&Z, bl, x,y,z);
+    }
     if(pr) printf("actual: b=%d (X,Y,Z)=(%g,%g,%g)\n", b, X,Y,Z);
     if(b<0)
     {
@@ -448,16 +455,18 @@ int SGRID_DNSdata_Interpolate_ADMvars_to_xyz(int npoints,
       if(pr) printf("%s=%g\n", VarName(vlu->index[j]), val);
 
       /* put val into vars array */
-      vars[j][i] = val;
+      vars[j] = val;
     }
     /* free local copies */
     free_intList(bl);
     //free_grid(grid_p);
   }
 
+Free_Return:
   /* free var and buffers */
+  //VLDisableFree(vlc);
+  vlfree(vlc); /* free varlist only, but keep vars with coeffs for later */
   vlfree(vlu);
-  VLDisableFree(vlc);
 
   //PRF;printf(": finished interpolations and wrote all output.\n");
   //prdivider(0);
