@@ -3441,6 +3441,7 @@ int DNSdata_analyze(tGrid *grid)
   int itemp3 = Ind("DNSdata_temp3");
   double *temp1 = grid->box[1]->v[itemp1];
   double xmax1, qmax1, xmax2, qmax2;
+  double rho0max1, Pmax1, rho0max2, Pmax2, rhoE, drho0dhm1;
   int bi1, bi2;
   double Xmax1,Ymax1, Xmax2,Ymax2;
   double Zmax1,Zmax2;
@@ -3589,6 +3590,10 @@ int DNSdata_analyze(tGrid *grid)
   printf("DNSdata_analyze: global qmax2=%g in box%d\n"
          "                 at (x,y,z)=(%.11g,%.11g,%.11g)\n",
          global_qmax2, bi2, glob_xmax2,glob_ymax2,glob_zmax2);
+
+  /* set rho0max1/2, Pmax1/2 */
+  EoS_T0->vars_from_hm1(qmax1, &rho0max1, &Pmax1, &rhoE, &drho0dhm1);
+  EoS_T0->vars_from_hm1(qmax2, &rho0max2, &Pmax2, &rhoE, &drho0dhm1);
 
   /* compute spin estimates: 
      J_ADM1 = L_ADM1 + S_ADM1,  
@@ -3752,6 +3757,8 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     fprintf(fp, "xmax1\t\t%+.19g\n", Getd("DNSdata_actual_xmax1"));
     fprintf(fp, "xout1\t\t%+.19g\n", xout1);
     fprintf(fp, "qmax1\t\t%.19g\n", qmax1);
+    fprintf(fp, "rho0max1\t%.19g\n", rho0max1);
+    fprintf(fp, "Pmax1\t\t%.19g\n", Pmax1);
     fprintf(fp, "chi1\t\t%.19g\n", chi1);
     /* fprintf(fp, "Sx_ADM1\t\t%.19g\n", Sx_ADM1);
        fprintf(fp, "Sy_ADM1\t\t%.19g\n", Sy_ADM1);
@@ -3784,6 +3791,8 @@ TOV_m1,TOV_r_surf1, TOV_Psis1);
     fprintf(fp, "xmax2\t\t%+.19g\n", Getd("DNSdata_actual_xmax2"));
     fprintf(fp, "xout2\t\t%+.19g\n", xout2);
     fprintf(fp, "qmax2\t\t%.19g\n", qmax2);
+    fprintf(fp, "rho0max2\t%.19g\n", rho0max2);
+    fprintf(fp, "Pmax2\t\t%.19g\n", Pmax2);
     fprintf(fp, "chi2\t\t%.19g\n", chi2);
     /* fprintf(fp, "Sx_ADM2\t\t%.19g\n", Sx_ADM2);
        fprintf(fp, "Sy_ADM2\t\t%.19g\n", Sy_ADM2);
