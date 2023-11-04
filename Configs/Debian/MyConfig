@@ -15,7 +15,8 @@ libpaths += src/utility/LinAlg
 libpaths += src/physics/Poisson3
 
 # DNSdata and EoS at T=0
-repo = giter@quark.physics.fau.edu:
+#repo = git@github.com:sgridsource
+repo = https://github.com/sgridsource
 projects += $(repo)/EoS_T0
 projects += $(repo)/DNSdata
 
