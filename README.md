@@ -8,7 +8,7 @@ If you need low eccentricity orbits, please checkout the README in
 For DNSdata to work we also need the module 
 [EoS_T0](https://github.com/sgridsource/EoS_T0),
 as well as the libraries mentioned on 
-[https://www.physics.fau.edu/~wolf/Research/FAU-sgrid](https://www.physics.fau.edu/~wolf/Research/FAU-sgrid)
+[https://wofti.github.io/Research/FAU-sgrid](https://wofti.github.io/Research/FAU-sgrid)
 
 
 # Example parameter files:
