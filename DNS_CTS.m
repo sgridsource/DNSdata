@@ -663,7 +663,7 @@ BeginCFunction[] := Module[{},
   pr["double rhMpow = Getd(\"DNSdata_SigmaMod_pow\");\n"];
   pr["double rhMpowm1 = rhMpow - 1.;\n"];
   pr["double qmax1 = Getd(\"DNSdata_qmax1\");\n"];
-  pr["double qmax2 = Getd(\"DNSdata_qmax2\");\n"];
+  pr["double qmax2 = Getd(\"DNSdata_qmax2\") + qmax1*1e-20; //avoid qmax2=0\n"];
   pr["int FakeMatterOutside = Getv(\"DNSdata_Sigma_surface_BCs\",\"FakeMatterOutside\");\n"];
   pr["int FakeT0 = Getv(\"DNSdata_FakeMatterType\",\"rhoEQ-lam\");\n"];
   pr["int LapSig = Getv(\"DNSdata_FakeMatterType\",\"LaplaceSigmaOutside\");\n"];

@@ -1,6 +1,6 @@
 /* DNS_CTS.c */
-/* Copyright (C) 2005-2008 Wolfgang Tichy, 5.3.2022 */
-/* Produced with Mathematica */
+/* Copyright (C) 2005-2022 Wolfgang Tichy, 20.6.2024 */
+/* Produced with Mathematica 4.0 for Linux (July 26, 1999)*/
 
 #include "sgrid.h"
 #include "DNSdata.h"
@@ -42,7 +42,7 @@ double rhMeps = Getd("DNSdata_SigmaMod_eps");
 double rhMpow = Getd("DNSdata_SigmaMod_pow");
 double rhMpowm1 = rhMpow - 1.;
 double qmax1 = Getd("DNSdata_qmax1");
-double qmax2 = Getd("DNSdata_qmax2");
+double qmax2 = Getd("DNSdata_qmax2") + qmax1*1e-20; //avoid qmax2=0
 int FakeMatterOutside = Getv("DNSdata_Sigma_surface_BCs","FakeMatterOutside");
 int FakeT0 = Getv("DNSdata_FakeMatterType","rhoEQ-lam");
 int LapSig = Getv("DNSdata_FakeMatterType","LaplaceSigmaOutside");
@@ -684,7 +684,7 @@ double xrdotor3;
 
 
 
-if(blkinfo!=NULL) {     int n1 = box->n1;     int n2 = box->n2;     int n3 = box->n3;     int k = kOfInd_n1n2(ijk,n1,n2);     int j = jOfInd_n1n2_k(ijk,n1,n2,k);     int i = iOfInd_n1n2_jk(ijk,n1,n2,j,k);     int sbi = blkinfo->sbi;     int sbj = blkinfo->sbj;     int sbk = blkinfo->sbk;     int nsb1 = blkinfo->nsb1;     int nsb2 = blkinfo->nsb2;     int nsb3 = blkinfo->nsb3;     int i1,i2, j1,j2, k1,k2;     IndexRangesInSubbox(i1,i2, j1,j2, k1,k2, sbi,sbj,sbk, nsb1,nsb2,nsb3);     if(i<i1 || i>=i2) continue;     if(j<j1 || j>=j2) continue;     if(k<k1 || k>=k2) continue;   } 
+if(blkinfo!=NULL) {     int n1 = box->n1;     int n2 = box->n2;     int n3 = box->n3;     int k = kOfInd_n1n2(ijk,n1,n2);     int j = jOfInd_n1n2_k(ijk,n1,n2,k);     int i = iOfInd_n1n2_jk(ijk,n1,n2,j,k);     int sbi = blkinfo->sbi;     int sbj = blkinfo->sbj;     int sbk = blkinfo->sbk;     int nsb1 = blkinfo->nsb1;     int nsb2 = blkinfo->nsb2;     int nsb3 = blkinfo->nsb3;     int i1,i2, j1,j2, k1,k2;     IndexRangesInSubbox(i1,i2, j1,j2, k1,k2, sbi,sbj,sbk, nsb1,nsb2,nsb3);     if(i<i1 || i>=i2) continue;     if(j<j1 || j>=j2) continue;     if(k<k1 || k>=k2) continue;   }
 
 OmegaCrossR1
 =
@@ -873,7 +873,7 @@ pow2(Psim2)
 ;
 
 
-EoS_T0->vars_from_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1); 
+EoS_T0->vars_from_hm1(q[ijk],&rho0, &P, &rhoE, &drho0dhm1);
 
 
 
@@ -1534,7 +1534,7 @@ Sigma[ijk]
 } else { /* if (!corot) */
 
 
-if(MATTRinside) { 
+if(MATTRinside) {
 
 ddSigCoef
 =
@@ -1556,13 +1556,13 @@ drho0PLUSrho0dLnalphaPsi2oh1*dSigmaUp1 +
 ;
 
 
-} else if(MATTRtouch) { 
+} else if(MATTRtouch) {
 
 
-if(FakeMatterOutside) { 
+if(FakeMatterOutside) {
 
 
-if(LapSig) { 
+if(LapSig) {
 
 FSigma[ijk]
 =
@@ -1570,7 +1570,7 @@ ddSigma11[ijk] + ddSigma22[ijk] + ddSigma33[ijk]
 ;
 
 
-} else { 
+} else {
 
 hf
 =
@@ -1734,10 +1734,10 @@ drhofPLUSrhofdLnalphaPsi21*dSigmaUp1 +
 ;
 
 
-} 
+}
 
 
-} else { 
+} else {
 
 FSigma[ijk]
 =
@@ -1745,10 +1745,10 @@ dddSigmadlam3[ijk] + 2.*ddSigmadlam2[ijk] + dSigmadlam[ijk]
 ;
 
 
-} /* end !FakeMatterOutside */ 
+} /* end !FakeMatterOutside */
 
 
-} else { 
+} else {
 
 FSigma[ijk]
 =
@@ -1756,7 +1756,7 @@ Sigma[ijk]
 ;
 
 
-} 
+}
 
 }
 /* if (FakeT0) */
@@ -2527,7 +2527,7 @@ lSigma[ijk]
 } else { /* if (!corot) */
 
 
-if(MATTRinside) { 
+if(MATTRinside) {
 
 lLnuzero
 =
@@ -2713,13 +2713,13 @@ dlSigmaUp1*drho0PLUSrho0dLnalphaPsi2oh1 +
 ;
 
 
-} else if(MATTRtouch) { 
+} else if(MATTRtouch) {
 
 
-if(FakeMatterOutside) { 
+if(FakeMatterOutside) {
 
 
-if(LapSig) { 
+if(LapSig) {
 
 FlSigma[ijk]
 =
@@ -2727,7 +2727,7 @@ ddlSigma11[ijk] + ddlSigma22[ijk] + ddlSigma33[ijk]
 ;
 
 
-} else { 
+} else {
 
 hf
 =
@@ -3050,10 +3050,10 @@ dlSigmaUp1*drhofPLUSrhofdLnalphaPsi21 +
 ;
 
 
-} 
+}
 
 
-} else { 
+} else {
 
 FlSigma[ijk]
 =
@@ -3061,10 +3061,10 @@ dddlSigmadlam3[ijk] + 2.*ddlSigmadlam2[ijk] + dlSigmadlam[ijk]
 ;
 
 
-} /* end !FakeMatterOutside */ 
+} /* end !FakeMatterOutside */
 
 
-} else { 
+} else {
 
 FlSigma[ijk]
 =
@@ -3072,7 +3072,7 @@ lSigma[ijk]
 ;
 
 
-} 
+}
 
 }
 /* if (FakeT0) */
@@ -3113,7 +3113,7 @@ CoordFac[ijk]*FlSigma[ijk]
 
 
 
-} /* end of points loop */ 
+} /* end of points loop */
 
 } /* end of boxes */
 
@@ -3121,4 +3121,4 @@ CoordFac[ijk]*FlSigma[ijk]
 }  /* end of function */
 
 /* DNS_CTS.c */
-/* nvars = 182, n* = 1495,  n/ = 228,  n+ = 1223, n = 2946, O = 1 */
+/* nvars = 182, n* = 1496,  n/ = 230,  n+ = 1225, n = 2951, O = 1 */
