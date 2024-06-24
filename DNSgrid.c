@@ -122,7 +122,9 @@ int set_DNS_boxsizes(tGrid *grid)
     m1 = m01;
     m2 = m02;
     P_core1 = P_core2 = 1e-3;
-    rf_surf1 = rf_surf2 = 4;
+    Phic1 = Phic2 = -0.25;
+    Psic1 = Psic2 = 1.125;
+    rf_surf1 = rf_surf2 = 4.;
     printf("   Using fake values for m01, m02, P_core1, P_core2, rf_surf1, rf_surf2\n");
     goto Set_Omega_xCM_C1_C2;
   }
